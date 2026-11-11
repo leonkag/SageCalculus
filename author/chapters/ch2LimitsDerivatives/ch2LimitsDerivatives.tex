@@ -1,0 +1,954 @@
+%\chapter{Limits and Derivatives}
+
+\documentclass{ximera}
+
+\input{../../xmPreamble}
+\author{Leon Kaganovskiy}
+\title{Limits and Derivatives}
+\begin{document}
+\begin{abstract}
+This chapter introduces two fundamental concepts of calculus: limits and derivatives. We use SageMath to explore these concepts numerically, symbolically, and graphically, helping us understand how a function behaves near a point and how its rate of change is defined. These ideas provide the foundation for differential calculus and for many of its applications in mathematics, science, and other fields.
+\end{abstract}
+\maketitle
+
+%  \begin{image}[15cm] %\sidecaption[t]   remove ch2 etc reference local directory
+
+\section{Limits and Continuity}
+
+Let's begin limits consideration with a few examples of limits of function from numerical, analytical, and graphical perspectives.
+In the function $f(x)=\frac{x^3-8}{x-2}$ below, the direct substitution produces an indeterminate expression $\frac{0}{0}$ at $x=2$,   Computing the function values close to the point of interest (using for loop) as well as graphing it convinces us that the limit exists and is equal to $12$.  Analytically, the numerator of $f(x)$ can be factored, which results in cancellation:
+$$ f(x)=\frac{x^3-8}{x-2} = \frac{(x-2)(x^2+2x+4)}{x-2} =x^2+2x+4$$
+SageMath can accomplish this with \texttt{factor()} and \texttt{full\_simplify()} commands.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+f(x)=(x^3-8)/(x-2);  show('f(x) = ',f(x))
+L = [1.9,1.95,1.99,1.999,1.9999,2.0001,2.001,2.01,2.1]; 
+n = len(L)
+for i in range(n):
+    show('For x = ', L[i], '  f(x) = ', f(L[i]))
+L = limit(f(x),x=2); show('limit(f(x),x=2) = ', L)    
+
+f(x)=(x^3-8)/(x-2);  show('f(x) = ',f(x))
+g(x) = f(x).full_simplify()
+show('f(x).full_simplify() = g(x) = ',g(x))
+show('g(2) = ', g(2))  
+plot(f(x),(x,-2,4), gridlines=True)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig.~\ref{LimitCancel}
+\begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{LimitCancel.png}
+\caption{Limits cancelling term}
+\label{LimitCancel}       % Give a unique label
+\end{image}
+
+
+The steps done in the previous SageMath cell are algorithmic and well coded into a function def function\_values\(\) below.  Let's apply it to function $f(x)=\frac{\sqrt{x+4}-2}{x}$.  In this case, the numerator cannot be factored, but multiplying top and bottom by sign reciprocal works.   Note that in the code, the numerator must be expanded to cancel out 4 and then x.
+$$f(x)=\frac{\sqrt{x+4}-2}{x} = \frac{(\sqrt{x+4}-2)(\sqrt{x+4}+2)}{x(\sqrt{x+4}+2)}=\frac{x+4-4}{x(\sqrt{x+4}+2)}=$$
+$$\frac{x}{x(\sqrt{x+4}+2)}=\frac{1}{\sqrt{x+4}+2} \rightarrow \frac{1}{4} \ \ \ as \ x \rightarrow 0$$
+
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+def function_values(x,f,x0):
+    list = [x0-0.1,x0-0.01,x0-0.001,x0-0.0001,x0-0.00001,
+            x0+0.00001,x0+0.0001,x0+0.001,x0+0.01,x0+0.1]
+    n = len(list)
+    show('f(x) = ',f)
+    for i in range(n):
+         show('For x = ', list[i], '  f(x) = ', f.subs(x=list[i]))
+    L = limit(f,x=0); show('limit(f(x),x=0) = ', L) 
+    
+f = (sqrt(x+4)-2)/x
+function_values(x,f,0)   
+plot(f,(x,-4,4), figsize = (4,3), gridlines=True)
+
+f(x)=(sqrt(x+4)-2)/x;  show('f(x) = ',f(x))
+g(x)=expand((sqrt(x+4)-2)*(sqrt(x+4)+2))/(x*(sqrt(x+4)+2));  
+show('g(x) = ',g(x).full_simplify())
+show('g(0) = ', g(0))  
+plot(f(x),(x,-2,4), gridlines=True)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig.~\ref{LimitSquare}
+\begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{LimitSquare.png}
+\caption{Limit Square}
+\label{LimitSquare}       % Give a unique label
+\end{image}
+
+
+Next,  we illustrate three examples where the limits do not exist at $x=0$ whether due to jump, function going to infinity, or extreme oscillation, respectively.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+p1 = plot(abs(x)/x,(x,-2,2), ymin=-2, ymax=2, figsize =(5,4),
+  legend_label= "abs(x)/x",color='red', gridlines=True)
+p2 = plot(1/x,(x,-2,2), ymin=-10, ymax=10, figsize =(5,4),
+  legend_label= "1/x",color='green', gridlines=True)
+p3 = plot(sin(1/x),(x,-2,2), ymin=-1, ymax=1, figsize =(5,4),
+  legend_label= "sin(1/x)",color='blue', gridlines=True)
+G = graphics_array([[p1, p2, p3]])
+G.show(figsize=[8, 3])
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{NoLimits}
+\begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{NoLimits.png}
+\caption{Limit fails to exist due to jump, infinity, or extreme oscillation}
+\label{NoLimits}       % Give a unique label
+\end{image}
+
+
+SageMath can compute special trigonometric limits.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+p1 = plot(sin(x)/x,(x,-4,4), ymin=-2, ymax=2, figsize =(5,4),
+  legend_label= "sin(x)/x",color='red', gridlines=True)
+p2 = plot((cos(x)-1)/x,(x,-2,2), ymin=-1, ymax=1, figsize =(5,4),
+  legend_label= "(cos(x)-1)/x;",color='green', gridlines=True)
+p3 = plot(sin(4*x)/x,(x,-2,2), ymin=-1, ymax=4, figsize =(5,4),
+  legend_label= "sin(4*x)/x",color='blue', gridlines=True)
+G = graphics_array([[p1, p2, p3]])
+G.show(figsize=[8, 3])
+L = limit(sin(x)/x,x=0); show('limit(sin(x)/x,x=0) = ', L)
+L = limit((cos(x)-1)/x,x=0); show('limit((cos(x)-1)/x,x=0) = ', L)
+L = limit(sin(4*x)/x,x=0); show('limit(sin(4*x)/x,x=0) = ', L)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{TrigLimits}
+\begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{TrigLimits.png}
+\caption{Trigonometric Limits}
+\label{TrigLimits}       % Give a unique label
+\end{image}
+
+
+In previous chapter we illustrated the \texttt{piecewise()} function usage, however SageMath has trouble computing one sided limits for such a function.   Therefore, a better way to deal with a piecewise function for limits is to define two functions left and right of the breakpoint separately and plot them on respective domains.   The function below has a jump with different one-sided limits and, as a result, no limit at $x=1$.
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+fL(x) = x-3;  fR(x)=x^2;   c = 1
+show('fL(x)= ',fL(x),' fR(x) = ',fR(x),
+     ' connecting at point c = ',c)
+L = limit(fL(x),x=c,dir='-'); show('Left limit = ',L)
+R = limit(fR(x),x=c,dir='+'); show('Right limit = ',R)
+p1 = plot(fL(x),(x,-4,c), ymin=-10, ymax=10, 
+          figsize = (4,3), gridlines=True)
+p2 = plot(fR(x),(x, c,4), ymin=-10, ymax=10, gridlines=True)
+(p1+p2).show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{LeftRightLimit}
+\begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{LeftRightLimit.png}
+\caption{Piecewise function with a jump}
+\label{LeftRightLimit}       % Give a unique label
+\end{image}
+
+
+
+
+%The idea of limit can be used to define absolute zero temperature.  The volume of a gas increases linearly with increasing temperature.   We use the known function to generate points and fit them back specifying a linear model and using \texttt{find\_fit()}.  In reality, the data are obtained experimentally.  Taking a limit of the resulting line approximation to zero volume, we obtain $T \approx -273^o$.   SageMath's ability to superimpose the plots is particularly useful here as we superimpose the scatterplot of data points and a regular linear function plot.
+%
+%\begin{programcode}{SageMath Code and Output:}
+%\begin{verbatim}
+%var('T,V,a,b')
+%# artificially generated data points:
+%V = 0.08213*T +  22.4324   
+%Tv = [-100,-75,-50,-25,0,25,50,75,100]; 
+%n = len(Tv); data = []  # initially data is an empty list
+%for j in range(n) :
+%    data.append( [Tv[j],N(V(T=Tv[j])) ] ) # data is appended 
+%    
+%model(T) = a*T + b
+%sol = find_fit(data,model)   
+%show(sol)
+%a = sol[0].rhs();  b = sol[1].rhs(); 
+%show('Temperature as function of volume: T= (V-',
+%                            b,')/',round(a,3))
+%show('Zero volume is achieved in the limit V->0 \n')
+%show('at absolute zero temperature T = ',-b/a)
+%
+%p1 = scatter_plot( data, facecolor='red', gridlines=True) 
+%p2 = plot(a*T + b,(T,-300,100),legend_label='fitted model',\
+%         figsize = (5,4),color='green', gridlines=True) 
+%
+%plot_all = p1 + p2;  plot_all.show()
+%\end{verbatim}
+%\end{programcode}
+%The output is shown in Fig \ref{AbsZero}
+%\begin{image}[15cm]
+%%\sidecaption[t]
+%\includegraphics[scale=.65]{AbsZero.png}
+%\caption{Using limits to find absolute zero temperature}
+%\label{AbsZero}       % Give a unique label
+%\end{image}
+
+We can use SageMath to illustrate the Intermediate Value Theorem. The polynomial is negative at 0 and positive at 1, therefore it must have a root in between. The numerical routine \texttt{find\_root} finds this root with high accuracy.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+P(x)= 2*x^3+x-1;   show(P(x))
+sol = find_root(P(x),0,1); 
+show('the root is: ',sol)
+plot(P(x),(x,-3,3), ymin=-10, ymax=10, 
+     figsize = (4,3), gridlines=True)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{IntermedValTheor}
+\begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{IntermedValTheor.png}
+\caption{Intermediate value theorem}
+\label{IntermedValTheor}       % Give a unique label
+\end{image}
+
+
+A rational function provides an excellent illustration of infinite one-sided limits at the location of vertical asymptotes as well as limits at infinity at the horizontal asymptotes.  In addition, it is very important to factor the numerator and denominator to look for possible cancellation implying that not all zeros the of original denominator lead to vertical asymptotes.   In the example below $x+2$ cancels out and there is no vertical asymptote at $x=-2$.  The highest power in the numerator and denominator are the same, so there is a horizontal asymptote at the ratio of coefficients $y=\frac{3}{2}$.
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+N(x)=3*(x^2-4);   D(x)=2*(x^2-3*x-10); 
+show('factored numerator = ', factor(N(x)))
+show('factored denominator = ', factor(D(x)))
+P(x)=N(x)/D(x); P(x)=P(x).full_simplify()
+show('simplified rational function = ',P(x))
+show('Zeros of denominator (up to cancellation)')
+show(' give vertical asymptotes: ',solve(D(x)==0,x))
+show(' limit(P(x),x=5, dir=-) = ', limit(P(x),x=5, dir='-'))
+show(' limit(P(x),x=5, dir=+) = ', limit(P(x),x=5, dir='+'))
+show('Possible Horizontal Asymptotes, left and and right limits at infinity:')
+show(' limit(P(x),x=-oo) = ', limit(P(x),x=-oo))
+show(' limit(P(x),x= oo) = ', limit(P(x),x= oo))     
+plot([P(x),3/2],(x,-7,15), ymin=-20, ymax=20, \
+ figsize=(4,3),color = ['blue','green'],gridlines=True)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{RationalInfLimits}
+\begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{RationalInfLimits.png}
+\caption{Rational function, infinite limits}
+\label{RationalInfLimits}       % Give a unique label
+\end{image}
+
+
+The rational function below has the highest power of the numerator (linear=1) that is lower than the denominator's highest power 2 (quadratic), so $y=0$ is the horizontal asymptote.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+N(x)=3*(x^2-4);   D(x)=2*(x^2-3*x-10); 
+N(x)=x;   D(x)=x^2-1; ZerosD = solve(D(x)==0,x); 
+show('factored numerator = ', factor(N(x)))
+show('factored denominator = ', factor(D(x)))
+P(x)=N(x)/D(x); P(x)=P(x).full_simplify()
+show('simplified rational function = ',P(x))
+show('Zeros of denominator (up to cancellation)')
+show(' give vertical asymptotes: ',solve(D(x)==0,x))
+show('Possible Horizontal Asymptotes, left and')
+show(' right limits at infinity:')
+L = limit(P(x),x=-oo); R = limit(P(x),x=oo)
+show(' limit(P(x),x=-oo) = ', L)
+show(' limit(P(x),x= oo) = ', R)  
+plot([P(x),L,R],(x,-7,7), ymin=-20, ymax=20, \
+ figsize=(4,3),color = ['blue','green'],gridlines=True)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{RationalLower}
+\begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{RationalLower.png}
+\caption{Rational function, lower power on top}
+\label{RationalLower}       % Give a unique label
+\end{image}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Differentiation}
+
+%The SageMath code illustrates the steps in computing derivatives via limit definition.  Needless to say, SageMath can compute it directly, which will be shown shortly.
+%
+%\begin{programcode}{SageMath Code and Output:}
+%\begin{verbatim}
+%reset();  var('h')
+%f(x)=x^3+2*x
+%Numerator = f(x+h)-f(x);
+%show('Numerator = ', Numerator)
+%show(' factored: ',factor(Numerator))
+%Quotient = Numerator/h; 
+%show('Quotient = ', Quotient.full_simplify())
+%fp(x) = limit(Quotient,h=0); 
+%show('Limit of quotient = fp(x) = ',fp(x))
+%\end{verbatim}
+%\end{programcode}
+%The output is shown in Fig \ref{DerivatLimit}
+%\begin{image}[15cm]
+%%\sidecaption[t]
+%\includegraphics[scale=.65]{DerivatLimit.png}
+%\caption{Computing derivative via limit definition}
+%\label{DerivatLimit}       % Give a unique label
+%\end{image}
+
+SageMath has function \texttt{derivative()} which computes derivative automatically.  In the problem below we use it to obtain the equation of tangent line at a given point.  To illustrate the analytical solution:
+$$  f(x)=x^3+2x \ \ \ \Rightarrow \ \ \ f'(x)=3x^2+2 $$
+$$ at \ x_1=-1 \ \ \ \ \ y_1 = f(x_1)=f(-1)=(-1)^3+2(-1) = -3 $$
+$$ slope=m=f'(x_1)=f'(-1)=3(-1)^2+2=5 \ \ \ \ \ \ \Rightarrow $$
+$$ y_{tangent}=y_1+m(x-x_1)=-3+5(x+1)=5x+2   $$
+The steps lend themselves well to an algorithm coded as a function below.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+def tang_line(x,f,x1,L,R,D,U):
+    fp(x) = derivative(f(x),x)
+    show('f(x) = ',f(x),'  its derivative  = ',fp(x))
+    y1 = f(x1);  m = fp(x1);  b = y1-m*x1;
+    show('y1 = ',y1,'  slope = m = ',m, ' y-intercept = b = ',b)
+    ytang(x) = y1 + m*(x-x1);  
+    show('tangent line = ',ytang(x))
+    plot1 = plot(f(x) ,(x,L,R), ymin=D, ymax=U, figsize = (4,3),
+       legend_label= "f(x)",color='red', gridlines=True)
+    plot2 = plot(fp(x),(x,L,R), ymin=D, ymax=U, \
+       legend_label= "fp(x)",color='blue', gridlines=True)
+    plot3 = plot(ytang(x),(x,L,R), ymin=D, ymax=U,
+       legend_label= "ytang(x)",color='green', gridlines=True)
+    plot_all = plot1 + plot2 + plot3; plot_all.show()
+    
+f(x)=x^3+2*x;  x1 = -1
+tang_line(x,f,x1,-3,3,-10,10)   
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{TangLineQubic}
+\begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{TangLineQubic.png}
+\caption{Tangent line for cubic curve}
+\label{TangLineQubic}       % Give a unique label
+\end{image}
+
+A similar tangent line problem with trigonometric functions is shown below.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+f(x)=3*sin(x)-2*cos(x);  x1 = pi/2
+tang_line(x,f,x1,-2,6,-5,5)  
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{TangLineTrig}
+\begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{TangLineTrig.png}
+\caption{Tangent line for a trigonometric function}
+\label{TangLineTrig}       % Give a unique label
+\end{image}
+
+
+%In the Calculus course, special techniques for the derivatives of product and quotient are studied, but SageMath already has all these inside \texttt{derivative()} algorithms.  
+%$$ f(x)=3x^2sin(x) \ \ \ \  \Rightarrow \ \ \ \ f'(x) = 6xsin(x) + 3x^2cos(x) $$
+%$$ f \left( \frac{\pi}{2} \right)=3 \left( \frac{\pi}{2} \right)^2sin \left( \frac{\pi}{2} \right) = 3 \left( \frac{\pi}{2} \right)^2 $$
+%$$ f' \left( \frac{\pi}{2} \right)=6\frac{\pi}{2} sin \left( \frac{\pi}{2} \right) + 3  \left( \frac{\pi}{2} \right)^2 cos \left( \frac{\pi}{2} \right)= 3\pi $$
+%$$y_{tangent}=y_1+m(x-x_1)=3 \left( \frac{\pi}{2} \right)^2+3\pi \left(x- \frac{\pi}{2} \right) $$
+%\begin{programcode}{SageMath Code and Output:}
+%\begin{verbatim}
+%f(x)=3*x^2*sin(x);  x1 = pi/2
+%tang_line(x,f,x1,-1,3,-5,25)  
+%\end{verbatim}
+%\end{programcode}
+%The output is shown in Fig \ref{DerivProdRule}
+%\begin{image}[15cm]
+%%\sidecaption[t]
+%\includegraphics[scale=.65]{DerivProdRule.png}
+%\caption{Tangent line and derivative illustrating product rule}
+%\label{DerivProdRule}       % Give a unique label
+%\end{image}
+%
+%For the rational function below, the quotient rule gives:
+%$$ f(x)=\frac{3x^5-1}{x^2+1} \ \ \ \ \ \Rightarrow \ \ \ \ \  f'(x)=\frac{15x^4(x^2+1) -(3x^5-1)2x }{(x^2+1)^2}$$
+%As often happens with Computer Algebra Systems (CAS), the SageMath output looks slightly different but mathematically equivalent.
+%
+%\begin{programcode}{SageMath Code and Output:}
+%\begin{verbatim}
+%f(x)=(3*x^5-1)/(x^2+1);  x1 = 1 
+%tang_line(x,f,x1,-1,3,-5,25)   
+%\end{verbatim}
+%\end{programcode}
+%The output is shown in Fig \ref{DerivQuotient}
+%\begin{image}[15cm]
+%%\sidecaption[t]
+%\includegraphics[scale=.65]{DerivQuotient.png}
+%\caption{Tangent line and derivative illustrating quotient rule}
+%\label{DerivQuotient}       % Give a unique label
+%\end{image}
+
+
+The problem below considers a classic application of derivatives to Physics.  A ball is thrown up with a speed $48 \ ft/s$.   The gravity acceleration in these units is $32 \ ft/s^2$ and is directed down.  The standard formula $h(t)=v_0t+at^2/2$ for height is used and its derivative gives the ball's velocity.  The time when this velocity is zero gives the highest point in the ball's trajectory.  it is easy to find analytically, but in the SageMath code below we use \texttt{solve(v(t)==0,t)} to find this time and extract the solution with \texttt{sol[0].rhs()} rounding it to 3 digits with \texttt{N(..,3)}.  We plug it back into the height function with \texttt{h(tm)} to find the maximum height.
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('t')
+g = 32;  v0=48; 
+h(t) = v0*t-g*t^2/2
+v(t) = derivative(h(t),t)
+sol = solve(v(t)==0,t);  tm = N(sol[0].rhs(),3)
+show('Highest point: h(tm) = ',h(tm), ' at time tm = ',tm)
+a = 0; b = 3.1; c = -60; d = 55; # bounds for the plot box
+plot1 = plot(h(t),(t,a,b), ymin=c, ymax=d, figsize = (4,3),\
+     legend_label= "h(t)",color='red' , gridlines=True)
+plot2 = plot(v(t),(t,a,b), ymin=c, ymax=d, \
+     legend_label= "v(t)",color='blue', gridlines=True)
+plot_all = plot1 + plot2;  plot_all.show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Projectile}
+\begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{Projectile.png}
+\caption{Vertical projectile height and velocity }
+\label{Projectile}       % Give a unique label
+\end{image}
+
+
+As a business application, in the SageMath cell below, we consider data on company sales after the introduction of a new popular product.   A quadratic model is fit to the sales and its rate of change (derivative) is computed and plotted.   It can be used to understand the sales better.   Note how  \texttt{data = list(zip(Tv, Sv))} was used to zip the two data columns together.
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+var('t, a0, a1, a2')
+
+# Data
+Tv = range(11)
+Sv = [3.2, 4.3, 5.8, 7.1, 10.1, 13.7, 16.4, 20.7, 28.1, 37.4, 50.2]
+data = list(zip(Tv, Sv))
+
+# Quadratic model and fitted coefficients
+model(t) = a0 + a1*t + a2*t^2
+sol = find_fit(data, model)
+
+a0, a1, a2 = [round(sol[i].rhs(), 2) for i in range(3)]
+
+# Fitted model and its derivative
+Sfit(t) = a0 + a1*t + a2*t^2
+Sfitp(t) = derivative(Sfit(t), t)
+
+show('Coefficients: ', (a0, a1, a2))
+show('Fitted model: ', Sfit(t))
+show('Rate of sales: ', Sfitp(t))
+
+p1 = scatter_plot(data, facecolor='red', gridlines=True)
+p2 = plot(Sfit, (t, 0, 10), color='green', 
+               legend_label='Fitted sales', gridlines=True)
+(p1 + p2).show(figsize=5)
+
+plot(Sfitp, (t, 0, 10), color='blue', title='Rate of sales',
+     axes_labels=['t', "S'(t)"], gridlines=True).show(figsize=5)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{SalesQuadFit}
+\begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{SalesQuadFit.png}
+\caption{Sales quadratic fit }
+\label{SalesQuadFit}       % Give a unique label
+\end{image}
+
+The next few examples illustrate the chain rule.
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+f(x)=sqrt(7*x^3-3*x^2+5*x-4); fp(x) = derivative(f(x),x)
+show('f(x) = ',f(x)); show(' its derivative  = ',fp(x))
+f(x)=-5/(x^2-7*x+2)^4;  fp(x) = derivative(f(x),x)
+show('f(x) = ',f(x)); show(' its derivative  = ',fp(x))
+f(x)= x*sqrt(1-x^2);  fp(x) = derivative(f(x),x)
+show('f(x) = ',f(x)); show(' its derivative  = ',fp(x))
+f(x)= (3*x+1)/(1-x^2)^(1/3); fp(x) = derivative(f(x),x)
+show('f(x) = ',f(x)); show(' its derivative  = ',fp(x))
+f(x)= sin(3*x^5-6*x^2-4*x+2);  fp(x) = derivative(f(x),x)
+show('f(x) = ',f(x)); show(' its derivative  = ',fp(x))
+f(x)= (sin(3*x^2-6*x+2))^3;  fp(x) = derivative(f(x),x)
+show('f(x) = ',f(x)); show(' its derivative  = ',fp(x))
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{ChainRule}
+\begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{ChainRule.png}
+\caption{Chain rule examples}
+\label{ChainRule}       % Give a unique label
+\end{image}
+
+In the problem below we illustrate implicit derivative.   The analytical method is to differentiate the equation in $x$ 
+keeping in mind that $y$ depends on $x$ and solve for $y'$.   Let's first illustrate it analytically.
+$$ y^3 - 2y^2x + 4yx^2 =3 \ \ \ \Rightarrow  \ \ \ \  3y^2y'-4yy'x-2y^2+4y'x^2+8yx=0 \ \ \ \Rightarrow $$
+$$ y'(3y^2 -4yx+4x^2)  + (8yx-2y^2) =0  \ \ \ \Rightarrow  \ \ \ \ y' = - \frac{ 8xy-2y^2}{3y^2 -4xy+4x^2} $$
+However, from the computational point of view, it is much easier to apply the formula with partial derivatives from 
+Multivariate Calculus: $y'(x) = -\frac{F_x(x,y)}{F_y(x,y)}$.   In addition, we plot tangent line.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+F(x,y) = y^3 - 2*y^2*x + 4*y*x^2 - 3;  
+x1 = 1;  y1 = 1;
+Fx(x,y) = derivative(F(x,y),x);   
+Fy(x,y) =derivative(F(x,y),y); 
+show('F(x,y) = ', F(x,y))
+show('  Fx(x,y) = ', Fx(x,y))
+show('  Fy(x,y) = ', Fy(x,y)); 
+yp(x,y) = - Fx(x,y)/Fy(x,y);   
+show('yp(x,y) = - Fx(x,y)/Fy(x,y) = ', yp(x,y)); 
+m = yp(x1,y1);  show('slope = m = ',m)
+ytang(x) = y1 + m*(x-x1);  show('tangent line = ',ytang(x))
+a = -5; b = 5; c = -5; d = 5; # bounds for the plot box
+plot1 = implicit_plot(F(x,y),(x,a,b), (y,c,d), figsize = (5,4),\
+    legend_label= "implicit plot",color='red', gridlines=True)
+plot2 = plot(ytang(x),(x,a,b), ymin=c, ymax=d, \
+    legend_label= "ytang(x)",color='green', gridlines=True)
+plot_all = plot1 + plot2;  plot_all.show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Implicit}
+\begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{Implicit.png}
+\caption{Implicit differentiation}
+\label{Implicit}       % Give a unique label
+\end{image}
+
+
+We illustrate related rates with a classic problem of a spherical balloon.   An air is pumped into a spherical balloon at 3 cubic 
+meters per minute.  Find the rate of change of radius when the volume is 30 cubic meters.
+$$ V=\frac{4}{3}\pi r^3  \ \ \ \ \Rightarrow \ \ \ \  \frac{dV}{dr} = 4\pi r^2 \ \ \ \ \Rightarrow \ \ \ \ 
+ \frac{dV}{dt} =\frac{dV}{dr} \frac{dr}{dt} =4\pi r^2 \frac{dr}{dt} \ \ \ \Rightarrow $$
+$$ \frac{dr}{dt} = \frac{1}{4\pi r^2}\frac{dV}{dr}   \ \ \ \  \  \text{also} \ \ \ \  r_1=\left( \frac{3V_1}{4\pi} \right)^{1/3}  
+\ \ \ \ \Rightarrow \ \ \ \ \frac{dr}{dt}_{r=r_1} = \frac{1}{4\pi r_1^2}\frac{dV}{dt} $$
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+var('V,r')
+V(r) = 4/3*pi*r^3;    Vp(r) = derivative(V(r),r)
+show('V(r) = ', V(r),'     Vp(r) = ', Vp(r) ); 
+V1 = 30;  Vt1 = 3;  r1 = N((3*V1/(4*pi))^(1/3));
+rt1 = N(Vt1/Vp(r1)); 
+print('the rate of change of radius when volume is = ', V1)
+print(' and radius is  r = {:.3f} is = rt1 = {:.3f}'.
+      format(r1,rt1))
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{RelatedRatesSphere}
+\begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{RelatedRatesSphere.png}
+\caption{Related rates spherical baloon}
+\label{RelatedRatesSphere}       % Give a unique label
+\end{image}
+
+
+
+Here is another classical related rate problem.   An airplane is flying horizontally directly over a radar station at the height $h=10$ miles.   Let $s$ denote the direct distance from the plane to the station.    Assume $s$ is decreasing at 500 miles/hour.   What is the speed of the plane when the distance is 14 miles?    Let x be the horizontal distance to the station.   From the Pythagorean theorem and chain rule, we obtain:
+$$ s^2 = x^2 + h^2 \ \ \ \ \  \Rightarrow \ \ \ \ \  x = \sqrt{s^2-h^2} \ \ \  also $$
+$$ 2s\frac{ds}{dt}=2x\frac{dx}{dt}+0 \ \ \ \  \Rightarrow \ \ \ \ \  \frac{dx}{dt} = \frac{s}{x}\frac{ds}{dt}= \frac{s}{\sqrt{s^2-h^2}}\frac{ds}{dt} $$
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+var('s')
+h1 = 10; st = 500;  s1 = 14;  st1 = -500;
+x1 = N(sqrt(s1^2-h1^2));  xt1 = N(s1/x1*st1)
+print('At the distance s1= ', s1)
+print('  horizontal distance x1 = ',x1)
+print('  and velocity =  xt1 = ',xt1)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{RelatedRatesPlane}
+\begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{RelatedRatesPlane.png}
+\caption{Related rates airplane flying over a radar}
+\label{RelatedRatesPlane}       % Give a unique label
+\end{image}
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Applications of Differentiation}
+
+One of the main applications of derivatives is graphing functions.   In the regions where the first derivative is positive, the function increases, while the negative derivative implies a decreasing function.  Analogously, the regions of positive/negative 2nd derivative imply concave up/down behavior.  SageMath code below automates the process of finding 1st and 2nd derivatives and their zeros.  It also plots them in different colors to see the sign changes and the resulting function graph.   Let's begin with a simple polynomial.
+$$ f(x) = 3x^4-6x^3 \ \ \ \ \ \Rightarrow \ \ \ \ \ f'(x) = 12x^3-18x^2 = 6x^2(2x-3) \ \ \ \ \ \Rightarrow \ \ \ \ \ $$
+$$ f''(x) =36x^2-36x=36x(x-1)  $$
+The steps are algorithmic and well-coded into a function \texttt{graphing\_func(x,f,L,R,D,U)}.  Note that left, right, up, and down graph limits may have to be adjusted once critical points of the function ($f'(x)$ - zero or fails to exist) are determined.  
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+def graphing_func(x,f,L,R,D,U):
+    fp(x) = derivative(f(x),x); 
+    fpp(x) = derivative(fp(x),x)
+    show('f(x) = ', f(x))
+    show('  derivative = fp(x) = ', fp(x))
+    show('  factored form is =', factor(fp(x)) )
+    show('  2nd derivative = fpp(x) = ', fpp(x))
+    show('  factored form is =', factor(fpp(x)) )
+    solp  = solve(fp(x)==0 ,x); 
+    show('Zeros of derivative are: ', solp)
+    solpp = solve(fpp(x)==0,x); 
+    show('Zeros of 2nd derivative are: ', solpp)
+    plot1 = plot(f(x)  ,(x,L,R), ymin=D, ymax=U, figsize = (5,4), \
+        legend_label= "f(x)",color='red', gridlines=True)
+    plot2 = plot(fp(x) ,(x,L,R), ymin=D, ymax=U, \
+        legend_label= "fp(x)",color='blue', gridlines=True)
+    plot3 = plot(fpp(x),(x,L,R), ymin=D, ymax=U, \
+        legend_label= "fpp(x)",color='green', gridlines=True)
+    plot_all = plot1 + plot2 + plot3; plot_all.show()
+    
+f(x) = 3*x^4-6*x^3; 
+graphing_func(x,f,-3,3,-10,10)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{GraphPolyn}
+\begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{GraphPolyn.png}
+\caption{Graphing a polynomial function using derivatives}
+\label{GraphPolyn}       % Give a unique label
+\end{image}
+
+
+The function below, in addition to min/max and inflection points, shows vertical and horizontal asymptotes.  Vertical asymptote is at the zero of denominator $x=-1$.   The highest power of the numerator (1) is lower than the highest power of the denominator (2), therefore x-axis ($y=0$) is the horizontal asymptote.
+$$ f(x) = \frac{x}{(x+1)^2}$$
+$$ f'(x) =  \frac{1(x+1)^2-x2(x+1)}{(x+1)^4}=  \frac{1(x+1)-2x}{(x+1)^3} =  \frac{1-x}{(x+1)^3} $$
+$$ f''(x) = \frac{-1(x+1)^3-(1-x)3(x+1)^2}{(x+1)^3}= \frac{-1(x+1)-(1-x)3}{(x+1)^4} = $$
+$$ \frac{2x-4}{(x+1)^4}= \frac{2(x-2)}{(x+1)^4}$$
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+f(x) = x/(x+1)^2; 
+graphing_func(x,f,-5,5,-3,3)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{GraphAsympt}
+\begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{GraphAsympt.png}
+\caption{Graphing a function with asymptotes}
+\label{GraphAsympt}       % Give a unique label
+\end{image}
+
+In the problem below a case of infinite derivative is illustrated.  It results in a cusp point at $x=0$.    
+$$ f(x) = x-x^{2/3} \ \ \ \ \ \Rightarrow \ \ \ \ \ $$
+$$ f'(x) = 1-\frac{2}{3}x^{-1/3}= 1-\frac{2}{3x^{1/3}} = \frac{3x^{1/3}-2}{3x^{1/3}}=0 \ \ gives \ \left(\frac{2}{3} \right)^3=\frac{8}{27} $$
+$$ f''(x) = \frac{2}{9}x^{-4/3}= \frac{2}{9x^{4/3}} \ \ \ \ \text{never 0, but} \ x= 0 \ \text{is critical point}$$
+Unfortunately, at this point, Sage cannot properly handle plotting fractional powers for negative x's, so we only plotted it for a positive interval.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+f(x) = x-x^(2/3);   
+graphing_func(x,f,0,5,-3,4)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{GraphCusp}
+\begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{GraphCusp.png}
+\caption{Graphing a function with cusp (infinite derivative)}
+\label{GraphCusp}       % Give a unique label
+\end{image}
+
+An interesting property of the function $f(x) = \frac{x}{\sqrt{x^2+4}}$ below is that it has different left and right horizontal asymptotes:
+$$ lim_{x \rightarrow -\infty} f(x) = lim_{x \rightarrow -\infty} \frac{x}{\sqrt{x^2+4}}  = $$
+$$ lim_{x \rightarrow -\infty} \frac{x}{\sqrt{x^2(1+4/x^2)}} = lim_{x \rightarrow -\infty} \frac{x}{-x\sqrt{1+4/x^2}} =-1$$
+$$ lim_{x \rightarrow \infty} f(x) = lim_{x \rightarrow \infty} \frac{x}{\sqrt{x^2+4}}  =$$
+$$ lim_{x \rightarrow \infty} \frac{x}{\sqrt{x^2(1+4/x^2)}} = lim_{x \rightarrow \infty} \frac{x}{x\sqrt{1+4/x^2}} =1$$
+The first derivative allows some important square root simplifications:
+$$ f'(x) = \frac{\sqrt{x^2+4}-x\frac{2x}{2\sqrt{x^2+4}}}{(\sqrt{x^2+4})^2} =\frac{x^2+4-x^2}{(\sqrt{x^2+4})^3} = \frac{4}{(x^2+4)^{3/2}} >0 $$
+The first derivative is always positive resulting in a strictly increasing function.
+The 2nd derivative is easier to compute as a power function and a chain rule as opposed to quotient rule used for the 1st derivative:
+$$f''(x) = 4\left(-\frac{3}{2}\right)(x^2+4)^{-5/2}2x = -\frac{12x}{(x^2+4)^{5/2}}$$
+The resulting 2nd derivative changes sign at 0, which is the inflection point.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+f(x) = x/sqrt(x^2+4);   
+graphing_func(x,f,-6,6,-1,1)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{GraphSqrt}
+\begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{GraphSqrt.png}
+\caption{Different horizontal asymptotes}
+\label{GraphSqrt}       % Give a unique label
+\end{image}
+
+
+The code below illustrates mean value theorem.   The function $f(x)=3-\frac{5}{x}$ is differentiable on the interval $[1,7]$.  The slope of the secant line on this interval is $m=\frac{f(7)-f(1)}{7-1}=\frac{5}{7}$.   According to the Mean Value Theorem, there should be at least one $x=x_1$ such that $f'(x_1)=\frac{5}{7}$.   In the code below we find such $x_1$ and plot the corresponding secant line and the parallel tangent line.
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+f(x) = 3-5/x;  
+a = 1; b = 7;  c = -4; d = 4; # bounds for the plot box
+fp(x) = derivative(f(x),x);  
+show('f(x) = ', f(x))
+show('  derivative = fp(x) = ', fp(x) )
+secant_slope = (f(b)-f(a))/(b-a)
+sol  = solve(fp(x)==secant_slope ,x);
+show("f'(x)=secant_slope: ", sol)
+x1 = sol[1].rhs();  
+show('secant slope = ',secant_slope)
+show('  is matched at x1 = ',x1)
+y_sec(x) = f(a) + secant_slope*(x-a)
+y_tang(x) = f(x1) + + secant_slope*(x-x1)
+show('secant line equation: y = ',y_sec(x))
+show('   tangent line equation: y = ',y_tang(x))
+plot1 = plot(f(x) ,(x,a,b), ymin=c, ymax=d, figsize = (4,3),\
+   legend_label= "f(x)",color='red', gridlines=True)
+plot2 = plot(y_sec(x),(x,a,b), ymin=c, ymax=d, \
+   legend_label= "y_sec(x)",color='blue', gridlines=True)
+plot3 = plot(y_tang(x),(x,a,b), ymin=c, ymax=d, \
+   legend_label= "y_tang(x)",color='green', gridlines=True)
+plot_all = plot1 + plot2 + plot3; plot_all.show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{MeanValTheor}
+\begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{MeanValTheor.png}
+\caption{Mean value theorem}
+\label{MeanValTheor}       % Give a unique label
+\end{image}
+
+
+One of the main applications of derivatives is optimization problems.   For example, In the SageMathcode below we consider the following profit maximization application.  The daily demand function for x LED lights sold by a major retailer is $p(x)=880-0.75x$ dollars, and the average cost of sales is $\bar{C}(x)= \frac{C(x)}{x}=220+2x$ dollars. Find the quantity that will maximize profit, the selling price at that quantity, and the maximum profit.
+$$ Cost = C(x) = \bar{C}(x)x=220x+2x^2 \ \ \ \ \ \ \  $$
+$$ Revenue = R(x) = p(x)x=880x-0.75x^2 \ \ \ \Rightarrow \ \ \  $$
+$$ Profit = P(x)=R(x)-C(x)= -2.75x^2+660x$$
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+p(x) = 880-3/4*x;  Cbar(x) = 220+2*x;   C(x) = expand(Cbar(x)*x);  
+show('Demand = p = ',p(x))
+show(' Average Cost = Cbar = ',Cbar(x))
+show(' Cost = C(x) =', C(x))
+R(x) = expand(p(x)*x);  P(x) = expand(R(x)-C(x));
+show(' Revenue = R(x) = ', R(x))
+show(' Profit = P(x) = ', P(x))
+Pd(x) = derivative(P(x),x);  
+show('Profit derivative = Pd(x) = ', Pd(x))
+sol = solve(Pd(x)==0,x); xm = sol[0].rhs();  
+show("Solving P'(x) = 0, sol = ", sol)
+show('Max profit P(xm) = ', P(xm))
+show(' achieved at # of items xm = ', xm)
+show(' sold at price p(xm) =',p(xm))
+
+a = 0; b = 250; c = -1; d = 70000; # bounds for the plot box
+plot1 = plot(R(x),(x,a,b), ymin=c, ymax=d, figsize = (5,4),\
+  legend_label= "Revenue",color='red', gridlines=True)
+plot2 = plot(C(x),(x,a,b), ymin=c, ymax=d, \
+  legend_label= "Cost",color='blue', gridlines=True)
+plot3 = plot(P(x),(x,a,b), ymin=c, ymax=d, \
+  legend_label= "Profit",color='green', gridlines=True)
+plot_all = plot1 + plot2 + plot3; plot_all.show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{MaxProfit}
+\begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{MaxProfit.png}
+\caption{Max Profit}
+\label{MaxProfit}       % Give a unique label
+\end{image}
+
+
+Another standard optimization problem is as follows.  A manufacturer wants to design an open top box having a square base $x$ and volume of 500 cubic feet.   The sides cost 2 dollars per square feet and the bottom 3 dollars per square feet.  What dimensions will produce a box with minimal cost?
+$$ Volume = V=L\cdot W \cdot H= x \cdot x \cdot H=500 \ \ \Rightarrow H = \frac{500}{x^2} $$
+$$ Cost =C(x)= 3\cdot x^2+ 2\cdot 4xH = 3x^2 + 8x \frac{500}{x^2}  = 3x^2+ \frac{4000}{x}=3x^2+4000x^{-1}$$
+$$ C'(x) = 6x - 4000x^{-2} = \frac{6x^3-4000}{x^2}=0 \ \ \ \Rightarrow x_m = \left(\frac{4000}{6}\right)^{1/3}  $$
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+V = 500; pb = 3;  ps = 2;   # problem parameters
+H = V/x^2;   C(x) = expand(pb*x^2 + ps*4*x*H);   
+Cp(x) = derivative(C(x),x);  
+show('Cost function = C(x) = ', C(x))
+show(' derivative = Cp(x) = ',Cp(x) )
+xm = find_root(Cp(x)==0,0,500);  Hm = V/xm^2;
+show('Min cost C(xm) = ', C(xm))
+show('achieved at the square dimension = xm = ', xm)
+show(' and height = H =',Hm)
+
+a = 0; b = 20; c = -1000; d = 2000; # plot bounds
+plot1 = plot(C(x),(x,a,b), ymin=c, ymax=d, figsize = (5,4), \
+  legend_label= "C(x)",color='red', gridlines=True)
+plot2 = plot(Cp(x),(x,a,b), ymin=c, ymax=d, \
+  legend_label= "Cp(x)",color='blue', gridlines=True)
+plot_all = plot1 + plot2; plot_all.show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{OptimizeBox}
+\begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{OptimizeBox.png}
+\caption{Open box with minimal cost}
+\label{OptimizeBox}       % Give a unique label
+\end{image}
+
+
+Yet another classic optimization problem is  of a guy who needs to get from a village on one side of a 4 km wide river to the other 10 km downstream.   He can row across the river at 7 km/h and quickly walk on the river bank at 10 km/h.   Where should he land to reach his target as soon as possible? 
+If we let $x$ to be the distance downstream, the rowing time is $\frac{\sqrt{x^2+16}}{7}$ and the time on the other bank of the river is $\frac{10-x}{10}$.  Their sum must be minimized.   Note that the parameters are specified in the 1st line of the code, so that they can be easier changed as needed.   Generally, it is a bad idea to hardcode the numbers into the problem.
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+d1 = 4; v1 = 7;  d2 = 10; v2 = 10;   # parameters
+T(x) = expand(sqrt(x^2+d1^2)/v1 + (d2-x)/v2);   
+Tp(x) = derivative(T(x),x);  
+show('Time function to optimize = T(x) = ', T(x))
+show(' derivative = Tp(x) = ',Tp(x) )
+xm = find_root(Tp(x)==0,0,d2);  
+show('min T(xm) = ', round(T(xm),4), \
+     ' is achieved at xm = ',round(xm,4))
+
+a = 0; b = 10; c = -1; d = 2; # plot bounds
+plot1 = plot(T(x),(x,a,b), ymin=c, ymax=d, \
+   legend_label= "T(x)",color='red', gridlines=True)
+plot2 = plot(Tp(x),(x,a,b), ymin=c, ymax=d, \
+   legend_label= "Tp(x)",color='blue', gridlines=True)
+plot_all = plot1 + plot2; plot_all.show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{OptimizeRiver}
+\begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{OptimizeRiver.png}
+\caption{Mimimize time of crossing a river and walking}
+\label{OptimizeRiver}       % Give a unique label
+\end{image}
+
+
+One more application of derivatives involves using an equation of the tangent line developed before to provide a linear approximation in the neighborhood of a given point.  For example:
+$$ f(x) = \sqrt{x+7} \ \ \ \Rightarrow f'(x) = \frac{1}{2\sqrt{x+7}}$$
+$$ f(x_1=2)= \sqrt{2+7}=3 \ \ and \ \ f'(x_1) =f'(2) = \frac{1}{2\sqrt{2+7}}=  \frac{1}{6}  \ \Rightarrow$$
+$$ y_{tang}(x) = f(x_1)+f'(x_1)(x-x1) = 3+\frac{1}{6}(x-2) = \frac{1}{6}x + \frac{8}{3}$$
+The SageMath code below calculates this tangent line approximation and compares the exact function value to the linear approximation at a nearby point.   It can be seen from the graph that the approximation is inherently local and gets progressively worse away from the initial point.
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+f(x)=sqrt(x+7);  x1 = 2; x2 = 2.05
+fp(x) = derivative(f(x),x)
+show('f(x) = ',f(x),'  its derivative  = ',fp(x))
+y1 = f(x1);  m = fp(x1);  
+show('y1 = ',y1,'  slope = m = ',m)
+ytang(x) = y1 + m*(x-x1);  
+show('tangent line = ',ytang(x))
+show('Exact value at x2 =',x2,'  f(x2)=',f(x2))
+show(' tangent line approximation = ytang(x2) =',ytang(x2))
+a = -7; b = 10; c = -3; d = 4; # plot bounds
+plot1 = plot(f(x) ,(x,a,b), ymin=c, ymax=d, figsize = (5,4), \
+   legend_label= "f(x)",color='red', gridlines=True)
+plot2 = plot(fp(x),(x,a,b), ymin=c, ymax=d, \
+   legend_label= "fp(x)",color='blue', gridlines=True)
+plot3 = plot(ytang(x),(x,a,b), ymin=c, ymax=d, \
+   legend_label= "ytang(x)",color='green', gridlines=True)
+plot_all = plot1 + plot2 + plot3 
+plot_all.show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{LinearApprox}
+\begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{LinearApprox.png}
+\caption{Linear approximation}
+\label{LinearApprox}       % Give a unique label
+\end{image}
+
+
+
+Finally, let's consider the error propagation problem using differentials.   For example, assume that the radius of a sphere is measured with an error of 0.02 in, what are the propagated and relative errors in volume if the radius is measured to be 0.8 in?  The propagated error is essentially the diferential of the given volume:
+$$V = \frac{4}{3}\pi r^3 \ \ \ \ \ \Rightarrow \ \ \  dV =   4\pi r^2 dr$$
+Then. the relative error is:
+$$ \frac{dV}{V} = \frac{4\pi r^2 dr}{\frac{4}{3}\pi r^3 }  = \frac{3dr}{r}$$
+The Sage Math code below computes these errors directly.   The relative error is about 7.4\%.   
+
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+var('r');  r1 = 0.8; dr = 0.02
+V(r) = 4/3*pi*r^3;   Vp(r) = derivative(V(r),r)
+show('V(r) = ',V(r),'  its derivative  Vp(r)= ',Vp(r))
+V1 = V(r1);  dV1 = Vp(r1)*dr
+show('for dr = ',round(dr,6), \
+     '  propagated error = dV1 = ',round(dV1,6) )
+show('V1= ', round(V1,6), \
+ ' relative error = dV1/V1 = ', round(dV1/V1,6) )
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{PropagatedError}
+\begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{PropagatedError.png}
+\caption{Propagated error in a sphere measurements}
+\label{PropagatedError}       % Give a unique label
+\end{image}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%\section{L'Hopital's Rule}
+%
+%SageMath can compute complex limits requiring the application of the L'Hopital directly, but we illustrate the Calculus steps separating the numerator and denominator and applying separate differentiation per the L'Hopital rule.   First, we compute the standard L'Hopital limit:
+%$$ lim_{x \rightarrow 0} \frac{e^{3x}-1}{2x}=lim_{x \rightarrow 0} \frac{3e^{3x}}{2}=\frac{3}{2}  $$
+%In SageMath, we first define the numerator and denominator separately and check that the limit is indeterminate 0/0.  Then after just one application of differentiation, we obtain the result.  The steps are quite algorithmic and lend themselves well to coding as a function.  Then, we show a couple of other standard limits which are easily done in one\-step application of L'Hopital's rule.
+%
+%\begin{programcode}{SageMath Code and Output:}
+%\begin{verbatim}
+%def lopital(x,f,g,c):
+%    show('lim as x->',c,' of f = ',f(x),'  is = ', limit(f(x),x=c))
+%    show('lim as x->',c,' of g = ',g(x),'  is = ', limit(g(x),x=c))
+%    fp(x) = derivative(f(x),x);   gp(x) = derivative(g(x),x);
+%    show('lim as x->',c,' of fp = ',fp(x),'  is = ', limit(fp(x),x=c))
+%    show('lim as x->',c,' of gp = ',gp(x),'  is = ', limit(gp(x),x=c))
+%    show('  simplified ratio fp/gp = ',(fp(x)/gp(x)).full_simplify())
+%    show('Direct limit f(x)/g(x) = ',limit(f(x)/g(x),x=c))
+%
+%f(x) = e^(3*x)-1;  g(x) = 2*x; c=0
+%lopital(x,f,g,c) 
+%\end{verbatim}
+%\end{programcode}
+%The output is shown in Fig \ref{LopitalExp}
+%\begin{image}[15cm]
+%%\sidecaption[t]
+%\includegraphics[scale=.65]{LopitalExp.png}
+%\caption{L'Hopital's rule applied to a simple exponential}
+%\label{LopitalExp}       % Give a unique label
+%\end{image}
+%
+%
+%\begin{programcode}{SageMath Code and Output:}
+%\begin{verbatim}
+%f(x) = ln(x);  g(x) = x-1; c=1
+%lopital(x,f,g,c) 
+%\end{verbatim}
+%\end{programcode}
+%The output is shown in Fig \ref{LopitalLog}
+%\begin{image}[15cm]
+%%\sidecaption[t]
+%\includegraphics[scale=.65]{LopitalLog.png}
+%\caption{L'Hopital's rule applied to a simple logarithm}
+%\label{LopitalLog}       % Give a unique label
+%\end{image}
+%
+%\begin{programcode}{SageMath Code and Output:}
+%\begin{verbatim}
+%f(x) = sin(x);  g(x) = x; c=0
+%lopital(x,f,g,c) 
+%\end{verbatim}
+%\end{programcode}
+%The output is shown in Fig \ref{LopitalSin}
+%\begin{image}[15cm]
+%%\sidecaption[t]
+%\includegraphics[scale=.65]{LopitalSin.png}
+%\caption{L'Hopital's rule applied to a simple sine function}
+%\label{LopitalSin}       % Give a unique label
+%\end{image}
+%
+%In the limit below, differentiating the numerator and denominator separately is not enough; after each differentiation, the expression must be simplified.   In SageMath, it is accomplished with $full\_simplify()$.
+%$$ lim_{x \rightarrow \infty} \frac{ln(x)}{x^{1/3}}=lim_{x \rightarrow \infty} \frac{\frac{1}{x}}{\frac{1}{3x^{2/3}}}=lim_{x \rightarrow \infty} \frac{3}{x^{1/3}} =0 $$
+%This limit shows that $ln(x)$ grows much slower than $x^{1/3}$ and this can be generalized for any positive power $x$.
+
+\end{document}

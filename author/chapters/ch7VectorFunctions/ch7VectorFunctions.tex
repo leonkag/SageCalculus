@@ -1,0 +1,847 @@
+\chapter{Vector Valued Functions}
+
+\section{Introduction to Vector Valued Functions}
+
+In previous sections, we used SageMath to plot vectors and lines in 3D, but of course, it can plot vector valued functions.  The problem below illustrates an elliptical spiral \(helix\).    $$x = 3cos(t), \ y = 2sin(t), \ z = t \ \ \ \ \ \ \Rightarrow \ \ \  \frac{x^2}{9}+\frac{y^2}{4} = 1$$
+It traces out the helix counterclockwise starting from $(3,0)$ while the height increases linearly.   Our DNAs consist of double helix spirals.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('t')
+x(t) = 3*cos(t); y(t) = 2*sin(t); z(t) = t
+parametric_plot3d([x(t), y(t), z(t)], 
+                  (0,4*pi), thickness=5)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Helix}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch7VectorFunctions/Helix.png}
+\caption{Helix function}
+\label{Helix}       % Give a unique label
+\end{figure}
+
+
+
+Similar to 2D, many different parametric representations of the same space curve could traverse it with different speeds and/or directions.   For example, the spiral below traverses the same spiral clockwise twice as fast, starting at $(0,2)$.  Note that the interval $[0,2\pi]$ covers the same rotation as $[0,4\pi]$ before.
+$$x = 3sin(2t), \ y = 2cos(2t), \ z = 2t \ \ \ \ \ \ \Rightarrow \ \ \  \frac{x^2}{9}+\frac{y^2}{4} = 1$$
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('t')
+x(t) = 3*sin(2*t); y(t) = 2*cos(2*t); z(t) = 2*t
+parametric_plot3d([x(t), y(t), z(t)], 
+                  (0,2*pi), thickness=5)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Helix}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch7VectorFunctions/Helix.png}
+\caption{Helix function}
+\label{Helix}       % Give a unique label
+\end{figure}
+
+An interesting example of a 3-D curve is provided by the intersection of the upper part of the ellipsoid $x^2+y^2+\frac{z^2}{4}=1$ and parabolic cylinder $y=2x^2$.   The natural choice of parametrization produces:
+$$x = t, \ y=2t^2, \ z=\sqrt{2(1-t^2-4t^4)}$$
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('t')
+x(t) = t; y(t) = 2*t^2; z(t) = sqrt(2*(1-t^2-4*t^4))
+parametric_plot3d([x(t), y(t), z(t)], (-0.5,0.5),
+                  plot_points=400, thickness=5)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Intersect3d}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch7VectorFunctions/Intersect3d.png}
+\caption{Intersection of ellipsoid and cylinder}
+\label{Intersect3d}       % Give a unique label
+\end{figure}
+
+
+
+
+
+
+
+
+
+
+
+\section{Differentiation and Integration of Vector Valued Functions}
+
+Let's begin with a 2D example and find the tangent line at the given value of the parameter.  We have already considered a similar task before using a parametric equation approach and computing $\frac{dy}{dx} = \frac{dy/dt}{dx/dt}$; now we consider it from a vector valued point of view.   The derivative of a vector-valued function is computed componentwise, and it results in a tangent vector at the point of interest that is used to define the tangent line in either 2D or 3D.  For example:
+
+$$x(t)=t, \ \ y(t)=\ln(1+t^2) \ \ \ \ \ \Rightarrow \ \ \ \ x'(t)=1, \ \ y'(t)=\frac{2t}{1+t^2} $$
+$$\mathbf{r}(t) = \left<x(t),y(t) \right>= \left<t,\ln(1+t^2) \right> \ \ \ \ \ \ \ \ \ \mathbf{r'}(t) = \left<x'(t),y'(t) \right>= \left<1,\frac{2t}{1+t^2}\right>$$
+At $r=1$
+$$\mathbf{r}(1)=\left<1,\ln(2) \right> \ \ \ \ \ \ \ \ \ \mathbf{r'}(1) = \left<1,1\right>  \ \ \ \ \ \Rightarrow \ \ \ \ y_{tangent}= \left<1+t, \ln(2)+t \right> $$
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('t')
+x(t) = t; y(t) = log(1+t^2);  t1 = 1
+p1 = parametric_plot([x(t), y(t)], (-4,4),figsize=(4,3))
+r1 = vector([x(t1),y(t1)]);  
+xp(t) = derivative(x(t),t); yp(t) = derivative(y(t),t); 
+show('x(t) = ', x(t), '   xp(t) = ', xp(t))
+show('y(t) = ', y(t), '   yp(t) = ', yp(t))
+rp1 = vector([xp(t1),yp(t1)]);
+show('r1 = ',r1,'  rp1 = ',rp1)
+p2 = plot(r1, color='red', legend_label='r1')
+p3 = plot(rp1, start=r1, color='blue', legend_label='rp1')
+p4 = parametric_plot([r1[0]+rp1[0]*t, \
+             r1[1]+rp1[1]*t], (-4,4),color='green')
+(p1+p2+p3+p4).show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{TangentLine2D}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch7VectorFunctions/TangentLine2D.png}
+\caption{Tangent Line to 2D curve}
+\label{TangentLine2D}       % Give a unique label
+\end{figure}
+
+
+The above approach can be straightforwardly extended to a spiral in 3D.  To consider the acceleration later, let's compute the 2nd derivative as well.
+$$\mathbf{r}(t) = \left<x(t),y(t),z(t) \right>= \left< 3cos(t),2sin(t),t) \right> \ \ \ \ \ \ \ \ $$
+$$ \mathbf{r'}(t) = \left<x'(t),y'(t),z'(t) \right>= \left<-3sin(t),2cos(t),1 \right> $$
+$$\mathbf{r''}(t) = \left<x''(t),y''(t),z''(t) \right>= \left<-3cos(t),-2sin(t),0 \right>$$
+
+At $r=\frac{\pi}{2}$
+$$\mathbf{r}(1)=\left<0,2, \frac{\pi}{2} \right> \ \ \ \ \ \ \ \mathbf{r'}(1) = \left<-3,0,1 \right> \ \ \ \ \ \ \ \mathbf{r''}(1) = \left<0,-2,0 \right>   \ \ \ \ \ \Rightarrow$$
+$$ y_{tangent}= \left<-3t,2,  \frac{\pi}{2}+t\right> $$
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('t')
+x(t) = 3*cos(t); y(t) = 2*sin(t); z(t) = t;  t1 = pi/2
+p1 = parametric_plot3d([x(t), y(t), z(t)], (0,2*pi), thickness=5)
+r1 = vector([x(t1),y(t1),z(t1)]);  
+xp(t) = derivative(x(t),t); yp(t) = derivative(y(t),t); 
+zp(t) = derivative(z(t),t); 
+rp1 = vector([xp(t1),yp(t1),zp(t1)]);
+xpp(t) = derivative(xp(t),t); ypp(t) = derivative(yp(t),t); 
+zpp(t) = derivative(zp(t),t); 
+rpp1 = vector([xpp(t1),ypp(t1),zpp(t1)]);
+show('x(t) = ', x(t), '   xp(t) = ', xp(t),'   xpp(t) = ', xpp(t))
+show('y(t) = ', y(t), '   yp(t) = ', yp(t),'   ypp(t) = ', ypp(t))
+show('z(t) = ', z(t), '   zp(t) = ', zp(t),'   zpp(t) = ', zpp(t))
+show('r1 = ',r1,'  rp1 = ',rp1,'  rpp1 = ',rpp1)
+p2 = plot(r1, color='red', legend_label='r1', thickness=5)
+p3 = plot(rp1, start=r1, color='blue', legend_label='rp1', thickness=5)
+p4 = parametric_plot([r1[0]+rp1[0]*t, r1[1]+rp1[1]*t,
+          r1[2]+rp1[2]*t],(-2,2),color='green', thickness=5)
+p5 = plot(rpp1, start=r1, color='black', 
+                legend_label='rpp1', thickness=5)
+(p1+p2+p3+p4+p5).show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{TangentAnd2nd}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch7VectorFunctions/TangentAnd2nd.png}
+\caption{Tangent Line to 3D curve}
+\label{TangentAnd2nd}       % Give a unique label
+\end{figure}
+
+
+A vector valued function is smooth as long as component derivatives are continuous and not all 0.   For example, consider a cycloid:
+$$x(t) = t+sin(t), \ \ y(t) = 1-cos(t) \ \ \ \ \Rightarrow \ \ \ \ $$
+$$ x'(t) = 1+cos(t), \ \ y'(t) = sin(t)$$
+$$x'(t) = 1+cos(t)=0\ \ \ \ \Rightarrow \ \ \ \ cos(t)=-1 \ \ \ \ \Rightarrow \ \ \ \ t=\pi + 2\pi n$$
+$$y'(t) = sin(t)=0\ \ \ \ \Rightarrow \ \ \ \  t=\pi n \ $$
+$$ \text{non-smooth cusp points are at: }  t=\pi + 2\pi n$$
+The SageMath produces a nice graph of the cycloid, but the analytical solution of the trigonometric equations resulting from setting each derivative to 0 only shows one solution.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('t')
+x(t) = t-sin(t); y(t) = 1-cos(t); 
+xp(t) = derivative(x(t),t); yp(t) = derivative(y(t),t); 
+show('x(t) = ', x(t), '   xp(t) = ', xp(t))
+show('y(t) = ', y(t), '   yp(t) = ', yp(t))
+show('solve(xp(t)==0,t)',solve(xp(t)==0,t))
+show('solve(yp(t)==0,t)',solve(yp(t)==0,t))
+parametric_plot([x(t), y(t)], (0,20))
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Cycloid}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch7VectorFunctions/Cycloid.png}
+\caption{Cycloid graph}
+\label{Cycloid}       % Give a unique label
+\end{figure}
+
+The integration of vector valued functions is done component by component as well.  Let's illustrate it with a standard projectile problem.   A baseball is hit at 96 ft/sec 30 degrees to the horizontal from the height of 3 feet.   We assume the coordinate system is such that the x-axis is horizontal and the y-axis is vertical.  The acceleration is $\mathbf{a} = \left< 0,-32 \right>$.  Integrating componentwise, we obtain velocity $\mathbf{v} = \int \mathbf{a} dt =  \left< 0,-32t \right> + \mathbf{v_0}$, where the initial velocity $\mathbf{v_0} = \left< 96cos(30^o),96sin(30^o) \right>$ (note that the angle has to be expressed in radians for SageMath computations).    This results in  $\mathbf{v} = \left< 48\sqrt{3},-32t +48 \right>$.  Integrating again, we obtain the position vector $\mathbf{r} = \int \mathbf{r} dt =  \left< 48\sqrt{3}t,-32\frac{t^2}{2} +48t \right> + \mathbf{r_0} $, where  $\mathbf{r_0} =  \left< 0,h \right>$ is the initial position, so that $\mathbf{r} = \left< 48\sqrt{3}t,-16t^2 +48t+3 \right>$.   We can find the time when it reaches maximum height by setting the y-component of velocity to 0:  $v_y = -32t+48 = 0 \ \ \ \Rightarrow \ \ \ t = 1.5$, then the position vector at that time is computed via a simple plug in.   In SageMath, we perform all the steps and plot the trajectory along with a couple of velocity and acceleration vectors.  In addition, let's say the 10-foot fence is 220 feet away; will the ball clear it for the home run?  The computation shows that it will!
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('t');  g = -32;  
+v0 = 96;  th0 = 30*pi/180; h = 3;
+a(t) = vector([0,g]);  
+v(t) = integrate(a,t) + \
+         vector([v0*cos(th0),v0*sin(th0)]); 
+r(t) = integrate(v,t) + vector([0,h]); 
+show('v(t) = ', v(t), '    r(t) = ',r(t))
+sol = solve(v[1]==0,t); 
+tm = N(sol[0].rhs()); 
+show('At time = {:.4f}:'.format(tm)) 
+show('  max height position =', N(r(tm)))
+show('At twice the time = {:.4f}:'.format(2*tm)) 
+show('  it "gets back" to position = ', N(r(2*tm)))
+x2 = 220; sol =  solve(r[0]==x2,t); 
+t2 = N(sol[0].rhs());
+show('At time = ',t2, '  r = ', N(r(t2)))
+p1 = plot(v(tm), start=r(tm), 
+          color='red', thickness=5) 
+p2 = plot(a(tm), start=r(tm), 
+          color='blue', thickness=5) 
+p3 = plot(v(tm/2), start=r(tm/2), 
+          color='red', thickness=5) 
+p4 = plot(a(tm/2), start=r(tm/2), 
+          color='blue', thickness=5) 
+p5 = parametric_plot([r[0], r[1]],
+                     (0,2*tm),color='green')
+(p1+p2+p3+p4+p5).show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Projectile}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch7VectorFunctions/Projectile.png}
+\caption{Projectile path with velocity and acceleration vectors}
+\label{Projectile}       % Give a unique label
+\end{figure}
+
+
+
+
+
+
+
+
+\section{Velocity and Acceleration for Vector Functions}
+
+We have worked with velocity and acceleration from the integration point of view in the projectile example of the previous section.   In this section, we start with a known position function and obtain velocity and acceleration via differentiation.    Let's consider constant speed motion on a circle.  For example:
+$$\mathbf{r} = \left< 4cos\left(\frac{t}{2}\right),4sin\left(\frac{t}{2}\right) \right> \ \ \ \ \Rightarrow \ \ \ \ \ $$
+$$ \mathbf{v} = \left< -2sin\left(\frac{t}{2}\right),2cos\left(\frac{t}{2}\right) \right> \ \ \ \ \ ||\mathbf{v}||=2=const$$
+$$\mathbf{a} = \left< -cos\left(\frac{t}{2}\right),-sin\left(\frac{t}{2}\right) \right> = -\frac{1}{4}\mathbf{r} \ \ \ \ \ \ \ \ also \ \ \mathbf{r} \cdot \mathbf{v} = 0 - orthogonal$$We see that velocity is always orthogonal to position (along the tangent of the circle) and acceleration is towards the center of the circle.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('t');  t1 = pi/2; t2 = pi
+r(t) = vector([4*cos(t/2),4*sin(t/2)]); 
+v(t) = derivative(r(t),t); a(t) = derivative(v(t),t); 
+show('r(t) = ', r(t))
+show('v(t) = ', v(t))
+show('a(t) = ',a(t))
+show('v(t).norm(2) = ',(v(t).norm(2)).trig_simplify() )
+p1 = plot(v(t1), start=r(t1), color='red', 
+          thickness=5, figsize = (4,3)) 
+p2 = plot(a(t1), start=r(t1), color='blue', thickness=5) 
+p3 = plot(v(t2), start=r(t2), color='red', thickness=5) 
+p4 = plot(a(t2), start=r(t2), color='blue', thickness=5) 
+p5 = parametric_plot([r[0], r[1]],(0,4*pi),color='green')
+(p1+p2+p3+p4+p5).show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{CirclePath}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch7VectorFunctions/CirclePath.png}
+\caption{Circle path with velocity and acceleration vectors}
+\label{CirclePath}       % Give a unique label
+\end{figure}
+
+Let's extend the previous example to 3-D spiral: $\mathbf{r} = \left< 4cos\left(\frac{t}{2}\right),4sin\left(\frac{t}{2}\right),t \right>$    The velocity $\mathbf{v} =\mathbf{r'}= \left< -2sin\left(\frac{t}{2}\right),2cos\left(\frac{t}{2}\right),1 \right>$ is same in xy-cross-section, but has constant z-component.   The speed $||\mathbf{v}||=\sqrt{5}=const$.  The acceleration  $\mathbf{a} =\mathbf{v'}= \left< -cos\left(\frac{t}{2}\right),-sin\left(\frac{t}{2}\right),0 \right>$ is exactly the same as in 2-D example (directed towards the axis of the spiral all the time).
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('t');  t1 = pi/2; t2 = pi
+r(t) = vector([4*cos(t/2),4*sin(t/2),t]); 
+v(t) = derivative(r(t),t); a(t) = derivative(v(t),t); 
+show('r(t) = ', r(t))
+show('v(t) = ', v(t))
+show('a(t) = ',a(t))
+show('v(t).norm(2) = ',(v(t).norm(2)).trig_simplify() )
+p1 = plot(v(t1), start=r(t1), color='red' , thickness=5) 
+p2 = plot(a(t1), start=r(t1), color='blue', thickness=5) 
+p3 = plot(v(t2), start=r(t2), color='red' , thickness=5) 
+p4 = plot(a(t2), start=r(t2), color='blue', thickness=5) 
+p5 = parametric_plot([r[0], r[1], r[2]],(0,4*pi),
+                     color='green', thickness=5) 
+(p1+p2+p3+p4+p5).show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{SpiralVelAcceleration}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch7VectorFunctions/SpiralVelAcceleration.png}
+\caption{Spiral path with velocity and acceleration vectors}
+\label{SpiralVelAcceleration}       % Give a unique label
+\end{figure}
+
+
+
+
+
+
+
+
+
+
+
+\section{Tangent Vectors and Normal Vectors}
+
+Let's consider the unit tangent and normal vector on a simple quadratic curve:
+$$\mathbf{r}(t) = \left<  2t,3t^2 \right> \ \ \ \ \Rightarrow \ \ \  \mathbf{r'}(t) = \left<  2,6t \right>  \ \ \ \ \Rightarrow \ \ \  ||\mathbf{r'}(t)|| = \sqrt{4+36t^2}=2\sqrt{1+9t^2}  \ \ \ \ \Rightarrow \ \ \  $$
+$$\text{Unit Tangent Vector} =  \mathbf{T}(t) = \frac{ \mathbf{r'}(t)}{ ||\mathbf{r'}(t)|| } = \frac{ \left<  1,3t \right>}{\sqrt{1+9t^2}}  $$There are two ways to obtain the unit normal vector.   A longer approach is to find $ \mathbf{T'}(t)$ vector that is orthogonal to $\mathbf{T}(t)$ and normalize it.
+$$ \mathbf{T'}(t) = \left< \frac{-9t}{(1+9t^2)^{3/2}},\frac{3}{1+9t^2} - \frac{27t^2}{(1+9t^2)^{3/2}} \right> \ \ \ \ \ \ \ \ \ \   \mathbf{N}(t) = \frac{ \mathbf{T'}(t)}{ ||\mathbf{T'}(t)|| }  $$
+An easier approach in 2\-D is to note that unit tangent vector $\mathbf{T}(t)$ is along $\mathbf{r'}(t)$, so we can easily find a vector $\mathbf{N_1}(t) = \left<  -6t,2 \right>$ normal to  $\mathbf{r'}(t)$ and normalize it to obtain unit normal vector as:
+$$  \text{Unit Normal Vector} =\mathbf{N}(t) = \frac{ \mathbf{N_1}(t)}{ ||\mathbf{N_1}(t)|| }  =  \frac{ \left<  -3t,1 \right>}{\sqrt{1+9t^2}}  $$In the SageMath cell below, we compute these vectors using \texttt{derivative()} and \texttt{norm(2)} functions and plot all vectors at $t=1$.  In addition, we confirm that both methods of finding the unit normal vector produce the same result.   
+
+We also compute the tangential and normal components of the acceleration along these directions.
+$$ a_T = \mathbf{a} \cdot \mathbf{T} = \frac{\mathbf{v} \cdot \mathbf{a}}{||\mathbf{v}||} \ \ \ \ \ \ \ \ \ \ \ a_N = \mathbf{a} \cdot \mathbf{N} = \frac{||\mathbf{v} \times \mathbf{a}||}{||\mathbf{v}||} $$
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('t');  assume(t>0)
+r(t) = vector([2*t, 3*t^2]);  t1 = 1
+p1 = parametric_plot([r(t)[0], r(t)[1]], (-1.5,1.5))
+v(t) = derivative(r(t),t); 
+vnorm = v(t).norm(2).full_simplify()  # have to simplify
+a(t) = derivative(v(t),t) 
+T(t) = v(t)/vnorm
+Tp(t) = derivative(T(t),t)
+Tpnorm = Tp(t).norm(2).full_simplify()
+N(t) = Tp(t)/Tpnorm  # general computation of normal vector
+Nf(t) = vector([-v(t)[1],v(t)[0]])/vnorm # easier 2D normal
+show('r(t) = ', r(t)); show('v(t) = ', v(t)); 
+show('vnorm = ', vnorm); show('a(t) = ', a(t)); 
+show('T(t) = ', T(t)); show('Tp(t) = ', Tp(t)); 
+show('Tpnorm = ', Tpnorm); show('N(t) = ', N(t))
+show('Nf(t) = ',Nf(t))
+a1 = a(t1); v1 = v(t1); r1 = r(t1); 
+T1 = T(t1); N1 = N(t1); Nf1 = Nf(t1);
+show('at t = ',t1,'  r1 = ',r1,' v1 = ', v1, ' a1 = ', a1)
+show(' T1 = ', T1)
+show(' N1 = ', N1,' Nf1 = ', Nf1)
+aT(t) = (v(t).dot_product(a(t))).full_simplify()/vnorm
+aN(t) = abs(v(t)[1]*a(t)[0]-v(t)[0]*a(t)[1]).full_simplify()/vnorm
+# different way to compute components of acceleration:
+aTf(t) = ( a(t).dot_product(T(t)) ).full_simplify()
+aNf(t) = ( a(t).dot_product(N(t)) ).full_simplify()
+show('Components of acceleration computed in 2 ways:')
+show('aT(t) = ',aT(t),'  aTf(t) = ',aTf(t))
+show('aN(t) = ',aN(t),'  aNf(t) = ',aNf(t))
+aT1 = aT(t1); aN1 = aN(t1)
+show('at t = ',t1, '  aT1 = ', aT1, '  aN1 = ', aN1)
+aTf1 = aTf(t1); aNf1 = aNf(t1)
+show('at t = ',t1, '  aTf1 = ', aTf1, '  aNf1 = ', aNf1)
+p2 = plot(T1, start=r1, color='blue', legend_label='T')
+p3 = plot(N1, start=r1, color='green', legend_label='N')
+p4 = plot(a1, start=r1, color='magenta', legend_label='a')
+p5 = plot(v1, start=r1, color='black', legend_label='v')
+p6 = parametric_plot([r1[0]+T1[0]*t, r1[1]+T1[1]*t],
+                      (-3,3),color='green')
+(p1+p2+p3+p4+p5+p6).show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{TangentNormal}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch7VectorFunctions/TangentNormal.png}
+\caption{Tangent and normal vectors for a quadratic path}
+\label{TangentNormal}       % Give a unique label
+\end{figure}
+
+In the SageMath cell below, we apply the same ideas to a 3D spiral.
+$$\mathbf{r}(t) = \left<  4\cos(t/2),4\sin(t/2),t \right> $$
+$$ \mathbf{v}(t) =\mathbf{r'}(t) = \left< -2\sin(t/2),2\cos(t/2),1 \right> $$
+$$ \mathbf{a}(t) =\mathbf{v'}(t) = \left< -\cos(t/2),-\sin(t/2),0 \right> = -\frac{1}{4}\mathbf{r}(t) $$
+$$ ||\mathbf{r'}(t)|| = \sqrt{4+1}=\sqrt{5}  \ \ \ \ \Rightarrow \ \ \  $$
+$$\text{Unit Tangent} =  \mathbf{T}(t) = \frac{ \mathbf{r'}(t)}{ ||\mathbf{r'}(t)|| } = \frac{1}{\sqrt{5} }\left< -2\sin(t/2),2\cos(t/2),1 \right> $$
+In 3D, we can only use the direct approach to finding the unit normal vector by computing $ \mathbf{T'}(t)$ vector that is orthogonal to $\mathbf{T}(t)$ and normalizing it (for a spiral, it is straightforward).
+$$ \mathbf{T'}(t) =  \frac{1}{\sqrt{5} }\left< -\cos(t/2),-\sin(t/2),0 \right> $$
+$$ \mathbf{N}(t) = \frac{ \mathbf{T'}(t)}{ ||\mathbf{T'}(t)|| } =\left< -\cos(t/2),-\sin(t/2),0 \right> $$
+In the SageMath cell below, we compute these vectors at $t=1$ and plot the curve and tangent line.   Note that the normal vector is two-dimensional and always points toward the axis of the spiral.   In addition,  the speed is constant, so the tangential acceleration is 0.  All acceleration is the normal acceleration that is orthogonal to velocity and directed towards the axis of the spiral along the normal vector.
+
+The tangential and normal components of the acceleration are along these directions.
+$$ a_T = \mathbf{a} \cdot \mathbf{T} = \frac{\mathbf{v} \cdot \mathbf{a}}{||\mathbf{v}||} = $$
+$$ \frac{ \left< -2\sin(t/2),2\cos(t/2),1 \right> \cdot  \left< -\cos(t/2),-\sin(t/2),0 \right>}{|| \left< -2\sin(t/2),2\cos(t/2),1 \right>||}  =0$$
+$$ a_N = \mathbf{a} \cdot \mathbf{N} = \frac{||\mathbf{v} \times \mathbf{a}||}{||\mathbf{v}||} $$
+$$ \mathbf{v} \times \mathbf{a} = \left< -2\sin(t/2),2\cos(t/2),1 \right>  \times  $$
+$$ \left< -\cos(t/2),-\sin(t/2),0 \right>  =  \left< \sin(t/2),\cos(t/2),2 \right> $$
+$$a_N = \frac{\sqrt{\sin^2(t/2)+\cos^2(t/2)+4}}{\sqrt{5}} =1 $$
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('t');  assume(t>0); t1 = pi/2; 
+r(t) = vector([4*cos(t/2),4*sin(t/2),t]);  
+p1 = parametric_plot([r(t)[0], r(t)[1], r(t)[2]], (0,2*pi))
+v(t) = derivative(r(t),t); 
+vnorm = v(t).norm(2).full_simplify()
+a(t) = derivative(v(t),t) 
+T(t) = v(t)/vnorm
+Tp(t) = derivative(T(t),t)
+Tpnorm = Tp(t).norm(2).full_simplify()
+N(t) = Tp(t)/Tpnorm
+show('r(t) = ', r(t)); show('v(t) = ', v(t)); 
+show('vnorm = ', vnorm); show('a(t) = ', a(t)); 
+show('T(t) = ', T(t)); show('Tp(t) = ', Tp(t)); 
+show('Tpnorm = ', Tpnorm); show('N(t) = ', N(t))
+r1 = r(t1); v1 = v(t1); a1 = a(t1); 
+T1 = T(t1); N1 = N(t1);  
+show('r1 = ',r1,' v1 = ', v1)
+show(' a1 = ', a1)
+show(' T1 = ', T1, ' N1 = ', N1)
+aT(t) = (v.dot_product(a)/vnorm).full_simplify()
+aN(t) = ((v.cross_product(a)).norm(2)/vnorm).full_simplify()
+# different way to compute components of acceleration:
+aTf(t) = ( a(t).dot_product(T(t)) ).full_simplify()
+aNf(t) = ( a(t).dot_product(N(t)) ).full_simplify()
+show('Components of acceleration computed in 2 ways:')
+show('aT = ',aT(t),'  aTf(t) = ',aTf(t))
+show('aN = ',aN(t),'  aNf(t) = ',aNf(t))
+aT1 = aT(t1); aN1 = aN(t1)
+show('aT1 = ', aT1)
+show('aN1 = ', aN1)
+p2 = plot(T1, start=r1, color='red', \
+          legend_label='T',thickness =5)
+p3 = plot(N1, start=r1, color='green', \
+          legend_label='N',thickness =5)
+p4 = plot(a1, start=r1, color='magenta', \
+          legend_label='a',thickness =5)
+p5 = plot(v1, start=r1, color='black', \
+          legend_label='v',thickness =5)
+p6 = parametric_plot([r1[0]+T1[0]*t, 
+     r1[1]+T1[1]*t, r1[2]+T1[2]*t],(-3,3),color='green')
+(p1+p2+p3+p4+p5+p6).show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{SpiralTangentNormal}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch7VectorFunctions/SpiralTangentNormal.png}
+\caption{Spiral tangent and normal vectors}
+\label{SpiralTangentNormal}       % Give a unique label
+\end{figure}
+
+
+The spiral above provided particularly simple expressions for the norms, which resulted in compact unit tangent and normal vectors.  In this example, we consider a more generic quadratic 3D curve.  
+$$\mathbf{r}(t) = \left<  2t,-3t,t^2 \right> \ \ \ \ \Rightarrow \ \ \  \mathbf{r'}(t) = \left< 2,-3,2t \right> $$
+$$ ||\mathbf{r'}(t)|| = \sqrt{4+9+4t^2}=\sqrt{13+4t^2}  \ \ \ \ \Rightarrow \ \ \  $$
+$$\text{Unit Tangent Vector} =  \mathbf{T}(t) =  \frac{1}{\sqrt{13+4t^2}}\left< 2,-3,2t \right>
+ $$
+In 3D, we can only use the direct approach to finding the unit normal vector by computing $ \mathbf{T'}(t)$ vector that is orthogonal to $\mathbf{T}(t)$ and normalizing it.
+$$ \mathbf{T'}(t) = \frac{ \mathbf{r'}(t)}{ ||\mathbf{r'}(t)|| } = \left(-\frac{8 \, t}{{\left(4 \, t^{2} + 13\right)}^{\frac{3}{2}}},\,\frac{12 \, t}{{\left(4 \, t^{2} + 13\right)}^{\frac{3}{2}}},\,-\frac{8 \, t^{2}}{{\left(4 \, t^{2} + 13\right)}^{\frac{3}{2}}} + \frac{2}{\sqrt{4 \, t^{2} + 13}}\right)$$
+The resulting $ \mathbf{N}(t) = \frac{ \mathbf{T'}(t)}{ ||\mathbf{T'}(t)|| } $ is very messy as the SageMath cell below shows.  It is better to concentrate on the numerical values of all the vectors at $t=1$ and plot them on the graph.  We also compute.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('t');  assume(t>0); t1 = 1; 
+r(t) = vector([2*t,-3*t,t^2]);  
+p1 = parametric_plot([r(t)[0], r(t)[1], r(t)[2]], 
+                     (-1,2),thickness=5)
+v(t) = derivative(r(t),t); 
+vnorm = v(t).norm(2).full_simplify()
+a(t) = derivative(v(t),t) 
+T(t) = v(t)/vnorm
+Tp(t) = derivative(T(t),t)
+Tpnorm = Tp(t).norm(2).full_simplify()
+N(t) = Tp(t)/Tpnorm
+show('r(t) = ', r(t)); show('v(t) = ', v(t)); 
+show('vnorm = ', vnorm); show('a(t) = ', a(t)); 
+show('T(t) = ', T(t)); show('Tp(t) = ', Tp(t)); 
+show('Tpnorm = ', Tpnorm); show('N(t) = ', N(t))
+r1 = r(t1); v1 = v(t1); a1 = a(t1); T1 = T(t1); N1 = N(t1);  
+show('r1 = ',r1,' v1 = ', v1, ' a1 = ', a1)
+show(' T1 = ', T1)
+show(' N1 = ', N1)
+aT(t) = (v.dot_product(a)/vnorm).full_simplify()
+aN(t) = ((v.cross_product(a)).norm(2)/vnorm).full_simplify()
+# different way to compute components of acceleration:
+aTf(t) = ( a(t).dot_product(T(t)) ).full_simplify()
+aNf(t) = ( a(t).dot_product(N(t)) ).full_simplify()
+show('Components of acceleration computed in 2 ways:')
+show('aT = ',aT(t),'  aTf(t) = ',aTf(t))
+show('aN = ',aN(t),'  aNf(t) = ',aNf(t))
+aT1 = aT(t1); aN1 = aN(t1)
+aTf1 = aTf(t1); aNf1 = aNf(t1)
+show('aT1 = ', aT1, '  aN1 = ', aN1)
+show('aTf1 = ', aTf1, '  aNf1 = ', aNf1)
+p2 = plot(T1, start=r1, color='red', \
+          legend_label='T',thickness =5)
+p3 = plot(N1, start=r1, color='green', \
+          legend_label='N',thickness =5)
+p4 = plot(a1, start=r1, color='magenta', \
+          legend_label='a',thickness =5)
+p5 = plot(v1, start=r1, color='black', \
+          legend_label='v',thickness =5)
+p6 = parametric_plot([r1[0]+T1[0]*t, \
+       r1[1]+T1[1]*t, r1[2]+T1[2]*t], 
+       (-5,5),color='green', thickness = 5)
+(p1+p2+p3+p4+p5+p6).show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Quad3dTangentNormal}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch7VectorFunctions/Quad3dTangentNormal.png}
+\caption{Quadratic 3D curve tangent and normal vectors}
+\label{Quad3dTangentNormal}       % Give a unique label
+\end{figure}
+
+
+Finally, let's consider again the projectile.   A baseball is hit at 96 ft/sec 30 degrees to the horizontal from the height of 3 feet.  In the SageMath cell below, we first recompute acceleration, velocity, and position (repeating what we have done before).  Then proceed with unit tangent and normal vectors.   Once again, the normal vector function is way too long to compute via the derivative of the unit tangent vector, so we included a 2D shortcut based on directly finding a vector normal to velocity.   The analytical expressions computed with different approaches sometimes appear differently, but they all produce the same vectors at the time $t=1$. In addition, for the projectile, the unit tangent and normal vectors look too small on the trajectory, so we plotted actual velocity and acceleration and lines along unit tangent and normal vectors to show those directions.  The acceleration can be broken down into tangential and normal components along those directions, and the components are computed as well.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('t');  
+g = -32;  v0 = 96;  th0 = 30*pi/180; h = 3;
+a(t) = vector([0,g]);  
+v(t) = integrate(a,t) + vector([v0*cos(th0),v0*sin(th0)]); 
+r(t) = integrate(v,t) + vector([0,h]);  t1 = 1
+p1 = parametric_plot([r(t)[0], r(t)[1]], (0,3))
+vnorm = v(t).norm(2).full_simplify()
+T(t) = v(t)/vnorm
+Tp(t) = derivative(T(t),t)
+Tpnorm = Tp(t).norm(2).full_simplify()
+N(t) = Tp(t)/Tpnorm  # general computation of normal vector
+Nf(t) = vector([v(t)[1],-v(t)[0]])/vnorm # easier 2D normal
+show('r(t) = ', r(t)); show('v(t) = ', v(t)); 
+show('vnorm = ', vnorm); show('a(t) = ', a(t)); 
+show('T(t) = ', T(t)); show('Tp(t) = ', Tp(t)); 
+show('Tpnorm = ', Tpnorm); show('N(t) = ', N(t))
+show('Nf(t) = ', Nf(t))
+a1 = a(t1); v1 = v(t1); r1 = r(t1); 
+T1 = T(t1); N1 = N(t1);  Nf1 = Nf(t1);
+show('r1 = ',r1,' v1 = ', v1,' a1 = ', a1)
+show(' T1 = ', T1)
+show(' N1 = ', N1)
+show(' Nf1 = ', Nf1)
+aT(t) = (v(t).dot_product(a(t))).full_simplify()/vnorm
+aN(t) = abs(v(t)[1]*a(t)[0]-v(t)[0]*a(t)[1]).full_simplify()/vnorm
+# different way to compute components of acceleration:
+aTf(t) = ( a(t).dot_product(T(t)) ).full_simplify()
+aNf(t) = ( a(t).dot_product(N(t)) ).full_simplify()
+show('Components of acceleration computed in 2 ways:')
+show('aT(t) = ',aT(t),'  aTf(t) = ',aTf(t))
+show('aN(t) = ',aN(t),'  aNf(t) = ',aNf(t))
+aT1 = aT(t1); aN1 = aN(t1); aTf1 = aTf(t1); aNf1 = aNf(t1)
+show('aT1 = ', aT1, '  aTf1 = ', aTf1)
+show('aN1 = ', aN1, '  aNf1 = ', aNf1)
+p2 = plot(v1, start=r1, color='blue', legend_label='v1')
+p3 = plot(a1, start=r1, color='green', legend_label='a1')
+p4 = parametric_plot([r1[0]+T1[0]*t, r1[1]+T1[1]*t],
+                      (-20,20),color='green',thickness = 3)
+p5 = parametric_plot([r1[0]+N1[0]*t, r1[1]+N1[1]*t],
+                      (-10,10),color='green',thickness = 3)
+(p1+p2+p3+p4+p5).show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{ProjectilleNormal}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch7VectorFunctions/ProjectilleNormal.png}
+\caption{Projectile curve tangent and normal vectors}
+\label{ProjectilleNormal}       % Give a unique label
+\end{figure}
+
+
+
+
+
+
+
+
+
+
+
+\section{Arc Length and Curvature}
+
+Let's begin this section with computing the arc length for a basic 3D example.
+$$\mathbf{r}(t) = \left<  1,t^2,t^3  \right> \ \ \ \Rightarrow \ \ \  \mathbf{r'}(t) = \left<  0,2t,3t^2  \right> \ \ \ \Rightarrow \ \ \ $$
+$$ ||\mathbf{r'}(t)|| =\sqrt{0+4t^2+9t^4} = t\sqrt{4+9t^2}$$
+$$s=\int ||\mathbf{r'}(t)|| dt =\int  t\sqrt{4+9t^2} dt = [u=4+9t^2 \ \ du = 18tdt] = $$
+$$ \int \sqrt{u} \frac{du}{18} = \frac{1}{18} \frac{u^{3/2}}{{3/2}} = \frac{(4+9t^2)^{3/2}}{27}$$
+$$ \text{In particular for interval} \ 0<t<2, \ \ L =\int_0^2  t\sqrt{4+9t^2} dt = s(2)-s(0) = \frac{40^{3/2}-4^{3/2}}{27}$$
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('t');  assume(t>0); 
+r(t) = vector([1,t^2,t^3]);  
+v(t) = derivative(r(t),t); 
+vnorm(t) = v(t).norm(2).full_simplify()
+s(t) = integrate(vnorm(t) ,t) 
+show('r(t)= ', r(t), '  v(t)= ', v(t))
+show('vnorm(t)= ', vnorm(t), '   s(t)= ', s(t) )
+L = s(2)-s(0)
+show('Arc length on [0,2] = ',L,' = ',N(L))
+parametric_plot3d([r(t)[0], r(t)[1], r(t)[2]], 
+                          (0,2), thickness=5)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{ArcLength3d}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch7VectorFunctions/ArcLength3d.png}
+\caption{Arc length in 3D}
+\label{ArcLength3d}       % Give a unique label
+\end{figure}
+
+
+Consider now a spiral.   First, let's use generic parameters.
+$$\mathbf{r}(t) = \left<  a\cos(bt), a\sin(bt),ct  \right> \ \ \ \Rightarrow \ \ \ \ \mathbf{r'}(t) = \left<  -ab\sin(bt), ab\cos(bt),c  \right> \ \ \ \Rightarrow $$
+$$  ||\mathbf{r'}(t)|| =\sqrt{a^2b^2\sin^2(bt)+a^2b^2\cos^2(bt)+c^2} = \sqrt{a^2b^2+c^2}$$
+$$s=\int ||\mathbf{r'}(t)|| dt =\int  \sqrt{a^2b^2+c^2} dt =\sqrt{a^2b^2+c^2}t$$
+We can re\-parametrize curve using arc\-length $s$:
+$$ t = \frac{s}{\sqrt{a^2b^2+c^2}}  \ \ \ \ \ \ \ \mathbf{r}(s) = \left<  a\cos\left(b \frac{s}{\sqrt{a^2b^2+c^2}} \right), a\sin\left(b \frac{s}{\sqrt{a^2b^2+c^2}} \right),c\left(\frac{s}{\sqrt{a^2b^2+c^2}}\right)  \right>$$
+$$ \mathbf{r'}(s) = \left<  \frac{ab}{\sqrt{a^2b^2+c^2}}\cos\left(b \frac{s}{\sqrt{a^2b^2+c^2}} \right), \frac{ab}{\sqrt{a^2b^2+c^2}}\sin\left(b \frac{s}{\sqrt{a^2b^2+c^2}} \right),\left(\frac{c}{\sqrt{a^2b^2+c^2}}\right)  \right>$$
+$$ ||\mathbf{r'}(s)|| = \sqrt{  \frac{a^2b^2}{a^2b^2+c^2}\cos^2\left(b \frac{s}{\sqrt{a^2b^2+c^2}} \right) + \frac{a^2b^2}{a^2b^2+c^2}\sin^2\left(b \frac{s}{\sqrt{a^2b^2+c^2}} \right)+ \frac{c^2}{a^2b^2+c^2} } =1 $$
+It is not an accident that $||\mathbf{r'}(s)||=1$, it is shown in Differential Geometry always to be the case.    In the SageMath cell below, we first compute with general parameters and then recompute with particular numbers and plot.
+
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('a,b,c,s,t');  assume(t>0); assume(s>0); 
+r(t) = vector([a*cos(b*t),a*sin(b*t),c*t]);  
+v(t) = derivative(r(t),t); 
+vnorm(t) = v(t).norm(2).full_simplify()
+S(t) = integrate(vnorm(t) ,t) 
+show('r(t)= ', r(t), '  v(t)= ', v(t))
+show('  vnorm(t)= ', vnorm(t), '   S(t)= ', S(t) )
+r(s) = vector([a*cos(b/sqrt(a^2*b^2+c^2)*s),
+    a*sin(b/sqrt(a^2*b^2+c^2)*s),c*s/sqrt(a^2*b^2+c^2)]);  
+v(s) = derivative(r(s),s); 
+vnorm(s) = v(s).norm(2).full_simplify()
+S(s) = integrate(vnorm(s) ,s) 
+show('r(s)= ', r(s))
+show('v(s)= ', v(s))
+show('vnorm(s)= ', vnorm(s))
+show('S(s)= ', S(s) )
+a = 3; b = 2; c = 1/2
+r(t) = vector([a*cos(b*t),a*sin(b*t),c*t]);  
+v(t) = derivative(r(t),t); 
+vnorm(t) = v(t).norm(2).full_simplify()
+S(t) = integrate(vnorm(t) ,t) 
+show('r(t)= ', r(t), '  v(t)= ', v(t))
+show('  vnorm(t)= ', vnorm(t), '   S(t)= ', S(t) )
+L = S(2)-S(0)
+show('Arc length on [0,2] = ',L,' numerically = ',N(L))
+parametric_plot3d([r(t)[0], r(t)[1], r(t)[2]], 
+                  (0,2*pi), thickness = 5)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{ArcSpiral}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch7VectorFunctions/ArcSpiral.png}
+\caption{Arc length for a spiral}
+\label{ArcSpiral}       % Give a unique label
+\end{figure}
+
+Consider curvature of a simple circle $\mathbf{r}(t) = \left<  a\cos(\theta), a\sin(\theta)  \right>$.   The arc length $s = r\theta=a\theta \ \ \ \ \Rightarrow \theta = \frac{s}{a}$, so reparametrizing with $s$, we obtain:
+$$\mathbf{r}(s) = \left<  a\cos\left( \frac{s}{a}\right), a\sin\left( \frac{s}{a}\right)  \right>\ \ \ \ \   \Rightarrow \ \ \ $$
+$$\mathbf{v}(s) = \mathbf{r}'(s) = \left<  -\sin\left( \frac{s}{a}\right), \cos\left( \frac{s}{a}\right)  \right> \ \ \ \Rightarrow \ \ \   ||\mathbf{v}(s)||  = 1$$
+$$\mathbf{T}(s) = \frac{\mathbf{v}(s)}{||\mathbf{v}(s)||} = \mathbf{v}(s) = \left<  -\sin\left( \frac{s}{a}\right), \cos\left( \frac{s}{a}\right)  \right> $$
+$$\mathbf{T'}(s) =\left<  -\frac{1}{a}\cos\left( \frac{s}{a}\right), -\frac{1}{a}\sin\left( \frac{s}{a}\right)  \right> \ \ \ \ \ \ \ Curvature = K =||\mathbf{T'}(s)|| =\frac{1}{a}$$
+In the SageMath cell below, we first compute with general parameters and then plot the circle for the particular radius in arc length parametrization.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('a,s');  
+assume(a>0); assume(s>0); 
+r(s) = vector([a*cos(1/a*s),a*sin(1/a*s)]);  
+v(s) = derivative(r(s),s); 
+vnorm(s) = v(s).norm(2).full_simplify()
+T(s) = v(s)/vnorm(s); Tp(s) = derivative(T(s),s)
+K = Tp(s).norm(2).full_simplify()
+show('r(s)= ', r(s)); show('v(s)= ', v(s))
+show('vnorm(s)= ', vnorm(s)); show('T(s)= ', T(s) )
+show('Tp(s)= ', Tp(s) ); show('K= ', K)
+a = 2; r1(s) = vector([a*cos(1/a*s),a*sin(1/a*s)]);  
+parametric_plot([r1(s)[0], r1(s)[1]], 
+                (0,4*pi), figsize = (4,3))
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{CircleCurvature}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch7VectorFunctions/CircleCurvature.png}
+\caption{Curvature of a circle}
+\label{CircleCurvature}       % Give a unique label
+\end{figure}
+
+
+Consider a more general curvature example in 3D. 
+$$\mathbf{r}(t) = \left<  2t, t^2,- \frac{t^3}{3}  \right> \ \ \ \Rightarrow \ \ \ \ \mathbf{r'}(t) = \left<  2, 2t, -t^2  \right> \ \ \ \Rightarrow $$
+$$  \mathbf{r''}(t) = \left<  0, 2,-2t \right> \ \ \ \ \ \ \ \ \  ||\mathbf{r'}(t)|| =\sqrt{4+4t^2+t^4}  =\sqrt{(2+t^2)^2} =2+t^2  $$
+$$ \text{Tangent Vector = } \mathbf{T}(t) =\frac{\mathbf{r'}(t)}{ ||\mathbf{r'}(t)||} = \frac{\left<  2, 2t, -t^2  \right>}{2+t^2}$$
+$$\mathbf{T'}(t)  = \left(-\frac{4 \, t}{{\left(t^{2} + 2\right)}^{2}},\,-\frac{4 \, t^{2}}{{\left(t^{2} + 2\right)}^{2}} + \frac{2}{t^{2} + 2},\,\frac{2 \, t^{3}}{{\left(t^{2} + 2\right)}^{2}} - \frac{2 \, t}{t^{2} + 2}\right)$$
+Then the curvature is defined to be $K = \frac{||\mathbf{T'}(t)||}{ ||\mathbf{r'}(t)||}$.   The SageMath cell below was able to simplify this to a much smaller expression, but this approach tends to be cumbersome.  Note that to simplify the square root we used \texttt{.canonicalize\_radical()} and it was only possible to do it in this particular case.   A better approach might be to use a different formula for curvature: $K = \frac{||\mathbf{r'}(t) \times \mathbf{r''}(t)||}{ ||\mathbf{r'}(t)||^3}$.
+$$ \mathbf{r'}(t) \times \mathbf{r''}(t) =   \left<  2, 2t, -t^2  \right> \times  \left<  0, 2,-2t \right> =  \left<  -4t^2+2t^2, 4t,4 \right> =    \left<  -2t^2, 4t,4 \right>  $$
+$$ K = \frac{\sqrt{4t^4+16t^2+16} }{(2+t^2)^3} = \frac{2(2+t^2) }{(2+t^2)^3} =\frac{2}{(2+t^2)^2} $$The results are the same, but the 2nd method is much better computationally.   The graph of this curvature shows that it is maximized at $t=0$.
+
+Let's also illustrate formulas for tangential and normal accelerations for a particle moving on this path.
+$$\frac{ds}{dt} = || \mathbf{r'}(t)|| =2+t^2 \ \ \ \ \ \ \ a_T = \frac{d^2s}{dt^2} =2t$$
+$$ a_N = K \left( \frac{ds}{dt} \right)^2 =  \frac{2}{(2+t^2)^2}(2+t^2)^2=2 = const$$
+
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('t');  assume(t>0); 
+r(t) = vector([2*t,t^2,-t^3/3]);  
+rp(t) = derivative(r(t),t); 
+rpp(t) = derivative(rp(t),t); 
+rpnorm(t) = rp(t).norm(2).canonicalize_radical()
+T(t) = rp(t)/rpnorm(t); Tp(t) = derivative(T(t),t)
+Tpnorm(t)= Tp(t).norm(2).canonicalize_radical()
+K(t) = ( Tpnorm(t)/rpnorm(t) ).full_simplify()
+
+show('Results of direct computation:')
+show('r(t)= ', r(t)); show('rp(t)= ', rp(t)); 
+show('rpp(t)= ', rpp(t)); show('rpnorm(t)= ', rpnorm(t)); 
+show('T(t)= ', T(t) ); show('Tp(t)= ', Tp(t) );
+show('Tpnorm(t)= ', Tpnorm(t) )
+show('K(t) = Tpnorm(t)/rpnorm(t) = ', K(t))
+
+show('Computation with cross product:')
+cross(t) = rp(t).cross_product(rpp(t))
+crossnorm(t) = cross(t).norm(2).canonicalize_radical()
+K(t) = ( crossnorm(t)/rpnorm(t)^3 ).full_simplify()
+show('cross(t)= ', cross(t)); 
+show('crossnorm(t) = ', crossnorm(t)); 
+show('K(t) = ', K(t))
+
+show('Computing the components of acceleration:')
+sp(t) = rpnorm(t)
+spp(t) = derivative(sp(t),t)
+aT(t) = spp(t)
+aN(t) = ( K(t)*sp(t)^2 ).full_simplify()
+show('sp(t) = ', sp(t),'  spp(t) = ', spp(t))
+show('aT(t) = ', aT(t),'  aN(t) = ', aN(t))
+
+p1 = parametric_plot3d([r(t)[0], r(t)[1], r(t)[2]],\
+                  (-2,2), thickness = 5); show(p1)
+p2 = plot(K(t),(t,-2,2)); show(p2)
+
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Curvature3d}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch7VectorFunctions/Curvature3d.png}
+\caption{Curvature in a 3D curve}
+\label{Curvature3d}       % Give a unique label
+\end{figure}
+
+Let's do a similar calculation for a 3D spiral.
+$$\mathbf{r}(t) = \left<  3\cos(t),3\sin(t),2t \right> \ \ \ \Rightarrow \ \ \ \ \mathbf{r'}(t) = \left<  -3\sin(t),3\cos(t),2 \right> \ \ \ \Rightarrow $$
+$$  \mathbf{r''}(t) = \left<  -3\cos(t),-3\sin(t),0 \right> \ \ \ \ \ \ \ \ \  ||\mathbf{r'}(t)|| =\sqrt{9+4}  =\sqrt{13}  $$
+$$ \text{Tangent Vector = } \mathbf{T}(t) =\frac{\mathbf{r'}(t)}{ ||\mathbf{r'}(t)||} = \frac{1}{\sqrt{13}}\left<  -3\sin(t),3\cos(t),2 \right> $$
+$$\mathbf{T'}(t)  =\frac{1}{\sqrt{13}}\left<  -3\cos(t),-3\sin(t),0 \right> \ \ \ \ \ \  \ K = \frac{||\mathbf{T'}(t)||}{ ||\mathbf{r'}(t)||} = \frac{3}{13}$$
+Using the 2nd approach: $K = \frac{||\mathbf{r'}(t) \times \mathbf{r''}(t)||}{ ||\mathbf{r'}(t)||^3}$.
+$$\mathbf{r'}(t) \times \mathbf{r''}(t) =    \left<  -3\sin(t),3\cos(t),2 \right> \times \left<  -3\cos(t),-3\sin(t),0 \right> =   \left<  6\sin(t),-6\cos(t),9 \right>$$
+$$ K = \frac{\sqrt{36+81} }{(\sqrt{13})^3} = \frac{3}{13} $$
+The results are the same.   For the spiral, the curvature is constant everywhere.
+
+Once again, consider tangential and normal accelerations for a particle moving on this path.
+$$\frac{ds}{dt} = || \mathbf{r'}(t)|| =\sqrt{13}\ \ \ \ \ \ \ a_T = \frac{d^2s}{dt^2} =0$$
+$$ a_N = K \left( \frac{ds}{dt} \right)^2 =  \frac{3}{13}(\sqrt{13})^2=3 = const$$Note that from Physics point of view if an object of mass 20 kg is travelling on this curve, the normal acceleration keeping it on the curve and the centripetal force is $ma_N=20\cdot 3=60=const$.
+
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('t');  assume(t>0); 
+r(t) = vector([3*cos(t),3*sin(t),2*t]);  
+rp(t) = derivative(r(t),t); 
+rpp(t) = derivative(rp(t),t); 
+rpnorm(t) = rp(t).norm(2).full_simplify()
+T(t) = rp(t)/rpnorm(t); Tp(t) = derivative(T(t),t)
+Tpnorm(t)= Tp(t).norm(2).canonicalize_radical()
+K(t) = ( Tpnorm(t)/rpnorm(t) ).full_simplify()
+
+show('Results of direct computation:')
+show('r(t)= ', r(t)); show('rp(t)= ', rp(t)); 
+show('rpp(t)= ', rpp(t)); show('rpnorm(t)= ', rpnorm(t)); 
+show('T(t)= ', T(t) ); show('Tp(t)= ', Tp(t) ); 
+show('Tpnorm(t)= ', Tpnorm(t) )
+show('K(t) = Tpnorm(t)/rpnorm(t) = ', K(t))
+
+show('Computation with cross product:')
+cross(t) = rp(t).cross_product(rpp(t))
+crossnorm(t) = cross(t).norm(2).full_simplify()
+K(t) = ( crossnorm(t)/rpnorm(t)^3 ).full_simplify()
+show('cross(t)= ', cross(t)); 
+show('crossnorm(t) = ', crossnorm(t)); 
+show('K(t) = ', K(t))
+
+show('Computing the components of acceleration:')
+sp(t) = rpnorm(t)
+spp(t) = derivative(sp(t),t)
+aT(t) = spp(t)
+aN(t) = ( K(t)*sp(t)^2 ).full_simplify()
+show('sp(t) = ', sp(t),'  spp(t) = ', spp(t))
+show('aT(t) = ', aT(t),'  aN(t) = ', aN(t))
+
+parametric_plot3d([r(t)[0],r(t)[1],r(t)[2]],\
+                  (0,2*pi),thickness=5)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{CurvatureSpiral}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch7VectorFunctions/CurvatureSpiral.png}
+\caption{Curvature of 3D spiral}
+\label{CurvatureSpiral}       % Give a unique label
+\end{figure}
+
+
+
+In this problem, let's consider a curvature circle for a 2D curve.  Its radius is the reciprocal of the curvature, and its center must lie on the normal line at the point of interest. For example
+$$f(x) = \ln(x) \ \ \ \ \ f'(x) = \frac{1}{x} \ \ \ \ \ \ f''(x) =- \frac{1}{x^2}$$
+$$ K = \frac{||f''(x)||}{(1+f'(x)^2)^{3/2}}=\frac{\frac{1}{x^2}}{\left( 1+ \left(\frac{1}{x}\right)^2\right)^{3/2}}=\frac{x}{(1+x^2)^{3/2}}$$
+Consider point $(1,0)$ on the curve.   At this point, the curvature is $K = \frac{1}{2^{3/2}} \ \ \ \Rightarrow \ \ \ radius = r = \frac{1}{K}=2^{3/2}$.
+The tangent line at this point is $y= y_1+f'(x_1)(x-x_1)=0+1(x-1)=x-1$, and the normal line is $y= y_1-\frac{1}{f'(x_1)}(x-x_1)=0-1(x-1)=-x+1$.     To find the equation of the curvature circle note that its center lies on the normal line, so $y_c = -x_c+1$ and the point $(1,0)$ lies on it, so in the circle equation $(x-x_c)^2+(y-y_c)^=r^2$, we obtain $(1-x_c)^2+(0-(-x_c+1)^2=(2^{3/2})^2$.  Therefore $2(x_c-1)^2=8 \ \ \ \Rightarrow x_c-1 = \pm 2$ and $x_c = 3,-1$.   Only $x_c = 3$ is relevant in this problem.  Thus, the center of the curvature circle is at $(3,-2)$.
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y,xc,yc'); assume(x>0)
+f(x) = ln(x);  x1 = 1; y1 = f(x1);
+fp(x)  = derivative(f(x) ,x); 
+fpp(x) = derivative(fp(x),x);
+K(x) = ( abs(fpp(x))/(1+fp(x)^2)^(3/2) ).full_simplify()
+K1 = K(x1);  r1 = 1/K1;  xc = x1; yc = y1-r1
+show('f(x) = ', f(x)); show('fp(x) = ', fp(x)); 
+show('fpp(x) = ', fpp(x));  
+show('K(x) = abs(fpp(x))/(1+fp(x)^2)^(3/2) = ', K(x))
+show('K1 =', K1,'  r1 = ',r1); 
+ytang(x) = y1 + fp(x1)*(x-x1)
+ynorm(x) = y1 -1/fp(x1)*(x-x1)
+show('ytang(x) = ',ytang(x),'   ynorm(x) = ',ynorm(x))
+Circle(x,y,xc,yc) = (x-xc)^2+(y-yc)^2-r1^2
+sol = solve(Circle(x1,y1,xc,ynorm(xc))==0,xc)
+show('sol = ', sol)
+xc = sol[0].rhs();   yc = ynorm(xc)
+show('xc = ',xc,'   yc = ',yc)
+p1 = plot(f(x),(x,0,8), gridlines = True)
+p2 = implicit_plot((x-xc)^2+(y-yc)^2-r1^2,(x,0,8),(y,-7,4))
+p3 = plot(ytang(x),(x,0,4),color = 'green')
+p4 = plot(ynorm(x),(x,0,4),color = 'red')
+(p1+p2+p3+p4).show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Curvature2d}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch7VectorFunctions/Curvature2d.png}
+\caption{Curvature of 2D including local curvature circle}
+\label{Curvature2d}       % Give a unique label
+\end{figure}
+

@@ -1,0 +1,1226 @@
+\chapter{Miltiple Integration}
+
+\section{Iterated Integrals and Plane Areas}
+
+
+Let's start with standard area questions requiring a double integral of 1 computed via the iterated integrals.   Find the area bounded by $y=2x$, $x$-axis, line $x=1$, and $x=2$.
+$$Area = \int_1^2 \int_0^{2x} 1 dy dx = \int_1^2 y |_0^{2x}dx = \int_1^2 2x dx = \left( 2\frac{x^2}{2} \right)_1^2=4-1=3$$
+The SageMath cell below shows step-by-step iterated integral computation and plots the filled area of integration.   In addition, SageMath has an internal \texttt{.integrate()} method that can be applied iteratively, as illustrated below, to obtain the same answer more efficiently.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y')
+L(x) = 0; # lower bound
+U(x) = 2*x # upper bound
+Int_inner(x) = integral(1,(y,0,U(x)))
+Int_outer(x) = integral(Int_inner(x),x)
+Int = Int_outer(2)-Int_outer(1)
+show('Int_inner = ',Int_inner(x))
+show('Int_outer = ',Int_outer(x), ' Int = ',Int)
+
+f(x,y) = 1
+show('Sage Integral = ',
+     f(x,y).integrate(y,L(x),U(x)).integrate(x,1,2))
+plot(U(x), 1, 2, figsize = (4,3), fill=True)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{RepeatedInt}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch9MultipleIntegrals/RepeatedInt}
+\caption{Area below graph}
+\label{RepeatedInt}       % Give a unique label
+\end{figure}
+
+
+
+The next example uses SageMath to compute the area between $\sin(x)$ and $\cos(x)$ curves bounded by their intersections at $\frac{\pi}{4}$ and $\frac{5\pi}{4}$.   There are infinitely many periodic intersections that could be obtained by solving:
+$$\sin(x) = \cos(x) \ \ \Rightarrow \ \  \tan(x)=1  \ \ \Rightarrow \ \ x =  \frac{\pi}{4} +\pi n$$
+We concentrate on the interval $\left[\frac{\pi}{4}, \frac{5\pi}{4}\right]$.
+$$Area = \int_\frac{\pi}{4}^ \frac{5\pi}{4} \int_{\cos(x)}^{\sin(x)} 1 dy dx = \int_\frac{\pi}{4}^ \frac{5\pi}{4} y |_{\cos(x)}^{\sin(x)}dx = \int_\frac{\pi}{4}^ \frac{5\pi}{4} \sin(x)-\cos(x) dx = $$
+$$ = \left( -\cos(x)-\sin(x) \right)_\frac{\pi}{4}^ \frac{5\pi}{4} =  \left( \frac{\sqrt{2}}{2}+ \frac{\sqrt{2}}{2} \right) +  \left( \frac{\sqrt{2}}{2}+ \frac{\sqrt{2}}{2} \right) = 2\sqrt{2} $$
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y')
+U(x) = sin(x) # upper bound
+L(x) = cos(x) # lower bound
+Int_inner(x) = integral(1,(y,L(x),U(x)))
+Int_outer(x) = integral(Int_inner(x),x)
+Int = Int_outer(5*pi/4)-Int_outer(pi/4)
+show('Int_inner = ',Int_inner(x))
+show(' Int_outer = ',Int_outer(x), ' Int = ',Int)
+
+f(x,y) = 1
+show('Sage Integral = ',
+  f(x,y).integrate(y,L(x),U(x)).integrate(x,pi/4,5*pi/4))
+
+plot([L(x), U(x)], (x,0,4), figsize = (4,3), fill={0:[1]})
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{SinRepeatedInt}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch9MultipleIntegrals/SinRepeatedInt}
+\caption{Area between $sin(x)$ and $cos(x)$ curves}
+\label{SinRepeatedInt}       % Give a unique label
+\end{figure}
+
+
+Next, consider an example of the area bounded by the $x$-axis and the lines $y=2x-x^2$ and $y=3-2x$.   They intersect at 
+$$2x-x^2 = 3-2x \ \ \Rightarrow \ \ x^2-4x+3 = $$
+$$ (x-1)(x-3) = 0   \ \ \Rightarrow  \ \ x = 1 \  \text{and}  \ x = 3$$
+Also the parabola crosses $x$\-axis at $x=0$ and $x=2$, while the line crosses it at $x=\frac{3}{2}$.  In the interest of space, I provided the entire computation in one cell below.  However, in your own computations, breaking it over two cells may be beneficial.   The first one might only plot the lines to see the area, while the second one would compute the areas.  The first one is between $x=1$ and $x=\frac{3}{2}$ and bounded above by the parabola and below by the line, while the 2nd one is between  $x=\frac{3}{2}$ and $x=2$ and bounded above by the parabola and below by the $x$-axis.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y')
+U(x) = 2*x-x^2 # upper bound
+L(x) = 3-2*x # lower bound
+sol = solve(U(x)==L(x),x); 
+show('Show intersection points: ',sol)
+p1 = plot([L(x), U(x)], (x,1,1.5), 
+          figsize=(4,3),fill={0:[1]})
+p2 = plot([0, U(x)], (x,1.5,2), fill={0:[1]})
+(p1+p2).show()
+
+Int_inner(x) = integral(1,(y,L(x),U(x)))
+Int_outer(x) = integral(Int_inner(x),x)
+Int1 = Int_outer(3/2)-Int_outer(1)
+show('Int_inner = ',Int_inner(x))
+show(' Int_outer = ',Int_outer(x), ' Int1 = ',Int1)
+
+Int_inner(x) = integral(1,(y,0,U(x)))
+Int_outer(x) = integral(Int_inner(x),x)
+Int2 = Int_outer(2)-Int_outer(3/2)
+show('Int_inner = ',Int_inner(x))
+show(' Int_outer = ',Int_outer(x), ' Int2 = ',Int2)
+
+Int = Int1 + Int2;  show('Int = ',Int)
+
+f(x,y) = 1
+show('Sage Integral first part = ',
+     f(x,y).integrate(y,L(x),U(x)).integrate(x,1,3/2))
+show('Sage Integral second part= ',
+     f(x,y).integrate(y,0,U(x)).integrate(x,3/2,2))
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{AreaIntersect}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch9MultipleIntegrals/AreaIntersect}
+\caption{Area of intersection}
+\label{AreaIntersect}       % Give a unique label
+\end{figure}
+
+
+
+
+
+
+
+\section{Double Integrals and Volume}
+
+Let's begin this section by finding a volume below the plane $z=2x+3y$ and above the intersection of parabolas $L(x)=2x^2$ and $U(x)=4+x^2$.   They intersect at $2x^2=4+x^2 \ \ \Rightarrow \ \ x^2=4 \ \ \Rightarrow \ \ x = \pm 2$.    Note, once again, that in the actual computation, it is better first to see the results of the plot in the beginning of the code and then set the limits based on it.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y')
+U(x) = 4+x^2 # upper bound
+L(x) = 2*x^2 # lower bound
+sol = solve(U(x)==L(x),x); 
+show('Show intersection points: ',sol)
+p = plot([L(x), U(x)], (x,-2,2), 
+     figsize = (4,3),fill={0:[1]}); show(p)
+InnerInt(x,y) = integral(2*x+3*y,y)
+show('InnerInt(x,y) = ', InnerInt(x,y))
+Inner(x) = expand(InnerInt(x,U(x))-InnerInt(x,L(x)))
+show('Inner(x)  = ',Inner(x) )
+Int_outer(x) = integral(Inner(x),x)
+Int = Int_outer(2) - Int_outer(-2)
+show(' Int_outer = ',Int_outer(x))
+show(' Int = ',Int)
+
+f(x,y) = 2*x+3*y
+show('Sage Integral = ',
+  f(x,y).integrate(y,L(x),U(x)).integrate(x,-2,2))
+
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Volume3D}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch9MultipleIntegrals/Volume3D}
+\caption{Volume under plane and between two parabolas}
+\label{Volume3D}       % Give a unique label
+\end{figure}
+
+
+Next, consider a volume below the paraboloid $z=x^2+y^2$ and above the intersection of parabola $L(x)=x^2$ and the line $U(x)=3x$.   They intersect at $x^2=3x \ \ \Rightarrow \ \ x(x-3)=0 \ \ \Rightarrow \ \ x = 0, \ 3$.    
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y')
+U(x) = 3*x # upper bound
+L(x) = x^2 # lower bound
+sol = solve(U(x)==L(x),x); 
+show('Show intersection points: ',sol)
+p = plot([L(x), U(x)], (x,0,3), 
+     figsize = (4,3), fill={0:[1]}); show(p)
+InnerInt(x,y) = integral(x^2+y^2,y)
+show('InnerInt(x,y) = ', InnerInt(x,y))
+Inner(x) = expand(InnerInt(x,U(x))-InnerInt(x,L(x)))
+show('Inner(x)  = ',Inner(x) )
+Int_outer(x) = integral(Inner(x),x)
+Int = Int_outer(3) - Int_outer(0)
+show(' Int_outer = ',Int_outer(x))
+show(' Int = ',Int)
+f(x,y) = x^2+y^2
+show('Sage Integral = ',
+     f(x,y).integrate(y,L(x),U(x)).integrate(x,0,3))
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Volume3D1}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch9MultipleIntegrals/Volume3D1}
+\caption{Volume under paraboloid and between two parabolas}
+\label{Volume3D1}       % Give a unique label
+\end{figure}
+
+
+The next problem is a bit different.   Let's find a double integral of $z=f(x,y)=xy$ over the region bounded by the line $y=x-1$ and parabola $y^2=2x+1$.  The parabola is opening to the right (horizontal), therefore, the inner integral has to be in $x$.   The intersection of the lines can be found as 
+$$y^2=(x-1)^2=x^2-2x+1=2x+1 \ \ \Rightarrow \ \ x^2-4x=x(x-4)=0  \ \ \Rightarrow \ \ x=0,4$$
+Therefore the $y$ bounds are $-1$ and $3$.   
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y')
+U(y) = y+1 # upper bound
+L(y) = (y^2-1)/2 # lower bound
+sol = solve(U(y)==L(y),y); 
+show('Show intersection points: ',sol)
+p1 = implicit_plot(U(y)-x,(x,-4,5),(y,-5,5),
+  color='red',figsize=(4,3), legend_label='U(y)')
+p2 = implicit_plot(L(y)-x,(x,-4,5),(y,-5,5),
+          legend_label='L(y)')
+(p1+p2).show()
+
+InnerInt(x,y) = integral(x*y,x)
+show('InnerInt(x,y) = ', InnerInt(x,y))
+Inner(y) = expand(InnerInt(U(y),y)-InnerInt(L(y),y))
+show('Inner(y)  = ',Inner(y) )
+Int_outer(y) = integral(Inner(y),y)
+Int = Int_outer(3) - Int_outer(-1)
+show(' Int_outer = ',Int_outer(y), ' Int = ',Int)
+
+f(x,y) = x*y
+show('Sage Integral = ',
+     f(x,y).integrate(x,L(y),U(y)).integrate(y,-1,3))
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{InnerX}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch9MultipleIntegrals/InnerX}
+\caption{Double integral that requires inner $x$-integration}
+\label{InnerX}       % Give a unique label
+\end{figure}
+
+
+There are problems where the order of integration makes all the difference.   For example, consider finding the volume under a cylindrical surface (no $x$-dependence) $z=f(x,y)=e^{-y^2}$ over the triangle in the $xy$-plane bounded by the $y$-axis, line $y=x$, and horizontal line $y=2$.  If we set up the iterated integral as usual with inner $y$\- integration, we obtain $V = \int_0^2 \int_x^2  e^{-y^2}dydx$.  The inner $y$\- integral cannot be computed as a combination of elementary functions and is related to the special erf-function, which complicates the computation considerably.   However, if we change the order of integration, we obtain an integral that can be computed directly.
+$$V = \int_0^2 \int_0^y e^{-y^2} dx dy = \int_0^2  e^{-y^2}\left( x \right)_0^y  dy = \int_0^2  e^{-y^2}y  dy = [u=y^2 \ \Rightarrow \ du=2ydy]$$
+$$ =  \int_0^4  e^{-u} \frac{du}{2}  =  \frac{1}{2} \left(  \frac{e^{-u}}{-1}\right)_0^4 =\frac{1-e^{-4}}{2} $$
+In addition, we computed the average value of the $f(x,y)$ function over the integration region.   The area of the region is the area of triangle $Area =A= \frac{1}{2}base \cdot height =\frac{1}{2}2 \cdot 2 =2$.    The average is $f_{ave} = \frac{1}{A}\int \int f dA =\frac{1-e^{-4}}{4} $.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y')
+U(y) = y+1 # upper bound
+L(y) = (y^2-1)/2 # lower bound
+reset(); var('x,y')
+U(x) = 2 # upper bound
+L(x) = x # lower bound
+sol = solve(U(x)==L(x),x); 
+show('Show intersection points: ',sol)
+
+p = plot([L(x), U(x)], (x,0,2), 
+  figsize = (4,3), fill={0:[1]}); show(p);
+
+InnerInt(x,y) = integral(e^(-y^2),x)
+show('InnerInt(x,y) = ', InnerInt(x,y))
+Inner(y) = expand(InnerInt(y,y)-InnerInt(0,y))
+show('Inner(y)  = ',Inner(y) )
+Int_outer(y) = integral(Inner(y),y)
+Int = Int_outer(2) - Int_outer(0)
+show(' Int_outer = ',Int_outer(y))
+show('Int = ',Int,' = ',N(Int))
+
+f(x,y) = e^(-y^2)
+show('Sage Integral = ',
+ f(x,y).integrate(x,0,y).integrate(y,0,2))
+
+show('Area of the triangle  = 1/2*2*2 = ',2)
+show('Average value of function = Int/Area = ',Int/2)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{OrderIntegrat}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch9MultipleIntegrals/OrderIntegrat}
+\caption{Order of integration with exponential}
+\label{OrderIntegrat}       % Give a unique label
+\end{figure}
+
+
+
+
+
+\section{Multiple Integration with Polar Coordinates}
+
+Some double integrals are easier to evaluate in polar form than in rectangular form.  It is particularly true for regions with circular symmetry and integrands involving $x^2+y^2 = r^2$.  For example, find the volume between surfaces $z=f_1(x,y) = 3(x^2+y^2)=3r^2$ and $z=f_2(x,y) = 4-(x^2+y^2)=4-r^2$ for $x>0$.   The surfaces intersect along the unit circle: $3r^2 = 4-r^2 \ \ \Rightarrow \ \ 4r^2=4 \ \ \Rightarrow \ \ r=1$, and $x>0$ corresponds to angle bounds $-\frac{\pi}{2} < \theta <\frac{\pi}{2}$.  Note that the inner integral in $r$ has extra $r$ multiplication from the polar element of area $rdrd\theta$.   
+$$Volume= \int_{-\pi/2}^{\pi/2} \int_0^1 ((4-r^2)-3r^2)rdrd\theta = \pi  \int_0^1 (4-4r^2)rdr =$$
+$$ \pi  \int_0^1 (4r-4r^3)dr = \pi \left(4\frac{r^2}{2}-4\frac{r^4}{4}\right)_0^1 = \pi$$
+The SageMath cell below plots the region in polar coordinates and computes the double integrals as iterated integrals.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset; t = var('t')
+p = polar_plot([1], (t, -pi/2, pi/2), color='black', 
+              thickness=2, fill=True, figsize = (4,3),
+              fillcolor='orange');  show(p)
+InnerInt(r,t) = integral(((4-r^2)-3*r^2)*r,r)
+show('InnerInt(r,t) = ', InnerInt(r,t))
+Inner(t) = expand(InnerInt(1,t)-InnerInt(0,t))
+show('Inner(t)  = ',Inner(t) )
+Int_outer(t) = integral(Inner(t),t)
+Int = Int_outer(pi/2) - Int_outer(-pi/2)
+show(' Int_outer = ',Int_outer(t), ' Int = ',Int)
+
+f(r,t) = ((4-r^2)-3*r^2)*r
+show('Sage Integral = ',
+     f(r,t).integrate(r,0,1).integrate(t,-pi/2,pi/2))
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{PolarInt1}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch9MultipleIntegrals/PolarInt1}
+\caption{Volume between paraboloids with polar coordinates}
+\label{PolarInt1}       % Give a unique label
+\end{figure}
+
+
+In the next problem, let's find the volume left in a sphere of radius $b$ after a cylindrical hole of radius $a$ is drilled through its center.   Using polar substitution, the equation of sphere $x^2+y^2+z^2=b^2$ becomes $r^2+z^2=b^2 \ \ \Rightarrow \ \ z=\sqrt{b^2-r^2}$ for the upper hemisphere.   The $xy$-projection of the sphere with a hole along the z-axis is an annular region with inner radius $a$ and outer radius $b$, shown in the SageMath cell below for $a=1$ and $b=3$.  The figure is symmetric in the $xy$-plane, so we find the volume of the upper part and multiply it by 2.  
+$$V= 2\int_0^{2\pi} \int_a^b \sqrt{b^2-r^2}rdrd\theta =[u=b^2-r^2 \ \Rightarrow \ du=-2rdr] = $$
+$$ 2\int_0^{2\pi} \int_{b^2-a^2}^0\sqrt{u}\left(-\frac{du}{2}\right)  d\theta =\int_0^{2\pi} \int_0^{b^2-a^2} \sqrt{u} du  d\theta =$$
+$$ \int_0^{2\pi} \left( \frac{u^{3/2}}{{3/2}} \right)_0^{b^2-a^2} d\theta  = \frac{2}{3}2\pi (b^2-a^2)^{3/2} =\frac{4\pi}{3} (b^2-a^2)^{3/2} $$
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset; t = var('t')
+p = polar_plot([1,3], (t, 0, 2*pi), color='black', 
+              thickness=2, fill=True, figsize = (4,3),
+              fillcolor='orange');  show(p)
+reset();  var('r,t,a,b')
+InnerInt(r,t) = integral(sqrt(b^2-r^2)*r,r)
+show('InnerInt(r,t) = ', InnerInt(r,t))
+Inner(t) = expand(InnerInt(b,t)-InnerInt(a,t))
+show('Inner(t)  = ',Inner(t) )
+Int_outer(t) = integral(Inner(t),t)
+Int = 2*(Int_outer(2*pi) - Int_outer(0))
+show(' Int_outer = ',Int_outer(t), ' Int = ',Int)
+
+f(r,t) = 2*sqrt(b^2-r^2)*r
+show('Sage Integral = ',
+     f(r,t).integrate(r,a,b).integrate(t,0,2*pi))
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{DrilledSphere}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch9MultipleIntegrals/DrilledSphere}
+\caption{Volume of a drilled sphere}
+\label{DrilledSphere}       % Give a unique label
+\end{figure}
+
+An interesting application of polar coordinates integration is given by the Gaussian integral  $I = \int_{-\infty}^{\infty}e^{-x^2}dx$.  The antiderivative cannot be computed analytically.   However, a rather unexpected switch to double integral and polar coordinates solves the problem:
+$$I^2 = \int_{-\infty}^{\infty}e^{-x^2}dx  \int_{-\infty}^{\infty}e^{-y^2}dy = \int_{-\infty}^{\infty}\int_{-\infty}^{\infty} e^{-(x^2+y^2)}dydx = \int_0^{2\pi}\int_0^\infty e^{-r^2}rdrd\theta =$$
+$$ [u=r^2 \ \Rightarrow \ du=2rdr] =2\pi \int_0^\infty e^{-u}\frac{du}{2}=\pi \left(\frac{e^{-u}}{-1}\right)_0^\infty=\pi  \ \ \Rightarrow \ \ I = \sqrt{\pi}$$
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset();  var('r,t')
+InnerInt(r,t) = integral(e^(-r^2)*r,r)
+show('InnerInt(r,t) = ', InnerInt(r,t))
+Inner(t) = expand(InnerInt(oo,t)-InnerInt(0,t))
+show('Inner(t)  = ',Inner(t) )
+Int_outer(t) = integral(Inner(t),t)
+Int = Int_outer(2*pi) - Int_outer(0)
+show(' Int_outer = ',Int_outer(t), ' Int = ',Int)
+
+f(r,t) = e^(-r^2)*r
+show('Sage Integral = ',
+     f(r,t).integrate(r,0,oo).integrate(t,0,2*pi))
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{GaussianInt}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch9MultipleIntegrals/GaussianInt}
+\caption{Gaussian integral in polar coordinates}
+\label{GaussianInt}       % Give a unique label
+\end{figure}
+
+
+Not surprisingly, polar integration can be used to find area in polar coordinates.  For example, let's find the area inside the polar graph $r=3cos(3\theta)$.  
+$$A = 3\int_{-\frac{\pi}{6}}^{\frac{\pi}{6}} \int_0^{3cos(3\theta)}1rdrd\theta = \frac{3}{2}\int_{-\frac{\pi}{6}}^{\frac{\pi}{6}} \left( 3cos(3\theta) \right)^2d\theta = $$
+$$ 27\int_{0}^{\frac{\pi}{6}}  \frac{1-sin(6\theta)}{2}d\theta = \frac{27}{2} \left(\theta-sin(6\theta) \right)_{0}^{\frac{\pi}{6}}= \frac{27}{2}  \frac{\pi}{6}=\frac{9\pi}{4}$$
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset; t = var('t'); r(t) = 3*cos(3*t)
+sol = solve(r(t)==0,t);  show(sol)
+p = polar_plot(r(t), (t, 0, 2*pi), color='black', 
+              thickness=2, fill=True, figsize = (4,3),
+              fillcolor='orange');  show(p)
+reset();  var('r,t')
+InnerInt(r,t) = integral(1*r,r)
+show('InnerInt(r,t) = ', InnerInt(r,t))
+Inner(t) = expand(InnerInt(3*cos(3*t),t)-InnerInt(0,t))
+show('Inner(t)  = ',Inner(t) )
+Int_outer(t) = integral(Inner(t),t)
+Int = 3*(Int_outer(pi/6) - Int_outer(-pi/6))
+show(' Int_outer = ',Int_outer(t), ' Int = ',Int)
+
+f(r,t) = 3*1*r
+show('Sage Integral = ',
+     f(r,t).integrate(r,0,3*cos(3*t)).integrate(t,-pi/6,pi/6))
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{RoseArea}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch9MultipleIntegrals/RoseArea}
+\caption{Area inside a polar rose curve}
+\label{RoseArea}       % Give a unique label
+\end{figure}
+
+
+
+
+
+
+
+
+
+
+
+\section{Center of Mass}
+
+Let's begin by finding the center of mass of a 2D lamina corresponding to the parabolic region between $y=9-x^2$ and $x$-axis, where the density at the point $(x, y)$ is proportional to the distance between $(x, y)$ and the $x$-axis, i.e. $\rho=Ky$.  Based on the SageMath graph below and density being symmetric in $y$-axis, the center of mass must be on the $y$-axis, so $\bar{x}=0$.  First the mass must be found as an iterated integral $m = \int\int \rho dA = \int_{-3}^3 \int_0^{9-x^2} Ky dydx$, then the $x$-moment is $M_x = \int\int \rho ydA = \int_{-3}^3 \int_0^{9-x^2} Ky^2 dydx$.   The inner integrals are polynomials, but they are rather tedious to compute, so SageMath is a great help.   Finally, $(\bar{x},\bar{y}) = \left( 0,\frac{M_x}{m} \right)$.   For both computations, we show both step-by-step integration and \texttt{.integrate()} shortcut.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y')
+U(x) = 9-x^2 # upper bound
+L(x) = 0 # lower bound
+sol = solve(U(x)==L(x),x); 
+show('Show intersection points: ',sol)
+p = plot([L(x), U(x)], (x,-3,3), 
+   figsize = (4,3), fill={0:[1]}); show(p)
+
+var('K')
+show('First computing mass:')
+InnerInt(x,y) = integral(K*y,y)
+show('InnerInt(x,y) = ', InnerInt(x,y))
+Inner(x) = expand(InnerInt(x,U(x))-InnerInt(x,L(x)))
+show('Inner(x)  = ',Inner(x) )
+Int_outer(x) = integral(Inner(x),x)
+m = Int_outer(3) - Int_outer(-3)
+show(' Int_outer = ',Int_outer(x))
+show(' m = ',m)
+
+f(x,y) = K*y
+show('Sage Integral = ',
+     f(x,y).integrate(y,L(x),U(x)).integrate(x,-3,3))
+
+show('\nNow computing center of mass:')
+InnerInt(x,y) = integral(K*y*y,y)
+show('InnerInt(x,y) = ', InnerInt(x,y))
+Inner(x) = expand(InnerInt(x,U(x))-InnerInt(x,L(x)))
+show('Inner(x)  = ',Inner(x) )
+Int_outer(x) = integral(Inner(x),x)
+Mx = Int_outer(3) - Int_outer(-3)
+show(' Int_outer = ',Int_outer(x))
+
+ybar = Mx/m; show(' Mx = ',Mx)
+f(x,y) = K*y*y
+show('Sage Integral = ',
+     f(x,y).integrate(y,L(x),U(x)).integrate(x,-3,3))
+show('ybar = ',ybar, ' = ', N(ybar))
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{CenterMassParabola}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch9MultipleIntegrals/CenterMassParabola}
+\caption{Center of mass of a parabolic region}
+\label{CenterMassParabola}       % Give a unique label
+\end{figure}
+
+Next, let's determine the center of mass of lamina corresponding to the triangular region $x+y=a$ in the 1st quadrant with density proportional to squared distance from the origin.   Note that based on the object's symmetry and density, the center of mass should be on line $y=x$, so we only need to find $\bar{x}$, say.  Once again, the step-by-step calculations are rather tedious, but SageMath performs them easily.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y')
+U(x) = 3-x # upper bound
+L(x) = 0 # lower bound
+sol = solve(U(x)==L(x),x); 
+show('Show intersection points: ',sol)
+p = plot([L(x), U(x)], (x,0,3), 
+   figsize = (4,3), fill={0:[1]}); show(p)
+
+var('K,a')
+U(x) = a-x # upper bound
+L(x) = 0 # lower bound
+show('First computing mass:')
+InnerInt(x,y) = integral(K*(x^2+y^2),y)
+show('InnerInt(x,y) = ', InnerInt(x,y))
+Inner(x) = expand(InnerInt(x,U(x))-InnerInt(x,L(x)))
+show('Inner(x)  = ',Inner(x) )
+Int_outer(x) = integral(Inner(x),x)
+m = Int_outer(a) - Int_outer(0)
+show(' Int_outer = ',Int_outer(x))
+show(' m = ',m)
+
+f(x,y) = K*(x^2+y^2)
+show('Sage Integral = ',
+  f(x,y).integrate(y,L(x),U(x)).integrate(x,0,a))
+
+show('\nNow computing center of mass:')
+InnerInt(x,y) = integral(K*(x^2+y^2)*x,y)
+show('InnerInt(x,y) = ', InnerInt(x,y))
+Inner(x) = expand(InnerInt(x,U(x))-InnerInt(x,L(x)))
+show('Inner(x)  = ',Inner(x) )
+Int_outer(x) = integral(Inner(x),x)
+My = Int_outer(a) - Int_outer(0)
+show(' Int_outer = ',Int_outer(x))
+
+f(x,y) = K*(x^2+y^2)*y
+show('Sage Integral = ',
+  f(x,y).integrate(y,L(x),U(x)).integrate(x,0,a))
+xbar = My/m; show(' My = ',My,' xbar = ',xbar)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{CenterMassTriangle}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch9MultipleIntegrals/CenterMassTriangle}
+\caption{Center of mass of a symmetric triangle}
+\label{CenterMassTriangle}       % Give a unique label
+\end{figure}
+
+The center of mass calculations are easier if a lamina has circular symmetry.   Let's find the center of mass of semicircular lamina of radius $a$ above the $x$-axis with density proportional to the distance from the origin $\rho = Kr$.  Due to the symmetry of the lamina and its density, $\bar{x}=0$, so we only have to find $\bar{y}$.  First, the mass:
+$$m =\int\int \rho dA =  \int_0^{\pi} \int_0^a Kr rdrd\theta = \pi K \left( \frac{r^3}{3} \right)_0^a =\frac{\pi K a^3}{3} $$
+Next, the $x$ moment:
+$$M_x = \int\int \rho ydA =  \int_0^{\pi} \int_0^a Kr r \sin(\theta) rdrd\theta =K \left( \frac{r^4}{4} \right)_0^a (-\cos(\theta))_0^{\pi}=\frac{K a^4}{2}$$
+Finally $(\bar{x},\bar{y}) = \left( 0, \frac{M_x}{m} \right)= \left( 0, \frac{3a}{2\pi} \right) $
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+t = var('t')
+p = polar_plot(3, (t, 0, pi), color='black', 
+    thickness=2, fill=True, figsize = (4,3), 
+    fillcolor='orange');  show(p)
+var('K,a')
+show('First computing mass:')
+InnerInt(r,t) = integral(K*r*r,r)
+show('InnerInt(r,t) = ', InnerInt(r,t))
+Inner(t) = expand(InnerInt(a,t)-InnerInt(0,t))
+show('Inner(t)  = ',Inner(t) )
+Int_outer(t) = integral(Inner(t),t)
+m = Int_outer(pi) - Int_outer(0)
+show(' Int_outer = ',Int_outer(t))
+show(' m = ',m)
+f(r,t) = K*r*r
+show('Sage Integral = ',
+  f(r,t).integrate(r,0,a).integrate(t,0,pi))
+
+show('\nNow computing center of mass:')
+InnerInt(r,t) = integral(K*r*r*sin(t)*r,r)
+show('InnerInt(r,t) = ', InnerInt(r,t))
+Inner(t) = expand(InnerInt(a,t)-InnerInt(0,t))
+show('Inner(t)  = ',Inner(t) )
+Int_outer(t) = integral(Inner(t),t)
+Mx = Int_outer(pi) - Int_outer(0)
+show(' Int_outer = ',Int_outer(t))
+f(r,t) = K*r*r*r*sin(t)
+show('Sage Integral = ',
+  f(r,t).integrate(r,0,a).integrate(t,0,pi))
+ybar = Mx/m; show(' Mx = ',Mx,' ybar = ',ybar)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{CenterMassHalfCircle}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch9MultipleIntegrals/CenterMassHalfCircle}
+\caption{Center of mass of upper circle}
+\label{CenterMassHalfCircle}       % Give a unique label
+\end{figure}
+
+
+
+\section{Surface Area}
+
+Let's begin this section by finding the surface area of a portion of the surface $z=f(x,y)=3-x^2+2y$ above a triangle in $xy$\-plane with vertices $(0,-1), (0,1), \ \text{and} \ (1,0)$.  Based on the points, the triangle is bound by the $y$\-axis and the lines $y=-1+x$, $y=1-x$.  What is actually integrated is $\sqrt{1+f_x^2+f_y^2}=\sqrt{1+(-2x)^2+(2)^2}=\sqrt{5+4x^2}$.   Because of these square roots, the integration is often complex, but SageMath deals with this easily, as shown below.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y')
+U(x) = 1-x # upper bound
+L(x) = x-1 # lower bound
+sol = solve(U(x)==L(x),x); 
+show('Show intersection points: ',sol)
+p = plot([L(x), U(x)], (x,0,1), \
+         figsize = (4,3), fill={0:[1]})
+show(p)
+
+S(x,y) = 3-x^2+2*y;  
+Sx(x,y) = derivative(S(x,y),x)
+Sy(x,y) = derivative(S(x,y),y)
+f(x,y) = ( sqrt(1+Sx(x,y)^2+Sy(x,y)^2) ).full_simplify()
+show('S(x,y) = ', S(x,y),'  Sx(x,y) = ', Sx(x,y) )
+show('Sy(x,y) = ', Sy(x,y),'  f(x,y) = ', f(x,y) )
+InnerInt(x,y) = integral(f(x,y),y)
+show('InnerInt(x,y) = ', InnerInt(x,y))
+Inner(x) = expand(InnerInt(x,U(x))-InnerInt(x,L(x)))
+show('Inner(x)  = ',Inner(x) )
+Int_outer(x) = integral(Inner(x),x)
+Int = Int_outer(1) - Int_outer(0)
+show(' Int_outer = ',Int_outer(x))
+show(' Int = ',N(Int))
+
+show('Sage Integral = ',
+     N(f(x,y).integrate(y,L(x),U(x)).integrate(x,0,1)))
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{SurfaceInt1}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch9MultipleIntegrals/SurfaceInt1}
+\caption{Surface over triangle}
+\label{SurfaceInt1}       % Give a unique label
+\end{figure}
+
+
+When a surface has circular symmetry in the base, the surface area integral can be found in polar coordinates, and it makes the integration a lot simpler.   For example, let's find the area of the paraboloid $z=f(x,y)=9-x^2-y^2$ above the $xy$-plane.   The intersection with the $xy$\-plane is $f(x,y)=9-x^2-y^2=0 \ \ \Rightarrow \ \ x^2+y^2=9$ \- circle of radius 3.   The integrand is $\sqrt{1+f_x^2+f_y^2}=\sqrt{1+(-2x)^2+(-2y)^2}=\sqrt{1+4x^2+4y^2}=\sqrt{1+4r^2}$.   Therefore:
+$$ S = \int \int \sqrt{1+f_x^2+f_y^2} dA = \int_0^{2\pi}\int_0^3 \sqrt{1+4r^2} r dr d \theta=[u=1+4r^2 \ \Rightarrow \ du=8rdr] $$
+$$ = 2\pi \int_1^{\sqrt{37}} \sqrt{u} \frac{du}{8}= \frac{\pi}{4} \left( \frac{u^{3/2}}{3/2} \right)_1^{\sqrt{37}} =  \frac{\pi}{6} (37^{3/4}-1)$$
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset();  var('x,y')
+S(x,y) = 9-x^2-y^2;  
+Sx(x,y) = derivative(S(x,y),x)
+Sy(x,y) = derivative(S(x,y),y)
+f(x,y) = ( sqrt(1+Sx(x,y)^2+Sy(x,y)^2) ).full_simplify()
+show('S(x,y) = ', S(x,y),'  Sx(x,y) = ', Sx(x,y) )
+show('Sy(x,y) = ', Sy(x,y),'  f(x,y) = ', f(x,y) )
+t = var('t')
+p = polar_plot([3], (t, 0, 2*pi), color='black', 
+               thickness=2, fill=True, figsize = (4,3),
+               fillcolor='orange'); show(p)
+
+var('r,t,a,b')
+InnerInt(r,t) = integral(sqrt(1+4*r^2)*r,r)
+show('InnerInt(r,t) = ', InnerInt(r,t))
+Inner(t) = expand(InnerInt(3,t)-InnerInt(0,t))
+show('Inner(t)  = ',Inner(t) )
+Int_outer(t) = integral(Inner(t),t)
+Int = Int_outer(2*pi) - Int_outer(0)
+show(' Int_outer = ',Int_outer(t), ' Int = ',Int)
+
+f(r,t) = sqrt(1+4*r^2)*r
+show('Sage Integral = ',
+     f(r,t).integrate(r,0,3).integrate(t,0,2*pi))
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{SurfacePolar}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch9MultipleIntegrals/SurfacePolar}
+\caption{Surface over polar coordinates}
+\label{SurfacePolar}       % Give a unique label
+\end{figure}
+
+
+Finally, let's find the area of the sphere $x^2+y^2+z^2=b^2$ above a smaller radius circle $x^2+y^2=a^2$.   The equation of upper hemisphere is $z=f(x,y)=\sqrt{b^2-x^2-y^2}$.  This results in:
+$$f_x(x,y) =-\frac{x}{\sqrt{b^2-x^2-y^2}} \ \ \ f_y(x,y) =-\frac{y}{\sqrt{b^2-x^2-y^2}}  \ \ \Rightarrow$$
+$$ \sqrt{1+f^2_x(x,y) +f^2_y(x,y)} =\sqrt{1+ \frac{x^2}{b^2-x^2-y^2}  + \frac{y^2}{b^2-x^2-y^2}} =$$
+$$\frac{b} {\sqrt{b^2-x^2-y^2}}$$
+Then, switching to polar coordinates, we obtain
+$$ S = \int\int  \sqrt{1+f^2_x(x,y) +f^2_y(x,y)} dA = \int_0^{2\pi}\int_0^a   \frac{b} {\sqrt{b^2-r^2}}rdrd\theta \ \Rightarrow $$
+$$[u=b^2-r^2 \ \Rightarrow du=-2rdr] = 2\pi \int_{b^2}^{b^2-a^2} \frac{b} {\sqrt{u}}\frac{-du}{2} =$$
+$$ 2\pi b \left( \sqrt{u} \right)_{b^2-a^2}^{b^2}= 2\pi b(b-\sqrt{b^2-a^2})$$
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset();  var('x,y,a,b'); 
+assume(b>0); assume(a>0); assume(a<b)
+S(x,y) = sqrt(b^2-x^2-y^2);  
+Sx(x,y) = derivative(S(x,y),x)
+Sy(x,y) = derivative(S(x,y),y)
+f(x,y) = ( sqrt(1+Sx(x,y)^2+Sy(x,y)^2) ).full_simplify()
+show('S(x,y) = ', S(x,y),'  Sx(x,y) = ', Sx(x,y) )
+show('Sy(x,y) = ', Sy(x,y),'  f(x,y) = ', f(x,y) )
+t = var('t')
+p = polar_plot([3,5], (t, 0, 2*pi), color='black', 
+        thickness=2, fill=True, figsize = (4,3),
+        fillcolor='orange');  show(p)
+
+var('r,t')
+InnerInt(r,t) = integral(b/sqrt(b^2-r^2)*r,r)
+show('InnerInt(r,t) = ', InnerInt(r,t))
+Inner(t) = expand(InnerInt(a,t)-InnerInt(0,t))
+show('Inner(t)  = ',Inner(t) )
+Int_outer(t) = integral(Inner(t),t)
+Int = Int_outer(2*pi) - Int_outer(0)
+show(' Int_outer = ',Int_outer(t), ' Int = ',Int)
+
+f(r,t) = b/sqrt(b^2-r^2)*r
+show('Sage Integral = ',
+  f(r,t).integrate(r,0,a).integrate(t,0,2*pi))
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{SurfaceAnnulus}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch9MultipleIntegrals/SurfaceAnnulus}
+\caption{Surface over annular region}
+\label{SurfaceAnnulus}       % Give a unique label
+\end{figure}
+
+
+
+
+
+
+
+
+
+
+\section{Tripple Integrals}
+
+Let's begin the topic by computing a triple integral of $f(x,y,z)= z$ over a tetrahedron in the first quadrant bounded above by inclined plane $x+y+z=1$.   The figure is perfectly symmetric, so we can project it onto any coordinate plane, but the regular $xy$-plane seems to be the easiest.   Plugging $z=0$ into the plane equation, we obtain a triangle along $x$ and $y$ axes: $x+y=1$.  Therefore: 
+$$\int \int \int f dV = \int_0^1 \int_0^{1-x} \int_0^{1-x-y} z dzdydx =  \int_0^1 \int_0^{1-x} \left( \frac{z^2}{2} \right)_0^{1-x-y} dy dx= $$
+$$ \frac{1}{2} \int_0^1 \int_0^{1-x} (1-x-y)^2 dy dx = [u=1-x-y \ \Rightarrow \ du=-dy] =$$
+$$\frac{1}{2} \int_0^1 \int_{1-x}^0 u^2 (-du)  dx =  \frac{1}{2} \int_0^1  \left( \frac{u^3}{3} \right)_0^{1-x}  dx  = $$
+$$ \frac{1}{6} \int_0^1 (1-x)^3  dx = \frac{1}{6}\left( -\frac{(1-x)^4}{4} \right)_0^1 =\frac{1}{24} $$
+Even for this relatively simple case, the calculation becomes rather tedious, so SageMath is a great help as shown below.  Several step-by-step iterated integrals are computed below, but in future problems, we will just use \texttt{.integrate()} method repeatedly three times.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y,z')
+U(x) = 1-x # upper bound
+L(x) = 0 # lower bound
+sol = solve(U(x)==L(x),x); 
+show('Show intersection points: ',sol)
+p1 = plot3d(1-x-y,(x,0,3),(y,0,3)); 
+p2 = plot([L(x), U(x)], (x,0,1),
+          figsize = (4,3), fill={0:[1]})
+show(p1); show(p2)
+
+Inner1(x,y,z) = integral(z,z)
+show('Inner1(x,y,z) = ', Inner1(x,y,z))
+Inner2(x,y) = expand(Inner1(x,y,1-x-y)-Inner1(x,y,0))
+show('Inner2(x,y)  = ',Inner2(x,y) )
+Inner3(x,y) = expand(integral(Inner2(x,y),y))
+show('Inner3(x,y)  = ',Inner3(x,y) )
+Inner4(x) = expand(Inner3(x,1-x) - Inner3(x,0))
+show('Inner4(x)  = ',Inner4(x) )
+Inner5(x) = expand(integral(Inner4(x),x))
+show('Inner5(x)  = ',Inner5(x) )
+Int6 = Inner5(1) - Inner5(0)
+show('Int6  = ',Int6 )
+
+f(x,y,z) = z
+show('Sage Integral = ', f(x,y,z).integrate(z,0,1-x-y). \
+     integrate(y,0,1-x).integrate(x,0,1))     
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{TrippleInt1}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch9MultipleIntegrals/TrippleInt1}
+\caption{Tripple Integral over a tetrahedron}
+\label{TrippleInt1}       % Give a unique label
+\end{figure}
+
+
+The center of mass computations are similar for 3D objects but often require tedious triple integrals.   The SageMath cell below illustrates center of mass calculations of the tetrahedron in the previous problem with density proportional to the square of the distance from origin $\rho = K(x^2+y^2+z^2)$.  The \texttt{.integrate()} method used repeatedly is very compact without showing lengthy intermediate steps.
+$$ m =\int \int \int \rho dV =  \int_0^1 \int_0^{1-x} \int_0^{1-x-y}  K(x^2+y^2+z^2) dzdydx  = \frac{K}{20} $$
+By the symmetry of the tetrahedron and density distribution $\bar{x}=\bar{y}=\bar{z}$, so for example
+$$ M_{yz} =  \int \int \int \rho x dV = \int_0^1 \int_0^{1-x} \int_0^{1-x-y}  K(x^2+y^2+z^2) x dzdydx = \frac{K}{72} $$
+$$ \bar{x} =  \frac{M_{yz}}{m} = \frac{5}{18}  \ \Rightarrow \  \ \bar{x}=\bar{y}=\bar{z}= \frac{5}{18} $$
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset()
+var('K'); f(x,y,z) = K*(x^2+y^2+z^2)
+m = f(x,y,z).integrate(z,0,1-x-y). \
+     integrate(y,0,1-x).integrate(x,0,1)
+show('m = ',m)   
+
+Myz = (f(x,y,z)*x).integrate(z,0,1-x-y). \
+     integrate(y,0,1-x).integrate(x,0,1)
+show('Myz = ',Myz)
+
+xbar = Myz/m
+show('xbar = ',xbar)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{CenterOfMass1}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch9MultipleIntegrals/CenterOfMass1}
+\caption{Tripple Integral over a tetrahedron}
+\label{CenterOfMass1}       % Give a unique label
+\end{figure}
+
+
+In this example, let's compute integral $\int\int\int \sqrt{x^2+z^2} dV$ over the region bounded by paraboloid $y=x^2+z^2$ below and plane $y=4$ above.  In this case, it is much better to project onto $xz$-plane, where we obtain $y=x^2+z^2=4$ - circle of radius $2$, which requires polar coordinates in $xz$\-plane.  We are essentially computing a cylindrical integral in 3D with $y$ as a cylinder axis.   Therefore:
+$$ \int\int\int \sqrt{x^2+z^2} dV = \int_0^{2\pi}\int_0^2\int_{r^2}^4 r dyrdrd\theta =  2\pi \int_0^2 r \left( y \right)_{r^2}^4 rdr  = $$
+$$ 2\pi \int_0^2 (4-r^2)r^2dr =  2\pi \left( 4\frac{r^3}{3} - \frac{r^5}{5} \right)_0^2 = 2\pi  \left( 4\frac{2^3}{3} - \frac{2^5}{5} \right) = \frac{128\pi}{15}$$
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset();  var('x,y,z,r'); 
+
+t = var('t')
+p1 = implicit_plot3d(y-x^2-z^2,(x,-2,2),(y,-2,2),(z,-2,2))
+p2 = polar_plot([3], (t, 0, 2*pi), color='black',figsize = (4,3), 
+           thickness=2, fill=True, fillcolor='orange')
+show(p1); show(p2)
+
+f(r,t,y) = r*r
+show('Sage Integral = ', f(r,t,y).integrate(y,r^2,4). \
+     integrate(r,0,2).integrate(t,0,2*pi))
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Paraboloid3D}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch9MultipleIntegrals/Paraboloid3D}
+\caption{Tripple Integral over a paraboloid along $y$-axis}
+\label{Paraboloid3D}       % Give a unique label
+\end{figure}
+
+For the same paraboloid above, consider the center of mass with density proportional to the distance from $xz$-plane: $\rho = Ky$. Given the symmetry of the paraboloid and density, $\bar{x}=\bar{z}=0$ and only $\bar{y}$ needs to be found.
+$$ m= \int\int\int \rho dV = \int_0^{2\pi}\int_0^2\int_{r^2}^4 Ky dyrdrd\theta $$
+$$ M_{xz}= \int\int\int \rho y dV = \int_0^{2\pi}\int_0^2\int_{r^2}^4 Ky y dyrdrd\theta  \ \ \ \ \ \ \ \ \ \  \bar{x}=\frac{M_{xz}}{m}$$
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset();  var('K')
+f(r,t,y) = K*y*r
+m = \ 
+  f(r,t,y).integrate(y,r^2,4).integrate(r,0,2).integrate(t,0,2*pi)
+f(r,t,z) = K*y*y*r
+Mxz = \
+  f(r,t,y).integrate(y,r^2,4).integrate(r,0,2).integrate(t,0,2*pi)
+ybar = Mxz/m
+show('m = ',m,' Mxz = ',Mxz, '   ybar = ',ybar)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{CenterMassParaboloid3D}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch9MultipleIntegrals/CenterMassParaboloid3D}
+\caption{Center of mass of a paraboloid along $y$-axis}
+\label{CenterMassParaboloid3D}       % Give a unique label
+\end{figure}
+
+
+A similar problem is finding the volume of a circular cross-section ellipsoid given by $4x^2+4y^2+z^2=16$.  Turning to regular polar coordinates in $xy$-plane, we obtain $r^2+z^2=16 \ \Rightarrow \ z=\sqrt{16-4r^2}$.  Using symmetry, it is essential to project onto $xy$-plane ($yz$ and $xz$ projections are ellipses, which would be much harder to integrate over).   Plugging $z=0$ into ellipsoid, we obtain $4x^2+4y^2=16 \ \Rightarrow \ x^2+y^2=4 $ - circle of radius 2.  We find the volume of the upper half of the ellipsoid and multiply by 2.
+$$V = \int\int\int 1 dV =2 \int_0^{2\pi}\int_0^2\int_0^{\sqrt{16-4r^2}} 1 dz r dr d\theta = 4\pi \int_0^2 \sqrt{16-4r^2} rdr =$$
+$$ [u=16-4r^2 \ \Rightarrow \ du=-8rdr] =  4\pi \int_{16}^0 \sqrt{u}\frac{-du}{8}= \frac{\pi}{2} \int_0^{16}  \sqrt{u} du = $$
+$$  \frac{\pi}{2} \left( \frac{u^{3/2}}{\frac{3}{2}} \right)_0^{16} =   \frac{64\pi}{3}$$
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset();  var('x,y,z,r,t'); 
+p1 = implicit_plot3d(4*x^2+4*y^2+z^2==16,(x,-2,2),
+                     (y,-2,2),(z,-4,4))
+p2 = polar_plot([2], (t, 0, 2*pi), figsize = (4,3),
+           thickness=2, fill=True, fillcolor='orange')
+show(p1); show(p2)
+
+# Multiply by 2 to account for upper and lower hemisphere
+f(r,t,z) = 2*1*r  
+show('Sage Integral = ', f(r,t,z).integrate(z,0,sqrt(16-4*r^2)). \
+     integrate(r,0,2).integrate(t,0,2*pi))
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{TrippleEllipsoid}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch9MultipleIntegrals/TrippleEllipsoid}
+\caption{Volume of a circular cross-section ellipsoid}
+\label{TrippleEllipsoid}       % Give a unique label
+\end{figure}
+
+For the ellipsoid above, let's also compute the center of mass of the upper half-ellipsoid with density proportional to the distance from the bottom ($xy$-plane): $\rho = Kz$.  Once again, given the symmetry of the object and density,  $\bar{x}=\bar{y}=0$ and only $\bar{z}$ is non-trivial.
+$$ m= \int\int\int \rho dV =  \int_0^{2\pi}\int_0^2\int_0^{\sqrt{16-4r^2}} Kz dz r dr d\theta $$
+$$ M_{xy}= \int\int\int \rho z dV = \int_0^{2\pi}\int_0^2\int_0^{\sqrt{16-4r^2}} Kz dz r dr d\theta  \ \ \ \ \ \ \ \ \ \  \bar{z}=\frac{M_{xy}}{m}$$
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset();  var('K,r,t,z')
+f(r,t,z) = K*z*r
+m = f(r,t,z).integrate(z,0,sqrt(16-4*r^2)). \
+     integrate(r,0,2).integrate(t,0,2*pi)
+f(r,t,z) = K*z^2*r
+Mxy = f(r,t,z).integrate(z,0,sqrt(16-4*r^2)). \
+     integrate(r,0,2).integrate(t,0,2*pi)
+zbar = Mxy/m
+show('m = ',m,' Mxy = ',Mxy, '   zbar = ',zbar)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{CenterMassHalfEllipsoid}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch9MultipleIntegrals/CenterMassHalfEllipsoid}
+\caption{Center of mass of an upper half of a circular cross-section ellipsoid}
+\label{CenterMassHalfEllipsoid}       % Give a unique label
+\end{figure}
+
+Yet another problem of the above type could be given by finding the volume between paraboloid $x=y^2+z^2$ and sphere $x^2+y^2+z^2=20$.  Their intersection produces $x^2+x-20=(x-4)(x+5)=0 \ \Rightarrow \ x=4, x=-5$.   Therefore, the figure must be projected onto the $yz$-plane, and the intersection implies it is $y^2+z^2=4$ - a circle of radius 2.   Thus:
+$$V = \int\int\int 1 dV = \int_0^{2\pi} \int_0^2\int_{r^2}^{\sqrt{20-r^2}} 1 dx r dr d\theta =2\pi \int_0^2 \left(\sqrt{20-r^2}-r^2\right)r dr =$$
+$$ [u=20-r^2 \ \Rightarrow \ du=-2rdr] = 2\pi \left( \int_{20}^{16} \sqrt{u}\frac{-du}{2}  - \left(\frac{r^4}{4}\right)_0^2 \right) =$$
+$$ \pi \left( \frac{u^{3/2}}{\frac{3}{2}} \right)_{16}^{20} - 8\pi = \frac{2\pi}{3} (8(5)^{3/2}-64)-8\pi = \frac{8\pi}{3}(10\sqrt{5}-19)$$
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset();  var('x,y,z,r,t'); 
+p1 = implicit_plot3d(x-y^2-z^2,(x,0,6),(y,-6,6),
+                     (z,-6,6),color='red')
+p2 = implicit_plot3d(x^2+y^2+z^2==20,(x,0,6),
+                     (y,-6,6),(z,-6,6),opacity=0.6)
+(p1+p2).show()
+f(r,t,x) = 1*r
+show('Sage Integral = ', f(r,t,x).integrate(x,r^2,sqrt(20-r^2)). \
+     integrate(r,0,2).integrate(t,0,2*pi))
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{VolParaboloidSphere}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch9MultipleIntegrals/VolParaboloidSphere}
+\caption{Volume between paraboloid and sphere}
+\label{VolParaboloidSphere}       % Give a unique label
+\end{figure}
+
+Again, consider the center of mass problem in the previous figure.   Let's assume that the density is proportional to the distance from the paraboloid axis $\rho = Kr$.   It is still symmetric, so $\bar{y}=\bar{z}=0$ and only $\bar{x}$ has to be found.   It results in somewhat more complex integrals involving $\sqrt{20-r^2}$, but SageMath can handle it.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset();  var('x,y,z,r,t,K'); 
+f(r,t,x) = K*r*r
+m = f(r,t,x).integrate(x,r^2,sqrt(20-r^2)). \
+     integrate(r,0,2).integrate(t,0,2*pi)
+f(r,t,x) = K*r*x*r
+Myz = f(r,t,x).integrate(x,r^2,sqrt(20-r^2)). \
+     integrate(r,0,2).integrate(t,0,2*pi)
+xbar = Myz/m
+show('m = ',m,' Myz = ',Myz)
+show('   xbar = ',xbar, '  numerical = ',N(xbar))
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{CenterMassParaboloidSphere}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch9MultipleIntegrals/CenterMassParaboloidSphere}
+\caption{Center of mass of the region between paraboloid and sphere}
+\label{CenterMassParaboloidSphere}       % Give a unique label
+\end{figure}
+
+
+So far, all the cylindrical regions were symmetric in one of the coordinate axes.  Let's consider now the volume of the solid region $Q$ cut from the sphere $x^2 + y^2 + z^2 = 4$ by the cylinder $r = 2 \sin(\theta)$, as shown in the Figure below.  This cylinder can be rewritten in cartesian coordinates by multiplying both sides of the the polar equation by $r$:  $r^2=2r\sin(\theta) \ \Rightarrow \ x^2+y^2=2y  \ \Rightarrow \ x^2+y^2-2y+1=1  \ \Rightarrow \ x^2+(y-1)^2=1$ \- circle of radius $1$ centered at $(0,1)$.  The figure is symmetric about $xy$\-plane and about $\frac{\pi}{2} $ .   Therefore:
+$$V = \int\int\int 1 dV = 4\int_0^{\pi/2}\int_0^{2\sin(\theta)}\int_0^{\sqrt{4-r^2}}1 dz r dr d\theta$$
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset();  var('x,y,z,r'); 
+
+t = var('t');  assume(sin(t)>0)
+p1 = implicit_plot3d(x^2+(y-1)^2==1,(x,-2,2),(y,-2,2),
+                     (z,-2,2),color='red')
+p2 = implicit_plot3d(x^2+y^2+z^2==4,(x,-2,2),(y,-2,2),
+                     (z,-2,2),opacity=0.6)
+(p1+p2).show()
+p3 = polar_plot([2,2*sin(t)], (t, 0, 2*pi), figsize = (4,3), 
+           thickness=2, fill=True, fillcolor='orange')
+p3.show()
+f(r,t,z) = 4*1*r
+show('Sage Integral = ', f(r,t,z).integrate(x,0,sqrt(4-r^2)). \
+     integrate(r,0,2*sin(t)).integrate(t,0,pi/2))
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{CylinderSphere}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch9MultipleIntegrals/CylinderSphere}
+\caption{Cylinder cut in sphere}
+\label{CylinderSphere}       % Give a unique label
+\end{figure}
+
+
+To illustrate integration in spherical coordinates, let's find the volume of the solid region Q bounded below by the upper nappe of the cone $z^2 = x^2 + y^2$ and above by the sphere $x^2 + y^2 + z^2 = 9$, as shown in the figure below.   In spherical coordinates, a sphere of radius 3 is given by $\rho = 3$.  The cone can be rewritten in spherical coordinates:
+$$\rho^2\cos^2(\phi) = \rho^2 \sin^2(\phi)\cos^2(\theta) + \rho^2 \sin^2(\phi)\sin^2(\theta) = \rho^2 \sin^2(\phi) $$  
+$$ \tan^2(\phi) = 1 \ \Rightarrow \  \tan(\phi) = \pm 1  \ \Rightarrow \  \phi = \pm \frac{\pi}{4}  \ \Rightarrow \  \phi = \frac{\pi}{4}  \text{ - upper nape}$$
+Therefore
+$$V = \int_0^{2\pi} \int_0^{\pi/4}\int_0^3 1 \rho^2 \sin(\phi) d\rho d\phi d\theta$$
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset();  var('x,y,z,r,t');  assume(sin(t)>0)
+p1 = implicit_plot3d(x^2+y^2==z^2,(x,-3,3),(y,-3,3),
+                     (z,0,3),color='red')
+p2 = implicit_plot3d(x^2+y^2+z^2==9,(x,-3,3),(y,-3,3),
+                     (z,0,3),opacity=0.6)
+(p1+p2).show()
+
+f(rho,phi,theta) = 1*rho^2*sin(phi)
+SageInt = f(rho,phi,theta).integrate(rho,0,3). \
+                integrate(phi,0,pi/4).integrate(theta,0,2*pi)
+show('Sage Integral = ', SageInt,' = ', N(SageInt))
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{SphereCone}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch9MultipleIntegrals/SphereCone}
+\caption{Volume between cone and sphere}
+\label{SphereCone}       % Give a unique label
+\end{figure}
+
+To follow up on the previous problem, let's find the center of mass of the cone cut above, assuming uniform density $\rho = K$.   By the figure and density symmetry, $\bar{x}=\bar{y}=0$ and only $\bar{z}$ has to be found.  
+$$m = \int\int\int K dV =  \int_0^{2\pi} \int_0^{\pi/4}\int_0^3 K \rho^2 sin(\phi) d\rho d\phi d\theta$$
+$$M_{xy} = \int\int\int K z dV = \int_0^{2\pi} \int_0^{\pi/4}\int_0^3 K \rho cos(\phi) \rho^2 sin(\phi) d\rho d\phi d\theta$$
+$$ \bar{z} = \frac{M_{xy}}{m} \ \ \ \ \ \bar{x}=\bar{y} =0 $$
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset();  var('rho,phi,theta,K'); 
+f(rho,phi,theta) = K*rho^2*sin(phi)
+m =  f(rho,phi,theta).integrate(rho,0,3). \
+         integrate(phi,0,pi/4).integrate(theta,0,2*pi)
+f(rho,phi,theta) = K*(rho*cos(phi))*rho^2*sin(phi)
+Mxy =  f(rho,phi,theta).integrate(rho,0,3). \
+         integrate(phi,0,pi/4).integrate(theta,0,2*pi)   
+zbar = Mxy/m
+show('m = ',m,' Mxy = ',Mxy)
+show('zbar = ',zbar, ' = ', N(zbar))    
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{CenterMassSphereCone}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch9MultipleIntegrals/CenterMassSphereCone}
+\caption{Center of mass of a region between cone and sphere}
+\label{CenterMassSphereCone}       % Give a unique label
+\end{figure}
+
+Finally, let's find the volume of the solid region Q bounded below by the same upper nappe of the cone $z^2 = x^2 + y^2$, but above by the sphere $x^2 + y^2 + z^2 = z$, which is not centered at the origin.   Let's rewrite it as $x^2 + y^2 + z^2 - z + \frac{1}{4} = \frac{1}{4} \ \Rightarrow \ x^2 + y^2 + \left(z- \frac{1}{4}\right)^2 = \frac{1}{4}$ \- sphere of radius $\frac{1}{2}$ centered at $\left(0,0,\frac{1}{4} \right)$.  This sphere in spherical coordinates becomes $\rho^2=\rho \cos(\phi)  \ \Rightarrow \ \rho = \cos(\phi)$.
+Therefore
+$$V = \int_0^{2\pi} \int_0^{\pi/4}\int_0^{\cos(\phi)} 1 \rho^2 \sin(\phi) d\rho d\phi d\theta$$
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset();  var('x,y,z,r,t'); assume(sin(t)>0)
+p1 = plot3d(sqrt(x^2+y^2),(x,-0.5,0.5),
+            (y,-0.5,0.5),color='red')
+p2 = implicit_plot3d(x^2+y^2+z^2==z,(x,-1,1),
+               (y,-1,1),(z,0,1),opacity=0.6)
+(p1+p2).show()
+
+f(rho,phi,theta) = 1*rho^2*sin(phi)
+show('Sage Integral = ', f(rho,phi,theta).
+  integrate(rho,0,cos(phi)).integrate(phi,0,pi/4).
+  integrate(theta,0,2*pi))
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{SphereOffCone}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch9MultipleIntegrals/SphereOffCone}
+\caption{Volume of a region between cone and sphere not centered at the origin}
+\label{SphereOffCone}       % Give a unique label
+\end{figure}
+
+Once again, let's find the center of mass of the cone cut above, assuming uniform density $\rho = K$.   Yet again, by the figure and density symmetry, $\bar{x}=\bar{y}=0$ and only $\bar{z}$ has to be found.  
+$$m = \int\int\int K dV =  \int_0^{2\pi} \int_0^{\pi/4}\int_0^{\cos(\phi)} K \rho^2 \sin(\phi) d\rho d\phi d\theta$$
+$$M_{xy} = \int\int\int K z dV = \int_0^{2\pi} \int_0^{\pi/4}\int_0^{\cos(\phi)} K \rho \cos(\phi) \rho^2 \sin(\phi) d\rho d\phi d\theta$$
+$$ \bar{z} = \frac{M_{xy}}{m} \ \ \ \ \ \bar{x}=\bar{y} =0 $$
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset();  var('K,t'); assume(sin(t)>0)
+f(rho,phi,theta) = K*rho^2*sin(phi)
+m =  f(rho,phi,theta).integrate(rho,0,cos(phi)). \
+         integrate(phi,0,pi/4).integrate(theta,0,2*pi)
+f(rho,phi,theta) = K*(rho*cos(phi))*rho^2*sin(phi)
+Mxy =  f(rho,phi,theta).integrate(rho,0,cos(phi)). \
+         integrate(phi,0,pi/4).integrate(theta,0,2*pi)   
+zbar = Mxy/m
+show('m = ',m,' Mxy = ',Mxy)
+show('zbar = ',zbar, ' = ', N(zbar)) 
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{CenterMassSphereOffCone}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch9MultipleIntegrals/CenterMassSphereOffCone}
+\caption{Center of mass of a region between cone and sphere not centered at the origin}
+\label{CenterMassSphereOffCone}       % Give a unique label
+\end{figure}
+
+
+
+
+
+
+
+
+
+
+\section{Change of Variables in Multiple Integrals: Jacobian}
+
+As an example of the change of variables in double integrals requiring Jacobian, consider a standard example of integrating over a skewed domain, as shown in the figure below.  It is bounded by two sets of parallel lines: $x-2y=0; \ \  x-2y=-2; \ \  3x+y=0; \ \ 3x+y=3$.   The direct integration in $x,y$ coordinates would require breaking it into 3 pieces and dealing with rather tedious slanted lines and intersections.  It is natural to introduce a new set of variables $u=3x+y$ and $v=x-2y$, in which the graph becomes a simple rectangle $ 0 \le u \le 3$ by $ -2 \le v \le 0$, which simplifies calculations immensely.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y,u,v')
+eq1 = x-2*y==0; eq2 = x-2*y==-2; 
+eq3 = 3*x+y==0;   eq4 = 3*x+y==3; 
+p1 = implicit_plot(eq1, (x,-1,2),(y,-1,2),
+                   figsize = (4,3), color='red')
+p2 = implicit_plot(eq2, (x,-1,2),(y,-1,2),color='green')
+p3 = implicit_plot(eq3, (x,-1,2),(y,-1,2),color='blue')
+p4 = implicit_plot(eq4, (x,-1,2),(y,-1,2),color='black')
+(p1+p2+p3+p4).show(gridlines=True)
+eq_u = u == 3*x+y
+eq_v = v == x-2*y
+sol = solve([eq_u,eq_v],(x,y)); show(sol)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{JacobiLines}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch9MultipleIntegrals/JacobiLines}
+\caption{Domain based on lines}
+\label{JacobiLines}       % Give a unique label
+\end{figure}
+
+Based on the equations above, we can compute the integral as follows:
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+x1(u,v)=(2*u+v)/7; y1(u,v)=(u-3*v)/7; 
+xyvec = vector([x1(u,v),y1(u,v)])
+J = jacobian(xyvec,[u, v])
+Jdet = det(J)
+show('J = ', J,'  Jdet = ',Jdet)
+f(x,y) = 49*x^2*y
+f1(u,v) = f(x1(u,v),y1(u,v))
+show('f(x,y) = ',f(x,y), '  f1(u,v) = ',f1(u,v))
+
+f(u,v) = f1(u,v)*abs(Jdet)
+show('Sage Integral = ', f(u,v).
+  integrate(v,-2,0).integrate(u,0,3))
+var('x')
+
+f1 = -2;   f2 = 0
+plot1 = plot(f1, (x, 0, 3), color='blue',
+             figsize = (4,3))
+plot2 = plot(f2, (x, 0, 3), color='red', 
+ fill=f1, fillcolor='lightgray', alpha=0.5)
+show(plot1 + plot2)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{JacobiIntLines}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch9MultipleIntegrals/JacobiIntLines}
+\caption{Jacobi integral}
+\label{JacobiIntLines}       % Give a unique label
+\end{figure}
+
+Let's consider a non-linear Jacobian example.  It is bounded by two lines: $y=\frac{1}{4}x; \ \  y=2x$ and two hyperbolas $y=\frac{1}{x},  \ \ y=\frac{4}{x}$.   It is natural to introduce new set of variables $u=\frac{y}{x}$ and $v=xy$, in which the graph becomes a simple rectangle $\frac{1}{4} \le u \le 2$ by $ 1 \le v \le 4$, which once again simplifies calculations.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y,u,v');
+assume(u>0,v>0)
+eq1 = 2*x-y==0; eq2 = 1/4*x-y==0; 
+eq3 = 1/x-y==0;   eq4 = 4/x-y==0; 
+p1 = implicit_plot(eq1, (x,0.5,5),(y,0.1,4),
+                   figsize = (4,3), color='red')
+p2 = implicit_plot(eq2, (x,0.5,5),(y,0.1,4),color='green')
+p3 = implicit_plot(eq3, (x,0.5,5),(y,0.1,4),color='blue')
+p4 = implicit_plot(eq4, (x,0.5,5),(y,0.1,4),color='black')
+(p1+p2+p3+p4).show(gridlines=True)
+eq_u = u == y/x
+eq_v = v == x*y
+sol = solve([eq_u,eq_v],(x,y)); show(sol)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{JacobiCurves}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch9MultipleIntegrals/JacobiCurves}
+\caption{Jacobi curved region}
+\label{JacobiCurves}       % Give a unique label
+\end{figure}
+
+Based on the plot above, the integral is
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+x1(u,v)=(v^(1/2)/u^(1/2)); y1(u,v)=(u^(1/2)*v^(1/2));
+xyvec = vector([x1(u,v),y1(u,v)])
+J = jacobian(xyvec,[u, v])
+Jdet = det(J).full_simplify()
+show('J = ', J,'  Jdet = ',Jdet)
+f(x,y) = exp(-x*y/2)
+f1(u,v) = f(x1(u,v),y1(u,v)).full_simplify()
+show('f(x,y) = ',f(x,y), '  f1(u,v) = ',f1(u,v))
+
+f(u,v) = f1(u,v)*abs(Jdet)
+SageInt = f(u,v).integrate(v,1,4).integrate(u,1/4,2)
+show('Integral = ',SageInt, ' = ',N(SageInt) )
+
+f1 = 1;   f2 = 4
+plot1 = plot(f1, (x, 1/4, 2), color='blue',
+             figsize = (4,3))
+plot2 = plot(f2, (x, 1/4, 2), color='red', 
+ fill=f1, fillcolor='lightgray', alpha=0.5)
+show(plot1 + plot2)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{JacobiIntCurves}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch9MultipleIntegrals/JacobiIntCurves}
+\caption{Jacobi integral for curved region}
+\label{JacobiIntCurves}       % Give a unique label
+\end{figure}
+
+The Green's Theorem can also be used in the opposite direction to compute an integral line to find the area.   If we choose $M$ and $N$ functions such as $ \frac{\partial N}{\partial x} - \frac{\partial M}{\partial y} = 1$, then  $\int_C Mdx+Ndy = \int \int_R\left( \frac{\partial N}{\partial x} - \frac{\partial M}{\partial y} \right) dA =  \int \int_R\left(1 \right) dA  = A$.  One such choice is $M = -\frac{y}{2}$ and $N=\frac{x}{2}$.  For example, let's use a line integral to find the area of an ellipse.  We parametrize ellipse as $x=acos(t) \ \ \ y=bsin(t) \ \ \ 0\le t \le 2\pi$.  Then:
+$$A = \frac{1}{2} \int xdy-ydx=  \frac{1}{2}\int_0^{2\pi} acos(t)bcos(t)dt-bsin(t)(-asin(t)) dt =$$
+$$ \frac{1}{2} \int_0^{2\pi} ab dt = \frac{1}{2}2\pi a b =\pi a b$$
+The computation is a lot easier than direct trigonometric substitution integral.   The computation is simple, but we computed it in the SageMath cell below.
+
+
+

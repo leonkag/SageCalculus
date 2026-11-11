@@ -1,0 +1,1791 @@
+\chapter{Vector Fields}
+
+\section{Vector Fields Introduction}
+
+Let's begin the vector field discussion by plotting a simple vector field $\mathbf{F} = \left< -y,x \right>$ in SageMath.  It field verctors are rotating around the origin.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+var('x,y,z')
+plot_vector_field([-y,x], (x,-5,5), (y,-5,5))
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{FieldRotate}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch10VectorFields/FieldRotate}
+\caption{Vector field rotating}
+\label{FieldRotate}       % Give a unique label
+\end{figure}
+
+Next, let's consider a conservative field $\mathbf{F} = \left< 2x,4y \right>$, which is the gradient of $f(x,y)=x^2+2y^2$.  We also check the conservative field condition for a general field $\mathbf{F} = \left< M,N \right>$ as $\frac{\partial M}{\partial y} = 0 = \frac{\partial N}{\partial x}$.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y')
+f(x,y) = x^2 + 2*y^2 
+F(x,y) = f(x,y).gradient()
+show('f(x,y) = ',f(x,y),'  F(x,y) = ',F(x,y))
+M(x,y) = F(x,y)[0];   N(x,y) = F(x,y)[1];
+show('M(x,y) = ', M(x,y), '  N(x,y) = ', N(x,y))
+show('dM/dy = ', M(x,y).diff(y),
+     '    dN/dx = ', N(x,y).diff(x))
+plot_vector_field(F(x,y), (x,-5,5), (y,-5,5), 
+                  figsize = (4,3))
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{ConservField}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch10VectorFields/ConservField}
+\caption{Conservative vector field}
+\label{ConservField}       % Give a unique label
+\end{figure}
+
+Let's consider another conservative field $\mathbf{F} = \left< 3+2xy,x^2 - 3y^2 \right>$. The SageMath cell below checks the conservative field condition and computes antiderivatives of $M$ and $N$ components to construct $f$:  \
+$\int F_x dx = \int 3+2xy dx = 3x+x^2y $,  $\int F_y dy = \int x^2 - 3y^2 dy = x^2y-y^3 $,  which results in potential function $f(x,y) =  x^2y+3x-y^3$. 
+Then, we plot level curves of $f$ and vector field $\mathbf{F}$ together, confirming that they are perpendicular to each other.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y')
+F(x,y) = [3+2*x*y, x^2 - 3*y^2]
+show('int Fx in x = ', integrate(F(x,y)[0],x),
+   '  int Fy in y = ', integrate(F(x,y)[1],y))
+
+M(x,y) = F(x,y)[0];   N(x,y) = F(x,y)[1];
+show('M(x,y) = ', M(x,y), '  N(x,y) = ', N(x,y))
+show('dM/dy = ', M(x,y).diff(y),
+     '    dN/dx = ', N(x,y).diff(x))
+
+show('Based on antiderivatives above we obtain:')
+f(x,y) = x^2*y-y^3+3*x
+show('f(x,y) = ', f(x,y))
+p1 = contour_plot(f(x,y), (x,-5,5), (y,-5,5), figsize = (4,3))
+p2 = plot_vector_field(F(x,y), (x,-5,5), (y,-5,5))
+(p1+p2).show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{ConservField1}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch10VectorFields/ConservField1}
+\caption{Conservative vector field}
+\label{ConservField1}       % Give a unique label
+\end{figure}
+
+In 3D, the $curl(\mathbf{F})=0$ is the condition for a vector field to be conservative.   For example, vector field $\mathbf{F} = \left< 2xy,x^2+2yz,y^2 \right>$ is conservative:
+$$curl(\mathbf{F}) = \begin{pmatrix}
+\mathbf{i}& \mathbf{j} & \mathbf{k}\\
+\frac{\partial}{\partial x} & \frac{\partial}{\partial y} & \frac{\partial}{\partial z} \\
+2xy & x^2+2yz & y^2
+\end{pmatrix} =(2y-2y) \mathbf{i} - (0-0) \mathbf{j}+ (2x-2x) \mathbf{k} =   \mathbf{0} $$
+Doing partial integration:  $\int F_x dx = \int 2xy dx = x^2y $,  $\int F_y dy = \int x^2+2yz dy = x^2y+y^2z $, $\int F_z dz = \int y^2 dz = y^2z $ results in potential function $f(x,y,z) =  x^2y+y^2z$.   The SageMath cells below check that curl is 0, perform partial integration, and check that $grad(f)=\nabla f = \mathbf{F}$.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y,z')
+from sage.all import *
+F(x,y,z) = vector([2*x*y,x^2+2*y*z,y^2])
+show('F = ',F(x,y,z))
+curlF(x,y,z) = F.curl()(x,y,z)
+show('curl of F = ', curlF(x,y,z))
+show('int Fx in x = ', integrate(F(x,y,z)[0],x))
+show('int Fy in y = ', integrate(F(x,y,z)[1],y))
+show('int Fz in z = ', integrate(F(x,y,z)[2],z))
+
+f(x,y,z) = x^2*y+y^2*z
+show('f(x,y,z) = ', f(x,y,z))
+show(' grad of f = ',f.gradient()(x,y,z))
+
+plot_vector_field3d([2*x*y,x^2+2*y*z,y^2], 
+   (x,-5,5), (y,-5,5),(z,-5,5),thickness=5)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Conservative3D}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch10VectorFields/Conservative3D}
+\caption{Conservative 3D field}
+\label{Conservative3D}       % Give a unique label
+\end{figure}
+
+As an example of a 3D field which is not conservative let's consider $\mathbf{F} = \left< \frac{y}{x},-\frac{x^2}{y^2},2xz \right>$.  The curl computed below is not a zero vector.
+$$curl(\mathbf{F}) = \begin{pmatrix}
+\mathbf{i}& \mathbf{j} & \mathbf{k}\\
+\frac{\partial}{\partial x} & \frac{\partial}{\partial y} & \frac{\partial}{\partial z} \\
+\frac{y}{x} & -\frac{x^2}{y^2} & 2xz
+\end{pmatrix} =(0-0) \mathbf{i} - (2z-0) \mathbf{j}+ (-\frac{2x}{y}-\frac{1}{x}) \mathbf{k} $$
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y,z')
+F(x,y,z) = vector([y/x,-x^2/y^2,2*x*z])
+show('F = ',F(x,y,z))
+curlF(x,y,z) = F.curl()(x,y,z)
+show('curl of F = ', curlF(x,y,z))
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{NonConservative3D}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch10VectorFields/NonConservative3D}
+\caption{A non-conservative 3D vector field}
+\label{NonConservative3D}       % Give a unique label
+\end{figure}
+
+It can be shown that the inverse square field is conservative for the potential function below:
+$$ f(x,y,z) = \frac{-K}{\sqrt{x^2+y^2+z^2}} \ \ \Rightarrow \ \ f_x = \frac{Kx}{(x^2+y^2+z^2)^{3/2}}$$
+By symmetry, other derivatives are very similar, so 
+$$ \nabla f = \left<   \frac{Kx}{(x^2+y^2+z^2)^{3/2}},  \frac{Ky}{(x^2+y^2+z^2)^{3/2}} ,  \frac{Kz}{(x^2+y^2+z^2)^{3/2}}  \right> = K \frac{\mathbf{r}}{||\mathbf{r}||^2} \frac{\mathbf{r}}{||\mathbf{r}||}$$
+If we let $\mathbf{F} = \nabla f$, then $curl(\mathbf{F}) = \nabla \times (\nabla f) =\mathbf{0} $.
+Note that we must exclude the origin from plotting since the field becomes infinite at that point.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset();  var('x,y,z,K')
+f(x,y,z) = -K/sqrt(x^2+y^2+z^2)
+fx(x,y,z) = derivative(f(x,y,z),x)
+fy(x,y,z) = derivative(f(x,y,z),y)
+fz(x,y,z) = derivative(f(x,y,z),z)
+show('f(x,y,z) = ',f(x,y,z))
+show('fx(x,y,z) = ',fx(x,y,z))
+show('fy(x,y,z) = ',fy(x,y,z))
+show('fz(x,y,z) = ',fz(x,y,z))
+F(x,y,z) = vector([fx(x,y,z),fy(x,y,z),fz(x,y,z)])
+curlF(x,y,z) = F.curl()(x,y,z)
+show('curl of F = ', curlF(x,y,z))
+
+d = (x^2+y^2+z^2)^(3/2)
+plot_vector_field3d([x/d,y/d,z/d], 
+   (x,0.5,2), (y,0.5,2),(z,0.5,2),thickness=5)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{InverseSquare}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch10VectorFields/InverseSquare}
+\caption{Inverse square field}
+\label{InverseSquare}       % Give a unique label
+\end{figure}
+
+As an example of divergence of a 3D vector field, let's consider vector field $\mathbf{F} = \left< M,N,P \right> = \left< x^2y^3, y^2z, xz^2 \right>$.
+The divergence is $div(\mathbf{F})=\frac{\partial M}{\partial x} + \frac{\partial N}{\partial y} + \frac{\partial P}{\partial z} = 2xy^3+2yz+2xz$.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y,z')
+F(x,y,z) = vector([x^2*y^3,y^2*z,x*z^2])
+divF(x,y,z) = F.div()(x,y,z)
+show('F = ',F(x,y,z),'   div of F = ', divF(x,y,z))
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Divergence3D}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch10VectorFields/Divergence3D}
+\caption{Divergence example}
+\label{Divergence3D}       % Give a unique label
+\end{figure}
+
+
+
+
+
+
+
+
+\section{Line Integrals}
+
+Let's begin line integrals consideration with the simplest example of integrating function $f(x,y,z) =2x^2-3y^2+4z$
+on a line from the origin $O(0,0,0)$ to point $P(2,1,3)$.  The equation of the line segment $OP$ is $x = 0+2t=2t; \ \ y=0+t=t;
+ \ \ z = 0+3t=3t \ \ \ 0 \le t \le 1$.  Therefore, the length element is $ds=\sqrt{x'(t)^2+y'(t)^2+z'(t)^2}dt=\sqrt{2^2+1^2+3^2}dt=\sqrt{14}dt$.
+$$\int_L fds = \int_0^1 (2(2t)^2-3(t)^2+4(3t) )\sqrt{14}dt = \sqrt{14} \int_0^1 5t^2+12t dt =  $$
+$$ \sqrt{14} \left( 5\frac{t^3}{3}+12\frac{t^2}{2} \right)_0^1 = \sqrt{14} \left( \frac{5}{3} + 6 \right) = \sqrt{14} \frac{23}{3} $$
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y,z,t')
+f(x,y,z) = 2*x^2-3*y^2+4*z
+x1(t)=2*t;  y1(t)=t;  z1(t)=3*t; t0=0; tf=1
+
+x1t(t) = derivative(x1(t),t)
+y1t(t) = derivative(y1(t),t)
+z1t(t) = derivative(z1(t),t)
+dsdt = sqrt(x1t(t)^2+y1t(t)^2+z1t(t)^2)
+
+show('f(x,y,z) = ',f(x,y,z))
+show('x1(t) = ',x1(t),' y1(t) = ',y1(t),
+     ' z1(t) = ',z1(t))
+show('x1t(t) = ',x1t(t),' y1t(t) = ',y1t(t),
+     ' z1t(t) = ',z1t(t))
+show(' dsdt = ',dsdt)
+
+Integrant = f(x1(t),y1(t),z1(t))*dsdt
+show('Integrant = ', Integrant)
+Int(t) = integrate( Integrant, t)
+show('Int(t) = ', Int(t))
+Int1 = Int(tf) - Int(t0)
+show('Int1 = ',Int1)
+
+parametric_plot([x1(t),y1(t)],(t,0,2*pi),
+                       figsize = (4,3))
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{LineInt1}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch10VectorFields/LineInt1}
+\caption{Line integral example}
+\label{LineInt1}       % Give a unique label
+\end{figure}
+
+
+
+As an application of this type of line integral, let's find the mass of one coil of a helical spring $\mathbf{r}(t) = \left< 3\cos(t), 3\sin(t), \sqrt{7}t \right> \ \ \  0 \le t \le 2\pi$ with density dependent on the height as $\rho=z^2+3$.  The derivative of the path function is  $\mathbf{r}'(t) =   \left< -3\sin(t), 3\cos(t), \sqrt{7} \right> \ \Rightarrow \ ||\mathbf{r'}(t)|| = \sqrt{9\sin^2(t)+9\cos^2(t)+7}=\sqrt{16}=4$, so the length element is $ds =||\mathbf{r'}(t)||dt =4dt $.  Therefore, the mass is:
+$$m = \int_L fds = \int_0^{2\pi} ((\sqrt{7}t)^2+3)4dt = 4 \left( 7\frac{t^3}{3}+3t  \right)_0^{2\pi} = 24\pi+\frac{224\pi^3}{3} $$
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y,z,t')
+f(x,y,z) = z^2+3
+x1(t)=3*cos(t);  y1(t)=3*sin(t); 
+z1(t)=sqrt(7)*t; t0=0; tf=2*pi
+
+x1t(t) = derivative(x1(t),t)
+y1t(t) = derivative(y1(t),t)
+z1t(t) = derivative(z1(t),t)
+dsdt = sqrt(x1t(t)^2+y1t(t)^2+z1t(t)^2).full_simplify()
+
+show('f(x,y,z) = ',f(x,y,z))
+show('x1(t) = ',x1(t),' y1(t) = ',y1(t),' z1(t) = ',z1(t))
+show('x1t(t) = ',x1t(t),' y1t(t) = ',y1t(t),' z1t(t) = ',z1t(t))
+show(' dsdt = ',dsdt)
+
+Integrant = f(x1(t),y1(t),z1(t))*dsdt
+show('Integrant = ', Integrant)
+Int(t) = integrate( f(x1(t),y1(t),z1(t))*dsdt, t)
+show('Int(t) = ', Int(t))
+Int1 = Int(tf) - Int(t0)
+show('Int1 = ',Int1)
+
+parametric_plot3d([x1(t),y1(t),z1(t)],
+                  (t,0,2*pi),thickness=5)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{LineInt2}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch10VectorFields/LineInt2}
+\caption{Line integral on a spiral}
+\label{LineInt2}       % Give a unique label
+\end{figure}
+
+
+There is a different type of line integral for vector fields rather than scalar functions.   One of its applications is to find the work done by a vector field on a given path.  For example, let's find work done by force field $\mathbf{F} = \left< 2x, -3y, 2z \right>$ along the same one coil of a helical spring $\mathbf{r}(t) = \left< 3\cos(t), 3\sin(t), \sqrt{7}t \right> \ \ \  0 \le t \le 2\pi$.  In the same way, $\mathbf{r}'(t) =   \left< -3\sin(t), 3\cos(t), \sqrt{7} \right>$, so the dot product in the integral becomes: 
+$$\mathbf{F} \cdot \mathbf{r}'(t) = \left< 2 \cdot 3\cos(t), -3 \cdot 3\sin(t), 2 \sqrt{7}t  \right> \cdot    \left< -3\sin(t), 3\cos(t), \sqrt{7} \right> $$
+$$=-18\cos(t)\sin(t)-27\cos(t)\sin(t)+14t= -\frac{45}{2}\sin(2t)+14t$$
+Then the work integral is:
+$$W = \int_L \mathbf{F} \cdot \mathbf{dr} = \int_L \mathbf{F} \cdot \mathbf{r'}(t)dt =\int_0^{2\pi}\left( -\frac{45}{2}\sin(2t)+14t\right)dt =  $$
+$$\left( \frac{45}{4}\cos(2t)+14 \frac{t^2}{2} \right)_0^{2\pi} = 28\pi^2$$
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y,z,t')
+F(x,y,z) = vector([2*x,-3*y,2*z])
+r(t) = vector([3*cos(t),3*sin(t),sqrt(7)*t])
+t0=0; tf=2*pi
+rp(x,y,z) = derivative(r(t),t)
+
+show('F(x,y,z) = ',F(x,y,z))
+show('r(t) = ',r(t))
+show('rp(t) = ',rp(t))
+
+Fdr(t) = \ 
+ F(r(t)[0],r(t)[1],r(t)[2]).dot_product(rp(t))
+show('Fdr(t) = ',Fdr(t))
+Int(t) = integrate( Fdr(t), t)
+show('Int(t) = ', Int(t))
+Int1 = Int(tf) - Int(t0)
+show('Int1 = ',Int1)
+p1 = plot_vector_field3d([2*x,-3*y,2*z], 
+  (x,-5,5), (y,-5,5),(z,0,4*pi),thickness=5)
+p2 = parametric_plot3d(r(t), 
+        (t,0,2*pi),thickness=5)
+(p1+p2).show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{LineIntVectorField}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch10VectorFields/LineIntVectorField}
+\caption{Line integral of a vector field on a spiral}
+\label{LineIntVectorField}       % Give a unique label
+\end{figure}
+
+
+There is another way to write this type of line integral of a vector field.   Specifically $\int_L \mathbf{F} \cdot d\mathbf{r} = \int_L \left< M,N,P \right> \cdot  \left< dx,dy,dz \right> =\int_L Mdx+Ndy+Pdz$ or in 2D $\int_L \mathbf{F} \cdot d\mathbf{r} =\int_L Mdx+Ndy$.  For example, let's compute $\int_L 2ydx+3xdy$ over a circle $x=\cos(t); \ \ y=\sin(t); \ \ 0 \le t \le 2\pi$.
+$$ \int_L 2ydx+3xdy = \int_0^{2\pi}  2\sin(t)(-\sin(t))dt +3\cos(t)\cos(t)dt =$$
+$$ \int_0^{2\pi}  -2+5\cos^2(t)dt = \int_0^{2\pi}  -2+5\frac{1+\cos(2t)}{2}dt = \left( \frac{1}{2}t + \frac{5}{4}\sin(2t) \right)_0^{2\pi} =\pi$$
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y,z,t')
+M(x,y) = 2*y;  N(x,y) = 3*x;  t0=0; tf=2*pi
+x1(t) = cos(t);  y1(t) = sin(t)
+x1p(t) = derivative(x1(t),t); 
+y1p(t) = derivative(y1(t),t)
+
+show('M(x,y) = ',M(x,y),'  N(x,y) = ',N(x,y))
+show('x1(t) = ',x1(t),'  y1(t) = ',y1(t))
+show('x1p(t) = ',x1p(t),'  y1p(t) = ',y1p(t))
+
+Fdr(t) = M(x1(t),y1(t))*x1p(t) + \
+         N(x1(t),y1(t))*y1p(t)
+show('Fdr(t) = ',Fdr(t))
+Int(t) = integrate( Fdr(t), t)
+show('Int(t) = ', Int(t))
+Int1 = Int(tf) - Int(t0)
+show('Int1 = ',Int1)
+p1 = plot_vector_field([M(x,y),N(x,y)], 
+         (x,-2,2), (y,-2,2),figsize = (4,3))
+p2 = parametric_plot([x1(t),y1(t)], \
+         (t,0,2*pi),thickness=5)
+(p1+p2).show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{LineIntVectField2d}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch10VectorFields/LineIntVectField2d}
+\caption{Line integral of a vector field in 2D with scalar product notation}
+\label{LineIntVectField2d}       % Give a unique label
+\end{figure}
+
+
+
+
+
+
+
+
+
+
+\section{Conservative Vector Fields and Independence of Path}
+
+Let's begin the independence of path discussion by considering a conservative vector field  $\mathbf{F} = \left< 4xy,2x^2 \right>$, which is the gradient of $f(x,y)=2x^2y$.  Also the conservative field condition check confirms it: $\frac{\partial M}{\partial y} = 4x = \frac{\partial N}{\partial x} $.    In the next three SageMath cells below, we consider three different paths.  First, a simple straight line path $\mathbf{r}(t) = \left< t, t \right> \ \ \ 0\le t \le 1$ from $(0,0)$ to $(1,1)$ is used.  The 2nd path is the parabola  $\mathbf{r}(t) = \left< t, t^2 \right> \ \ \ 0\le t \le 1$ between the same points.   Finally, the square root path is given by  $\mathbf{r}(t) = \left< t, \sqrt{t} \right> \ \ \ 0\le t \le 1$.   In all three cases, the line (path) integral $\int_L \mathbf{F} d\mathbf{r} = 2$.    Analytically, along thestraight line path, $\mathbf{r}'(t) = \left< 1, 1 \right>$, so $\mathbf{F}d\mathbf{r} = \left< 4tt,2t^2 \right>\cdot\left< 1, 1 \right>=6t^2$, therefore $\int_L \mathbf{F}d\mathbf{r} = \int_0^1 6t^2 dt = \left( 2t^3 \right)_0^1=2$.   In SageMath, we obtain:
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y,z,t')
+F(x,y) = vector([4*x*y,2*x^2])
+r(t) = vector([t,t])
+t0=0; tf=1
+rp(x,y,z) = derivative(r(t),t)
+
+show('F(x,y) = ',F(x,y))
+show('r(t) = ',r(t))
+show('rp(t) = ',rp(t))
+
+Fdr(t) = F(r(t)[0],r(t)[1]).dot_product(rp(t))
+show('Fdr(t) = ',Fdr(t))
+Int(t) = integrate( Fdr(t), t)
+show('Int(t) = ', Int(t))
+Int1 = Int(tf) - Int(t0)
+show('Int1 = ',Int1)
+p1 = plot_vector_field(F(x,y),(x,0,1),(y,0,1))
+p2 = parametric_plot(r(t),(t,t0,tf),figsize=(4,3))
+(p1+p2).show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{PathIndepLine}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch10VectorFields/PathIndepLine}
+\caption{Path independence, line integral on straight line}
+\label{PathIndepLine}       % Give a unique label
+\end{figure}
+
+Next, along the second path, $\mathbf{r}'(t) = \left< 1, 2t \right>$, so $\mathbf{F}d\mathbf{r} = \left< 4tt^2,2t^2 \right>\cdot\left< 1, 2t \right>=8t^3$, therefore $\int_L \mathbf{F}d\mathbf{r} = \int_0^1 8t^3 dt = \left( 2t^4 \right)_0^1=2$.   Analogously, in SageMath:
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y,z,t')
+F(x,y) = vector([4*x*y,2*x^2])
+r(t) = vector([t,t^2])
+t0=0; tf=1
+rp(x,y,z) = derivative(r(t),t)
+
+show('F(x,y) = ',F(x,y))
+show('r(t) = ',r(t))
+show('rp(t) = ',rp(t))
+
+Fdr(t) = F(r(t)[0],r(t)[1]).dot_product(rp(t))
+show('Fdr(t) = ',Fdr(t))
+Int(t) = integrate( Fdr(t), t)
+show('Int(t) = ', Int(t))
+Int1 = Int(tf) - Int(t0)
+show('Int1 = ',Int1)
+p1 = plot_vector_field(F(x,y),(x,0,1),(y,0,1))
+p2 = parametric_plot(r(t),(t,t0,tf),figsize=(4,3))
+(p1+p2).show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{PathIndepParabola}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch10VectorFields/PathIndepParabola}
+\caption{Path independence, line integral on parabola path}
+\label{PathIndepParabola}       % Give a unique label
+\end{figure}
+
+Finally, along the third path, $\mathbf{r}'(t) = \left< 1, \frac{1}{2\sqrt{t}} \right>$, so $\mathbf{F}d\mathbf{r} = \left< 4t\sqrt{t},2t^2 \right>\cdot\left< 1, \frac{1}{2\sqrt{t}} \right>=5t^{3/2}$, therefore $\int_L \mathbf{F}d\mathbf{r} = \int_0^1 5t^{3/2} dt = \left( 5\frac{t^{5/2}}{5/2} \right)_0^1=2$.   In SageMath:
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y,z,t')
+F(x,y) = vector([4*x*y,2*x^2])
+r(t) = vector([t,sqrt(t)])
+t0=0; tf=1
+rp(x,y,z) = derivative(r(t),t)
+
+show('F(x,y) = ',F(x,y))
+show('r(t) = ',r(t))
+show('rp(t) = ',rp(t))
+
+Fdr(t) = F(r(t)[0],r(t)[1]).dot_product(rp(t))
+show('Fdr(t) = ',Fdr(t))
+Int(t) = integrate( Fdr(t), t)
+show('Int(t) = ', Int(t))
+Int1 = Int(tf) - Int(t0)
+show('Int1 = ',Int1)
+p1 = plot_vector_field(F(x,y),(x,0,1),(y,0,1))
+p2 = parametric_plot(r(t),(t,t0,tf),figsize=(4,3))
+(p1+p2).show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{PathIndepSqrt}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch10VectorFields/PathIndepSqrt}
+\caption{Path independence, line integral on square root path}
+\label{PathIndepSqrt}       % Give a unique label
+\end{figure}
+
+The path independence for a conservative field is proved in general, and in fact, the path integral is equal to the difference of the potential function at the endpoints:
+$$\int_L \mathbf{F}d\mathbf{r} = \int_L \nabla f d\mathbf{r} = f(end)-f(start) = \left( 2x^2 y \right)_{(0,0)}^{(1,1)}=2-0 =2$$
+Therefore, for a conservative vector field, a path need not even be specified - only the starting and ending points.   
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y')
+F(x,y) = vector([4*x*y,2*x^2])
+show('int Fx in x = ', integrate(F(x,y)[0],x),
+   '  int Fy in y = ', integrate(F(x,y)[1],y))
+
+f(x,y) = 2*x^2*y
+show('f(x,y) = ', f(x,y))
+Int = f(1,1)-f(0,0)
+show(' Int = ', Int)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{PathIndepFdiff}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch10VectorFields/PathIndepFdiff}
+\caption{Path independence, potential function}
+\label{PathIndepFdiff}       % Give a unique label
+\end{figure}
+
+For example, for vector field $\mathbf{F}= \left< 3+2xy, x^2-3y^2 \right>$ let's find $\int_C  \mathbf{F}d\mathbf{r}$ for ANY path C from $(1,-2)$ to $(3,4)$.   First, let's perform partial integration to discover the potential function.
+$$ \int M(x,y)dx= \int (3+2xy)dx = 3x+x^2y$$
+$$  \int N(x,y)dx= \int (x^2-3y^2)dy = x^2y-y^3$$
+Therefore, the potential function is $f(x,y) =x^2y-y^3+3x$.   The SageMath cell below illustrates this computation.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y')
+F(x,y) = [3+2*x*y, x^2 - 3*y^2]
+show('int Fx in x = ', integrate(F(x,y)[0],x),
+   '  int Fy in y = ', integrate(F(x,y)[1],y))
+
+M(x,y) = F(x,y)[0];   N(x,y) = F(x,y)[1];
+show('M(x,y) = ', M(x,y), '  N(x,y) = ', N(x,y))
+show('dM/dy = ', M(x,y).diff(y),
+     '    dN/dx = ', N(x,y).diff(x))
+
+f(x,y) = x^2*y-y^3+3*x
+Int = f(3,4)-f(1,-2)
+show('f(x,y) = ',f(x,y),' Int = ', Int)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{PathIndepFdiff2}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch10VectorFields/PathIndepFdiff2}
+\caption{Path independence, potential function approach, no path given}
+\label{PathIndepFdiff2}       % Give a unique label
+\end{figure}
+
+For a 3D example, let's come back to the conservative vector field $\mathbf{F} = \left< 2xy,x^2+2yz,y^2 \right>$ that we investigated before.  Just to remind
+$$curl(\mathbf{F}) = \begin{pmatrix}
+\mathbf{i}& \mathbf{j} & \mathbf{k}\\
+\frac{\partial}{\partial x} & \frac{\partial}{\partial y} & \frac{\partial}{\partial z} \\
+2xy & x^2+2yz & y^2
+\end{pmatrix} =(2y-2y) \mathbf{i} - (0-0) \mathbf{j}+ (2x-2x) \mathbf{k} =   \mathbf{0} $$The partial integration shows:  $\int F_x dx = \int 2xy dx = x^2y $,  $\int F_y dy = \int x^2+2yz dy = x^2y+y^2z $, $\int F_z dz = \int y^2 dz = y^2z $, which  results in potential function $f(x,yz) =  x^2y+y^2z$.
+Therefore, for any path from say $(1,-1,2)$ to $(4,5,7)$ the line integral $\int_L \mathbf{F} d \mathbf{r} = f(4,5,7) - f(1,-1,2) = 254$.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y,z')
+from sage.all import *
+F(x,y,z) = vector([2*x*y,x^2+2*y*z,y^2])
+show('F = ',F(x,y,z))
+curlF(x,y,z) = F.curl()(x,y,z)
+show('curl of F = ', curlF(x,y,z))
+show('int Fx in x = ', integrate(F(x,y,z)[0],x))
+show('int Fy in y = ', integrate(F(x,y,z)[1],y))
+show('int Fz in z = ', integrate(F(x,y,z)[2],z))
+
+f(x,y,z) = x^2*y+y^2*z
+show('f(x,y,z) = ', f(x,y,z))
+show(' grad of f = ',f.gradient()(x,y,z))
+Int = f(4,5,7) - f(1,-1,2)
+show('Int = ',Int)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{PathIndepFdiff3D}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch10VectorFields/PathIndepFdiff3D}
+\caption{Path independence, potential function approach in 3D}
+\label{PathIndepFdiff3D}       % Give a unique label
+\end{figure}
+
+Finally, let's consider a case of a conservative vector field integral that can be computed much more easily on a different path.   Specifically, let  $\mathbf{F} = \left< M, N \right> =\left< 2xy^3+2, 3x^2y^2-3 \right>$, then the conservative field condition check confirms it: $\frac{\partial M}{\partial y} = 6xy^2 = \frac{\partial N}{\partial x} $.   The problem is to compute $\int_C \mathbf{F}d\mathbf{r}$ over the upper half circle C centered at $(1,0)$ of radius 1.   The direct path computation is illustrated in one of the SageMath cells below, but it is rather cumbersome with tedious high-power trigonometric integrals.   Two other approaches are much easier.   First of all, because it is a conservative vector field, we can use partial integration to find the potential function.  
+$$\int M dx = x^2y^3+2x \ \ \ \  \int N dy = x^2y^3-3y \ \ \Rightarrow \ \ \ f(x,y) =  x^2y^3+2x-3y $$
+Therefore,  $\int_C \mathbf{F}d\mathbf{r} = f(2,0)-f(0,0) = 4 - 0 = 4$.  Alternatively, using path independence, there is an even simpler way to compute along the straight line  $L: \ \mathbf{r}(t) = \left< t, 0 \right> \ \ 0\le t \le 2$.  Along the first path, $\mathbf{r}'(t) = \left< 1, 0\right>$, so $\mathbf{F}d\mathbf{r} = \left< 0+2,0-3 \right>\cdot\left< 1, 0 \right>=2$, therefore $\int_L \mathbf{F}d\mathbf{r} = \int_0^2 2 dt = 4$.   The SageMath cells below illustrate these computations.  First, a potential function approach:
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y')
+F(x,y) = [2*x*y^3+2, 3*x^2*y^2-3]
+show('int Fx in x = ', integrate(F(x,y)[0],x),
+   '  int Fy in y = ', integrate(F(x,y)[1],y))
+
+M(x,y) = F(x,y)[0];   N(x,y) = F(x,y)[1];
+show('M(x,y) = ', M(x,y), '  N(x,y) = ', N(x,y))
+show('dM/dy = ', M(x,y).diff(y),
+     '    dN/dx = ', N(x,y).diff(x))
+
+f(x,y) = x^2*y^3+2*x-3*y
+show('f(x,y) = ', f(x,y))
+show(' grad of f = ',f.gradient()(x,y))
+Int = f(2,0) - f(0,0)
+show('Int = ',Int)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{PathIndep3}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch10VectorFields/PathIndep3}
+\caption{Path independence, potential function approach in 3 ways}
+\label{PathIndep3}       % Give a unique label
+\end{figure}
+
+Next, the direct computation along the circle:
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y')
+F(x,y) = [2*x*y^3+2, 3*x^2*y^2-3]
+show('int Fx in x = ', integrate(F(x,y)[0],x),
+   '  int Fy in y = ', integrate(F(x,y)[1],y))
+
+M(x,y) = F(x,y)[0];   N(x,y) = F(x,y)[1];
+show('M(x,y) = ', M(x,y), '  N(x,y) = ', N(x,y))
+show('dM/dy = ', M(x,y).diff(y),
+     '    dN/dx = ', N(x,y).diff(x))
+
+f(x,y) = x^2*y^3+2*x-3*y
+show('f(x,y) = ', f(x,y))
+show(' grad of f = ',f.gradient()(x,y))
+Int = f(2,0) - f(0,0)
+show('Int = ',Int)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{PathIndepDirect}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch10VectorFields/PathIndepDirect}
+\caption{Path independence, direct integration}
+\label{PathIndepDirect}       % Give a unique label
+\end{figure}
+
+Finally, let's compute through the easiest horizontal line path.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+r(t) = vector([t,0])
+t0=0; tf=2
+rp(x,y,z) = derivative(r(t),t)
+
+show('F(x,y,z) = ',F(x,y,z))
+show('r(t) = ',r(t))
+show('rp(t) = ',rp(t))
+
+Fdr(t) = F(r(t)[0],r(t)[1]).dot_product(rp(t))
+show('Fdr(t) = ',Fdr(t))
+Int(t) = integrate( Fdr(t), t)
+show('Int(t) = ', Int(t))
+Int1 = Int(tf) - Int(t0)
+show('Int1 = ',Int1)
+p1 = plot_vector_field(F(x,y),(x,0,2),(y,0,1),
+                       figsize = (4,3))
+p2 = parametric_plot(r(t),(t,t0,tf),thickness=5)
+(p1+p2).show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{PathIndep3Line}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch10VectorFields/PathIndep3Line}
+\caption{Path independence, direct integration on horizontal line}
+\label{PathIndep3Line}       % Give a unique label
+\end{figure}
+
+
+
+
+
+
+
+
+
+
+\section{Green's Theorem}
+
+The Green's Theorem allows to compute line integrals over closed counterclockwise oriented path C bounding a simply connected region R as double integrals over R: $\int_C Mdx+Ndy = \int \int_R\left( \frac{\partial N}{\partial x} - \frac{\partial M}{\partial y} \right) dA$.  To illustrate it, let's compute both sides of Green's Theorem for  $M(x,y) = 3y^2$ and $N(x,y) = 2x^3+3xy$, then  $\frac{\partial N}{\partial x} - \frac{\partial M}{\partial y} = 6x^2+3y-6y= 6x^2-3y$.   Let the region R be bounded below by $L(x)=x^2$ and above by $U(x)=x$ for $0\le x\le 1$.   The line integral on the left has to be broken into two integrals: over $C_1:  \ y=x^2 \ \ x:0 \rightarrow 1$ and  $C_2: \ y=x \ \ x:1 \rightarrow 0$ in counterclockwise direction.  
+$$ \int_{C_1} 3y^2dx+(2x^3+3xy)dy = \int_0^1  3(x^2)^2dx+(2x^3+3x x^2)2xdx = $$
+$$ \int_0^1 13x^4 dx = \left( \frac{13x^5}{5} \right)_0^1=\frac{13}{5}$$
+$$ \int_{C_2} 3y^2dx+(2x^3+3xy)dy = \int_1^0  3(x)^2dx+(2x^3+3x x)dx =$$
+ $$ \int_1^0 2x^3+6x^2 dx =  \left(2 \frac{x^4}{4} + 6\frac{x^3}{3}\right)_1^0 = -\frac{5}{2}$$
+Then the overall $\int_C =\int_{C_1} +  \int_{C_2} =\frac{1}{10}$.  
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y');
+M(x,y) = 3*y^2;  N(x,y) = 2*x^3+3*x*y
+show('M(x,y) = ', M(x,y), '  N(x,y) = ', N(x,y))
+
+y1(x) = x^2;  x0=0; xf=1
+y1p(x) = derivative(y1(x),x);
+show('y1(x) = ',y1(x),'  y1p(x) = ',y1p(x))
+
+Integrand = M(x,y1(x))+N(x,y1(x))*y1p(x)
+show('Integrand = ',Integrand)
+Int(x) = integrate( Integrand, x)
+show('Int(x) = ', Int(x))
+IntC1 = Int(xf) - Int(x0)
+show('IntC1 = ',IntC1)
+p1 = plot_vector_field([M(x,y),N(x,y)],(x,0,1),(y,0,1))
+p2 = plot(y1(x),(x,x0,xf),figsize=(4,3))
+(p1+p2).show()
+
+##################################
+y1(x) = x; y1p(x) = derivative(y1(x),x); x0=1; xf=0
+show('y1(x) = ',y1(x),'  y1p(x) = ',y1p(x))
+
+Integrand = M(x,y1(x))+N(x,y1(x))*y1p(x)
+show('Integrand = ',Integrand)
+Int(x) = integrate( Integrand, x)
+show('Int(x) = ', Int(x))
+IntC2 = Int(xf) - Int(x0)
+show('IntC2 = ',IntC2)
+
+show('IntC1 + IntC2 = ',IntC1+IntC2)
+p1 = plot_vector_field([M(x,y),N(x,y)],(x,0,1),(y,0,1))
+p2 = plot(y1(x),(x,0,1),figsize=(4,3))
+(p1+p2).show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{GreenTheor1}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch10VectorFields/GreenTheor1}
+\caption{Green's Theorem, line integrals computation}
+\label{GreenTheor1}       % Give a unique label
+\end{figure}
+
+Let's now consider the right-hand side of the Green's Theorem.   It is a double integral:
+$$ \int \int_R\left( \frac{\partial N}{\partial x} - \frac{\partial M}{\partial y} \right) dA = \int_0^1 \int_{x^2}^x 6x^2-3y dy dx =\int_0^1 \left( 6x^2y-3\frac{y^2}{2} \right)_{x^2}^xdx =  $$
+$$ \int_0^1 6x^2(x-x^2)-3\frac{x^2-x^4}{2}dx   =  \int_0^1 -\frac{9}{2} \, x^{4} + 6 \, x^{3} - \frac{3}{2} \, x^{2}dx = $$
+$$ \left( -\frac{9}{10} \, x^{5} + \frac{3}{2} \, x^{4} - \frac{1}{2} \, x^{3}  \right)_0^1 =\frac{1}{10} $$
+This is exactly the same as the line integral over C, thus confirming Green's Theorem.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+U(x) = x # upper bound
+L(x) = x^2 # lower bound
+sol = solve(U(x)==L(x),x); 
+show('Show intersection points: ',sol)
+p = plot([L(x), U(x)], (x,0,1), 
+     fill={0:[1]},figsize=(4,3)); show(p)
+
+f(x,y) = derivative(N(x,y),x) - derivative(M(x,y),y) 
+show('f(x,y) = ', f(x,y))
+InnerInt(x,y) = integral(f(x,y),y)
+show('InnerInt(x,y) = ', InnerInt(x,y))
+Inner(x) = expand(InnerInt(x,U(x))-InnerInt(x,L(x)))
+show('Inner(x)  = ',Inner(x) )
+Int_outer(x) = integral(Inner(x),x)
+Int = Int_outer(1) - Int_outer(0)
+show(' Int_outer = ',Int_outer(x))
+show(' Int = ',Int)
+
+show('Sage Integral = ',
+     f(x,y).integrate(y,L(x),U(x)).integrate(x,0,1))
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{GreenTheor2}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch10VectorFields/GreenTheor2}
+\caption{Green's Theorem, area integral approach}
+\label{GreenTheor2}       % Give a unique label
+\end{figure}
+
+As another example, let's consider line integral $\int_C (2xy + tan(\sqrt{x}))dx + (x^2+3x^2y-e^{-y^2})dy$ where path C is around 1st octant of parabola $y=4-x^2$ from $x=0$ to $x=2$.
+The direct computation of three line integrals is not feasible. However, applying Green's Theorem 
+$$\int_C Mdx+Ndy = \int_C (2xy + tan(\sqrt{x}))dx + (x^2+3x^2y-e^{-y^2})dy =$$
+$$  \int \int_R\left( \frac{\partial N}{\partial x} - \frac{\partial M}{\partial y} \right) dA = \int_0^2 \int_0^{4-x^2} 6xy+2x-2x dy dx =\int_0^2  \left( 3xy^2\right)_0^{4-x^2}dx =  $$
+$$ \int_0^2 3x(4-x^2)^2dx   =  \int_0^2 3x(16-8x^2+x^4)dx =  \int_0^2 48x-24x^3+3x^5dx = $$
+$$ \left( 24x^2-6x^4+\frac{3}{6} x^6 \right)_0^2 =32 $$
+Note that if the vector field is conservative, then $\frac{\partial N}{\partial x} - \frac{\partial M}{\partial y}=0$, so the line integral of a continuous conservative field over a closed path is 0.  For example, changing our example slightly we obtain  $\int_C (2xy + tan(\sqrt{x}))dx + (x^2-e^{-y^2})dy =  \int_0^2 \int_0^{4-x^2} 2x-2x dy dx=0$
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y');
+M(x,y) = 2*x*y + tan(sqrt(x));  
+N(x,y) = x^2+3*x^2*y-e^(-y^2)
+show('M(x,y) = ', M(x,y), '  N(x,y) = ', N(x,y))
+f(x,y) = derivative(N(x,y),x) - derivative(M(x,y),y) 
+show('f(x,y) = ', f(x,y))
+U(x) = 4-x^2 # upper bound
+L(x) = 0 # lower bound
+sol = solve(U(x)==L(x),x); 
+show('Show intersection points: ',sol)
+p = plot([L(x), U(x)], (x,0,2), 
+    fill={0:[1]},figsize=(4,3)); show(p)
+
+show('Sage Integral = ',
+ f(x,y).integrate(y,L(x),U(x)).integrate(x,0,2))
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{GreenTheorArea}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch10VectorFields/GreenTheorArea}
+\caption{Green's Theorem, area integral only possible}
+\label{GreenTheorArea}       % Give a unique label
+\end{figure}
+
+Let's consider a similar kind of line integral over the upper half of an annulus with inner radius $1$ and upper radius $3$.
+The Green's Theorem gives:
+$$\int_C Mdx+Ndy = \int_C (2y^2 + \ln(x^2+1))dx + (x^3-\sin{y^2})dy = \int \int_R\left( \frac{\partial N}{\partial x} - \frac{\partial M}{\partial y} \right) dA =$$
+$$   \int \int_R\left( 3x^2-4y \right) dA =  \int_0^{\pi} \int_1^3  (3r^2\cos^2(\theta) - 4r\sin(\theta) )r dr d\theta $$
+$$    \int_0^{\pi}   \left(3\frac{r^4}{4}\cos^2(\theta) - 4\frac{r^3}{3}\sin(\theta) \right)_1^3 d\theta = \int_0^{\pi}   \left(60\cos^2(\theta) - \frac{104}{3}\sin(\theta) \right) d\theta $$
+$$   \int_0^{\pi}   \left(60\frac{1+\cos(2\theta)}{2} - \frac{104}{3}\sin(\theta) \right) d\theta  = \left( 30t + 30\frac{\sin(2\theta)}{2} +  \frac{104}{3}\cos(\theta) \right)_0^{\pi} = 30\pi-\frac{208}{3}$$
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y,r,t');
+M(x,y) = 2*y^2 + ln(x^2+1);  N(x,y) = x^3-sin(y^2)
+show('M(x,y) = ', M(x,y), '  N(x,y) = ', N(x,y))
+f(x,y) = derivative(N(x,y),x) - derivative(M(x,y),y) 
+show('f(x,y) = ', f(x,y))
+
+t = var('t')
+p = polar_plot([1,3], (t, 0, pi), figsize = (4,3), 
+           thickness=2, fill=True, fillcolor='orange')
+show(p)
+
+f(r,t) = ( 3*r^2*(cos(t))^2 - 4*r*sin(t) )*r
+show('Sage Integral = ',
+     f(r,t).integrate(r,1,3).integrate(t,0,pi))
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{GreenTheorAnnulus}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch10VectorFields/GreenTheorAnnulus}
+\caption{Green's Theorem, over annular region}
+\label{GreenTheorAnnulus}       % Give a unique label
+\end{figure}
+
+Green's Theorem can also be used in opposite directions to compute an integral line to find the area.   If we choose $M$ and $N$ functions such as $ \frac{\partial N}{\partial x} - \frac{\partial M}{\partial y} = 1$, then  $\int_C Mdx+Ndy = \int \int_R\left( \frac{\partial N}{\partial x} - \frac{\partial M}{\partial y} \right) dA =  \int \int_R\left(1 \right) dA  = A$.  One such choice is $M = -\frac{y}{2}$ and $N=\frac{x}{2}$.  For example, let's use a line integral to find the area of an ellipse.  We parametrize ellipse as $x=a\cos(t) \ \ \ y=b\sin(t) \ \ \ 0\le t \le 2\pi$.  Then:
+$$A = \frac{1}{2} \int x dy-y dx=  \frac{1}{2}\int_0^{2\pi} a\cos(t)b\cos(t)dt-b\sin(t)(-a\sin(t)) dt =$$
+$$ \frac{1}{2} \int_0^{2\pi} ab dt = \frac{1}{2}2\pi a b =\pi a b$$
+The computation is a lot easier than direct trigonometric substitution integral.   The computation is rather simple, but we computed it in the SageMath cell below anyway.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y,a,b,t')
+M(x,y) = -y/2;  N(x,y) = x/2;  t0=0; tf=2*pi
+x1(t) = a*cos(t);  y1(t) = b*sin(t)
+x1p(t) = derivative(x1(t),t); y1p(t) = derivative(y1(t),t)
+
+show('M(x,y) = ',M(x,y),'  N(x,y) = ',N(x,y))
+show('x1(t) = ',x1(t),'  y1(t) = ',y1(t))
+show('x1p(t) = ',x1p(t),'  y1p(t) = ',y1p(t))
+
+Fdr(t) = (M(x1(t),y1(t))*x1p(t) + 
+          N(x1(t),y1(t))*y1p(t) ).full_simplify()
+show('Fdr(t) = ',Fdr(t))
+Int(t) = integrate( Fdr(t), t)
+show('Int(t) = ', Int(t))
+Int1 = Int(tf) - Int(t0)
+show('Int1 = ',Int1)
+p1 = plot_vector_field([M(x,y),N(x,y)], 
+         (x,-3,3), (y,-2,2), figsize=(4,3))
+p2 = parametric_plot([3*cos(t),2*sin(t)],(t,0,2*pi))
+(p1+p2).show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{GreenEllipse}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch10VectorFields/GreenEllipse}
+\caption{Green's Theorem, ellipse integral}
+\label{GreenEllipse}       % Give a unique label
+\end{figure}
+
+An interesting example is provided by vector field $\mathbf{F} =\left< M,N \right>=
+ \left< -\frac{y}{x^2+y^2},\frac{x}{x^2+y^2}\right>$. Then:
+$$\frac{\partial M}{\partial y} = -\frac{x^2+y^2 - y2y}{(x^2+y^2)^2} =\frac{y^2-x^2}{(x^2+y^2)^2} $$
+$$\frac{\partial N}{\partial x} = \frac{x^2+y^2 - x2x}{(x^2+y^2)^2} =\frac{y^2-x^2}{(x^2+y^2)^2} $$
+Therefore, any line integral over a closed path C is 0:
+$$\int_C Mdx + Ndy = \int\int_R \frac{\partial N}{\partial x} - \frac{\partial M}{\partial y}dA = 0$$
+Consider, however, a circle of arbitrary radius $a$ centered at the origin.  Parametrize it as $x=a\cos(t) \ \ \
+y = b\sin(t) \ \ \ 0\le t\le 2\pi$, so $x^2+y^2=a^2$.   Then
+$$\int_C Mdx + Ndy = \int_0^{2\pi} \left( \frac{-a\sin(t)}{a^2}a(-\sin(t)) + \frac{a\cos(t)}{a^2}a\cos(t) \right)dt =  $$
+$$\int_0^{2\pi} \sin^2(t) + \cos^2(t) dt = 2\pi \ne 0$$
+There is no contradiction here because Green's Theorem stipulates that vector field $\mathbf{F}$ is continuous
+in domain R bounded by closed curve C, but the field is undefined at the origin.  However, for any closed curve not
+containing the origin, the closed loop integral is indeed 0.
+
+Consider now any closed path $C_1$ enclosing the origin.
+We can always find a counterclockwise traversed circle $C$ of a small enough radius to be completely inside of this curve.  Then the region $D$ between $C_1$ and $C$ is bounded by positively \(counterclockwise\) oriented $C_1$ curve and negatively \(clockwise\)
+oriented small circle $C$.  One can think of a small cut in between them connected back and forth by straight lines.  The region $D$ does not contain the origin, so our vector field is continuous in it.  Therefore
+$$\int_{C_1}Mdx + Ndy+\int_{-C}Mdx + Ndy =  \int\int_D \frac{\partial N}{\partial x} - \frac{\partial M}{\partial y}dA = 0$$
+Thus, regardless of the complexity of the path $C_1$:   $$ \int_{C_1} Mdx + Ndy = -\int_{-C}Mdx + Ndy = \int_C Mdx + Ndy= 2\pi$$The SageMath cell below illustrates the vector field and circle integral computation.  We also indicate $C_1$ as an ellipse.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y,a,t')
+M(x,y) = -y/(x^2+y^2);  N(x,y) = x/(x^2+y^2);  t0=0; tf=2*pi
+x1(t) = a*cos(t);  y1(t) = a*sin(t)
+x1p(t) = derivative(x1(t),t); y1p(t) = derivative(y1(t),t)
+
+show('M(x,y) = ',M(x,y),'  N(x,y) = ',N(x,y))
+show('dM/dy = ', M(x,y).diff(y).full_simplify(),
+     '    dN/dx = ', N(x,y).diff(x).full_simplify())
+show('x1(t) = ',x1(t),'  y1(t) = ',y1(t))
+show('x1p(t) = ',x1p(t),'  y1p(t) = ',y1p(t))
+
+Fdr(t) = (M(x1(t),y1(t))*x1p(t) + 
+          N(x1(t),y1(t))*y1p(t) ).full_simplify()
+show('Fdr(t) = ',Fdr(t))
+Int(t) = integrate( Fdr(t), t)  
+show('Int(t) = ', Int(t))
+Int1 = Int(tf) - Int(t0)
+show('Int1 = ',Int1)
+p1 = plot_vector_field([M(x,y),N(x,y)], 
+           (x,-3,3), (y,-2,2),figsize=(4,3))
+p2 = parametric_plot([cos(t),sin(t)],(t,0,2*pi))
+p3 = parametric_plot([3*cos(t),2*sin(t)],(t,0,2*pi))
+(p1+p2+p3).show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{GreenInfOrigin}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch10VectorFields/GreenInfOrigin}
+\caption{Green's Theorem, field infinite at the origin}
+\label{GreenInfOrigin}       % Give a unique label
+\end{figure}
+
+
+
+
+
+
+
+
+
+\section{Parametric Surfaces}
+
+Let's begin with a basic parametric surface given by $x=4\cos(u)\ \ \ y=4\sin(u) \ \ \ z = v \ \ 0\le u \le 2\pi \ \ 0 \le v \le 7$.
+Note that $x^2+y^2=16$ - circle of radius 4 centered at the origin, so $u$ plays the role of the polar angle $\theta$. On the
+other hand, $z=v$, so $v$ is just the height.   This surface represents a cylinder along the z axis of radius $4$ stretching
+from $0$ to $7$. A simple switch of variables would produce a cylinder along some other coordinate axis. For example:
+$x=4\cos(u)\ \ \ y=v \ \ \ z = 4\sin(u) \ \ 0\le u \le 2\pi \ \ 0 \le v \le 7$ is the same cylinder along $y$ axis.
+The SageMath cell below shows these cylinders with \texttt{parametric\_plot3d}, which was also used for 3D curves.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+var('u,v')
+p1 = parametric_plot3d([4*cos(u),4*sin(u),v],
+           (u,0,2*pi),(v,0,7),opacity=0.5)
+p2 = parametric_plot3d([4*cos(u),v,4*sin(u)],
+           (u,0,2*pi),(v,0,7),opacity=0.5,color='red')
+(p1+p2).show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{TwoCylinders}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch10VectorFields/TwoCylinders}
+\caption{Two cylinders interseting}
+\label{TwoCylinders}       % Give a unique label
+\end{figure}
+
+Another standard parametric representation is $x=4\sin(u)\cos(v)\ \ \ y=4\sin(u)\sin(v) \ \ \ z = 4\cos(u) \ \ 0\le u
+\le \pi \ \ 0 \le v \le 2\pi$.  It is just a sphere of radius $4$ centered in the origin written in terms of
+spherical coordinates $u=\phi$ and $v=\theta$, while $\rho=4=const$.  
+$$x^2+y^2+z^2=16\sin^2(u)\cos^2(v)+16\sin^2(u)\sin^2(v)+16\cos^2(u)=$$
+$$16\sin^2(u)+16\cos^2(u)=16$$In the SageMath cell below we illustrate this sphere as well as a portion of a smaller radius sphere in the first quadrant.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+restart; var('u,v')
+p1 = parametric_plot3d(
+    [4*sin(u)*cos(v),4*sin(u)*sin(v),4*cos(u)],
+     (u,0,pi),(v,0,2*pi),opacity=0.5)
+p2 = parametric_plot3d(
+    [3*sin(u)*cos(v),3*sin(u)*sin(v),3*cos(u)],
+ (u,0,pi/2),(v,0,pi/2),color='red',opacity=0.5)
+(p1+p2).show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{ParametricSphere}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch10VectorFields/ParametricSphere}
+\caption{Parametric representation of sphere}
+\label{ParametricSphere}       % Give a unique label
+\end{figure}
+
+If the explicit surface equation is available, a parametric representation is straightforward.  For example,
+for a standard cone along $z$-axis: $z=\sqrt{x^2+y^2}$, the direct parametric representation is $x=u; \ \ y = v;
+ \ \ z = \sqrt{u^2+v^2}$.  By far, a parametric representation is not unique. Say, we can use cylindrical
+coordinates to rewrite the cone as $x = u\cos(v); \ \ y = u\sin(v); \ \ z = u$, where $u=r$ and $v=\theta$. Analogously,
+for a paraboloid $z=x^2+y^2$, the direct parametrization is $x=u; \ \ y = v;  \ \ z = u^2+v^2$, while the cylindrical
+parametrization is $x = u\cos(v); \ \ y = u\sin(v); \ \ z = u^2$.  Both surfaces are illustrated in the SageMath cell
+below.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+restart; var('u,v')
+p1 = parametric_plot3d([u,v,sqrt(u^2+v^2)],
+            (u,-2,2),(v,-2,2),opacity=0.5)
+p2 = parametric_plot3d([u,v,u^2+v^2],
+ (u,-2,2),(v,-2,2),color='red',opacity=0.5)
+(p1+p2).show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{ParametricExplicit}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch10VectorFields/ParametricExplicit}
+\caption{Parametric explicit surface equations}
+\label{ParametricExplicit}       % Give a unique label
+\end{figure}
+
+Let's now compute normal vector and tangent line for the paraboloid above $\mathbf{r}(u,v) = \left< u,v,u^2+v^2 \right>$.  The partial derivative tangent vectors are $\mathbf{r}_u = \left< 1,0,2u \right>$ and $\mathbf{r}_v = \left< 0,1,2v \right>$, therefore normal vector is:
+$$ \mathbf{n} = \mathbf{r}_u \times \mathbf{r}_v = \begin{pmatrix}
+\mathbf{i} & \mathbf{j} & \mathbf{k}\\
+1 & 0 & 2u \\
+0 & 1 & 2v
+\end{pmatrix} =(-2u) \mathbf{i}-(2v) \mathbf{j} +(1-0) \mathbf{k} = \left<  -2u,-2v,1 \right>$$
+At a particular point corresponding to $u=2; \ v = 1$, we obtain $\mathbf{r}(2,1) = \left< 2,1,5 \right>$ and normal vector $\mathbf{n} = \left< -4,-2,1 \right> $.  Therefore, the tangent plane is:
+$$-4(x-2)-2(y-1)+1(z-5)=0 \ \ \Rightarrow \ \ $$
+$$ z = 5+4(x-2)+2(y-1) = 4x+2y-5$$
+The normal line is $x=2-4t; \ \ y=1-2t; \ \ z = 5+t$.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset; var('u,v,t,x,y,z'); 
+r(u,v) = vector([u,v,u^2+v^2])
+ru(u,v) = derivative(r(u,v),u)
+rv(u,v) = derivative(r(u,v),v)
+show('r(u,v) = ',r(u,v))
+show(' ru(u,v) = ',ru(u,v),' rv(u,v) = ',rv(u,v))
+n(u,v) = ru(u,v).cross_product(rv(u,v))
+show('normal vector n(u,v) = ',n(u,v))
+
+u1 = 2; v1 = 1; x1 = u1; y1 = v1; z1 = u1^2+v1^2
+ru1 = ru(u1,v1); rv1 = rv(u1,v1); n1 = n(u1,v1)
+show('u1 = ',u1,' v1 = ',v1,' x1 = ',
+           x1,' y1 = ',y1,' z1 = ',z1)
+show('ru1 = ',ru1,' rv1 = ',rv1,' n1 = ',n1)
+
+tang_plane = n1[0]*(x-x1)+n1[1]*(y-y1)+ n1[2]*(z-z1);
+normal_line = [x1+n1[0]*t,y1+n1[1]*t,z1+n1[2]*t]
+tang_plane_angle = arccos(abs(n1[2])/n1.norm(2))
+show('tang_plane = ', tang_plane)
+show('normal_line = ', normal_line)
+show('tangent plane angle = ',N(tang_plane_angle*180/pi))
+p1 = parametric_plot3d(r(u,v),(u,-3,3),(v,-3,3),opacity=0.5)
+p2 = implicit_plot3d(tang_plane,(x,-3,3),(y,-3,3),(z,0,7),
+                    color = 'green',opacity = 0.5)
+p3 = parametric_plot3d(normal_line,(t,-0.5,0.5),
+                       color='red',thickness=5)
+(p1+p2+p3).show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Param3DTangNorm}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch10VectorFields/Param3DTangNorm}
+\caption{Parametric paraboloid tangent plane and normal line}
+\label{Param3DTangNorm}       % Give a unique label
+\end{figure}
+
+The general formula for the surface area of the parametric surface is given by $S = \int\int || \mathbf{r}_u \times \mathbf{r}_v || dvdu$.  This often involves rather complex integrals unless there is an underlying symmetry.  For example in the case of a paraboloid above, let's find the area of the paraboloid bounded by $z=4$ plane.   It results in $z=u^2+v^2=4$, so polar coordinates can be used in the integration.  In addition, the integrand simplifies to $|| \mathbf{r}_u \times \mathbf{r}_v || = \sqrt{4u^2+4v^2+1} =\sqrt{4r^2+1}$, therefore
+$$S = \int\int || \mathbf{r}_u \times \mathbf{r}_v || dvdu = \int_0^{2\pi}\int_0^2 \sqrt{4r^2+1}r dr d\theta = [u=4r^2+1 \ \Rightarrow \ du=8rdr] = $$
+$$ 2\pi \int_1^{17}\sqrt{u}\frac{du}{8} = \frac{\pi}{4} \left( \frac{u^{3/2}}{3/2} \right)_1^{17}=\frac{1}{6} \, \pi {\left(17 \, \sqrt{17} - 1\right)}$$
+Note that in this case, $z=f(x,y)$ is given explicitly and we can write $\mathbf{r}(x,y) = \left< x,y,f(x,y) \right>$, so $\mathbf{r}_x(x,y) = \left< 1,0,f_x(x,y) \right>$ and $\mathbf{r}_y(x,y) = \left< 0,1,f_y(x,y) \right>$.  Then 
+$$ \mathbf{n} = \mathbf{r}_x \times \mathbf{r}_y = \begin{pmatrix}
+\mathbf{i} & \mathbf{j} & \mathbf{k}\\
+1 & 0 & f_x(x,y) \\
+0 & 1 & f_y(x,y)
+\end{pmatrix} =(- f_x(x,y)) \mathbf{i}-( f_y(x,y)) \mathbf{j} +(1-0) \mathbf{k} = $$
+$$ \left<  -f_x(x,y),-f_y(x,y),1 \right> \ \ \Rightarrow ||\mathbf{n}|| = ||\mathbf{r}_x \times \mathbf{r}_y|| = \sqrt{f_x(x,y)^2+f_y(x,y)^2+1}$$
+This results in the standard surface area formula $S = \int\int  \sqrt{f_x(x,y)^2+f_y(x,y)^2+1} \ dA$
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+var('r,t')
+nnorm(r,t) = sqrt(1+4*r^2)
+S = ( nnorm(r,t)*r ).integrate(r,0,2).integrate(t,0,2*pi)
+show('nnorm(r,t) = ',nnorm(r,t),'  S = ',S)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{ParamSurfaceArea}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch10VectorFields/ParamSurfaceArea}
+\caption{Surface area of a parametric paraboloid}
+\label{ParamSurfaceArea}       % Give a unique label
+\end{figure}
+
+Let's consider a more complex torus parametric surface: 
+$$\mathbf{r}(u,v)  = \left< (5+2cos(u))cos(v),(5+2cos(u))sin(v),2sin(u) \right> $$
+The calculations are more involved, but the SageMath cell below handles them as well.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset; var('u,v,t,x,y,z'); 
+r(u,v) = vector([(5+2*cos(u))*cos(v),
+        (5+2*cos(u))*sin(v),2*sin(u)])
+ru(u,v) = derivative(r(u,v),u)
+rv(u,v) = derivative(r(u,v),v)
+show('r(u,v) = ',r(u,v))
+show('ru(u,v) = ',ru(u,v))
+show('rv(u,v) = ',rv(u,v))
+n(u,v) = ru(u,v).cross_product(rv(u,v)) 
+show('normal vector n(u,v) = <')
+show(n(u,v)[0],','); show(n(u,v)[1],','); 
+show(n(u,v)[2],'>')
+
+u1 = pi/3; v1 = pi/4
+x1 = (5+2*cos(u1))*cos(v1); 
+y1 = (5+2*cos(u1))*sin(v1);
+z1 = 2*sin(u1); ru1 = ru(u1,v1); 
+rv1 = rv(u1,v1); n1 = n(u1,v1)
+show('u1 = ',u1,' v1 = ',v1,' x1 = ',
+           x1,' y1 = ',y1,' z1 = ',z1)
+show('ru1 = ',ru1,' rv1 = ',rv1)
+show(' n1 = ',n1)
+
+tang_plane = n1[0]*(x-x1)+n1[1]*(y-y1)+ n1[2]*(z-z1);
+normal_line = [x1+n1[0]*t,y1+n1[1]*t,z1+n1[2]*t]
+tang_plane_angle = arccos(abs(n1[2])/n1.norm(2))
+show('tang_plane = ', tang_plane)
+show('normal_line = ', normal_line)
+show('tangent plane angle = ',
+     N(tang_plane_angle*180/pi))
+
+#### Surface area computation
+nnorm(u,v) = (n.norm(2)).full_simplify()
+S = (nnorm(u,v)).integrate(u,0,2*pi).integrate(v,0,2*pi)
+show('nnorm(u,v) = ',nnorm(u,v),'  S = ',S)
+
+p1 = parametric_plot3d(r(u,v),(u,0,2*pi),
+                       (v,0,2*pi),opacity=0.5)
+p2 = implicit_plot3d(tang_plane,(x,-5,5),
+   (y,-5,5),(z,-5,5),color = 'green',opacity = 0.5)
+p3 = parametric_plot3d(normal_line,(t,-0.3,0.3),
+                       color='red',thickness=5)
+(p1+p2+p3).show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{TorusParametric}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch10VectorFields/TorusParametric}
+\caption{Torus tangent plane, normal line, and surface area}
+\label{TorusParametric}       % Give a unique label
+\end{figure}
+
+Lastly, let's consider a surface of rotation.   Assume a curve $y=f(x)$ is rotated about $x$\-axis.  We can represent it as $\mathbf{r}(u,v) = \left< u, f(u)cos(v), f(u)sin(v) \right>$.  
+Then, partial derivative tangent vectors are $\mathbf{r}_u = \left< 1, f'(u)cos(v), f'(u)sin(v)  \right>$ and $\mathbf{r}_v = \left< 0, -f(u)sin(v), f(u)cos(v) \right>$, therefore normal vector is:
+$$ \mathbf{n} = \mathbf{r}_u \times \mathbf{r}_v = \begin{pmatrix}
+\mathbf{i} & \mathbf{j} & \mathbf{k}\\
+1 & f'(u)cos(v) & f'(u)sin(v) \\
+0 & -f(u)sin(v) & f(u)cos(v)
+\end{pmatrix} = $$
+$$[f(u)f'(u)(cos^2(v)+sin^2(v))] \mathbf{i}-(f(u)cos(v)) \mathbf{j} +(-f(u)sin(v)) \mathbf{k} =$$
+$$ \left<  f(u)f'(u),-f(u)cos(v),-f(u)sin(v) \right>$$
+Then the norm of this normal vector is:
+$$||\mathbf{n}|| = \sqrt{ (f(u))^2(f'(v))^2+ (f(u))^2cos^2(v)+ (f(u))^2sin^2(v) } = f(u) \sqrt{ (f'(u))^2+ 1} $$
+Therefore, the surface integral is
+$$S =  \int\int || \mathbf{n} || dvdu =  \int_a^b\int_0^{2\pi} f(u) \sqrt{ (f'(u))^2+ 1} dvdu=  2\pi \int_a^b f(x) \sqrt{ (f'(x))^2+ 1} dx$$
+For example, let $f(x)=\frac{1}{x}$, then $f'(x)=-\frac{1}{x^2}$.  
+$$ S = 2\pi \int_0^1\frac{1}{x}\sqrt{ \frac{1}{x^4}+ 1}dx  $$The SageMath cell below plots the surface of rotation as well as tangent plane and normal line at $\left(u=1,v=\frac{\pi}{2}\right)$ and computes surface area of rotated segment from $x=1$ to $x=2$.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset; var('u,v,t,x,y,z'); assume(u>0)
+r(u,v) = vector([u,1/u*cos(v),1/u*sin(v)])
+ru(u,v) = derivative(r(u,v),u)
+rv(u,v) = derivative(r(u,v),v)
+show('r(u,v) = ',r(u,v))
+show('ru(u,v) = ',ru(u,v))
+show('rv(u,v) = ',rv(u,v))
+n(u,v) = ru(u,v).cross_product(rv(u,v)) 
+show('normal vector n(u,v) = ',n(u,v))
+
+u1 = 1; v1 = pi/2
+x1 = u1; y1 = 1/u1*cos(v1); z1 = 1/u1*sin(v1);
+ru1 = ru(u1,v1); rv1 = rv(u1,v1); n1 = n(u1,v1)
+show('u1 = ',u1,' v1 = ',v1,' x1 = ',
+           x1,' y1 = ',y1,' z1 = ',z1)
+show('ru1 = ',ru1,' rv1 = ',rv1)
+show(' n1 = ',n1)
+
+tang_plane = n1[0]*(x-x1)+n1[1]*(y-y1)+ n1[2]*(z-z1);
+normal_line = [x1+n1[0]*t,y1+n1[1]*t,z1+n1[2]*t]
+tang_plane_angle = arccos(abs(n1[2])/n1.norm(2))
+show('tang_plane = ', tang_plane)
+show('normal_line = ', normal_line)
+show('tangent plane angle = ',N(tang_plane_angle*180/pi))
+
+show('###### Surface area computation')
+nnorm(u,v) = (n.norm(2)).full_simplify()
+show((nnorm(u,v)).integrate(u).integrate(v))
+S = (nnorm(u,v)).integrate(u,1,2).integrate(v,0,2*pi)
+S = N(S)
+show('nnorm(u,v) = ',nnorm(u,v),'  S = ',S)
+
+p1 = parametric_plot3d(r(u,v),(u,0.5,3),(v,0,2*pi),opacity=0.5)
+p2 = implicit_plot3d(tang_plane,(x,-2,2),(y,-2,2),(z,0,2),
+                    color = 'green',opacity = 0.5)
+p3 = parametric_plot3d(normal_line,(t,-0.3,0.3),
+                       color='red',thickness=5)
+(p1+p2+p3).show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{RotationSurface}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch10VectorFields/RotationSurface}
+\caption{Surface of rotation tangent plane, normal line, and surface area}
+\label{RotationSurface}       % Give a unique label
+\end{figure}
+
+
+
+
+
+
+
+
+
+\section{Surface Integrals}
+
+Let's begin this section by evaluating the surface integral of $f(x,y) = x^2z-3y^2$ on the first octant portion of the plane $x + 2y + z = 2$.   In this case, it does not matter much, but it is more natural to project onto $xy$-plane.  Plugging $z=0$, we obtain $x + 2y = 2 \ \Rightarrow \ y=\frac{2-x}{2}$.  The surface equation is $z = g(x,y)=2-x-2y$, so $g_x(x,y)=1$  and $g_y(x,y)=2$.  Then the surface element square root term is just a number: $\sqrt{1+g_x^2+g_y^2} = \sqrt{1+1+4} =\sqrt{6}$.
+
+Therefore 
+$$\int\int_S f dS = \int\int_S f(x,y,g(x,y)) \sqrt{1+g_x^2+g_y^2}dA =  $$
+$$\int_0^2 \int_0^{(2-x)/2} (x^2(2-x-2y)-3y^2) \sqrt{6} dy dx = -\frac{7\sqrt{6}}{30} $$
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y,z');
+f(x,y,z) = x^2*z-3*y^2;  g(x,y) = 2-x-2*y;
+show( implicit_plot(g(x,y)==0,(x,0,3),\
+        (y,0,2), gridlines=True, figsize = (4,3)))
+
+gx(x,y) = derivative(g(x,y),x)
+gy(x,y) = derivative(g(x,y),y)
+dS(x,y) = sqrt(1+gx(x,y)^2+gy(x,y)^2)
+show('gx(x,y) = ',gx(x,y),' gy(x,y) = ',
+     gy(x,y), ' dS = ', dS(x,y))
+show('integrand = f(x,y,g(x,y))*dS = ', 
+               f(x,y,g(x,y))*dS(x,y))
+Int = ( f(x,y,g(x,y))*dS(x,y) ). \
+        integrate(y,0,(2-x)/2).integrate(x,0,2)
+show('Int = ', Int)
+\end{verbatim}
+\end{programcode}
+The output is shown in Figure \ref{SurfIntPlane}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch10VectorFields/SurfIntPlane}
+\caption{Surface integral on a tilted plane}
+\label{SurfIntPlane}       % Give a unique label
+\end{figure}
+
+
+For some problems, we have to project to a different coordinate plane.  For example, find the surface integral of $f(x,y) = 2x+3y+4z$ on the first-octant part of a circular cylinder $x=g(y,z)=\sqrt{9-z^2}$ between $y=0$ and $y=4$.   In this case, we have to project onto $ yz$-plane, and the projection is just a rectangle. Plugging $x=0$, we obtain $\sqrt{9-z^2} = 0 \ \Rightarrow \ z=3$.  The surface equations derivatives are $g_y(y,z)=0$  and $g_z(y,z)=-\frac{z}{\sqrt{9-z^2}}$.  Then the surface element is: $\sqrt{1+g_y^2+g_z^2} = \sqrt{1+0+\frac{z^2}{9-z^2}} =\frac{3}{\sqrt{9-z^2}}$.   Therefore 
+$$\int\int_S f dS = \int\int_S f(g(y,z),y,z) \sqrt{1+g_y^2+g_z^2}dA =  $$
+$$\int_0^4 \int_0^3 (2\sqrt{9-z^2}+3y+4z) \frac{3}{\sqrt{9-z^2}} dz dy  $$
+The integrals are somewhat tedious, but SageMath computes them.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y,z');  assume(z<3)
+f(x,y,z) =2*x+3*y+4*z;  g(y,z) = sqrt(9-z^2);
+gy(y,z) = derivative(g(y,z),y)
+gz(y,z) = derivative(g(y,z),z)
+dS(y,z) = sqrt(1+gy(y,z)^2+gz(y,z)^2).full_simplify()
+show('gy(y,z) = ',gy(y,z),' gz(y,z) = ',
+     gz(y,z), ' dS = ', dS(y,z))
+show('integrand = f(g(y,z),y,z)*dS = ', 
+              f(g(y,z),y,z)*dS(y,z))
+Int = ( f(g(y,z),y,z)*dS(y,z) ). \
+        integrate(z,0,3).integrate(y,0,4)
+show('Int = ', Int, ' = ', N(Int))
+\end{verbatim}
+\end{programcode}
+The output is shown in Figure \ref{CylinderYZ}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch10VectorFields/CylinderYZ}
+\caption{Surface integral in y-z plane}
+\label{CylinderYZ}       % Give a unique label
+\end{figure}
+
+
+Actually, it is much easier to compute above surface integral using the parametrization  $\mathbf{r}(u,v) = \left< 3\cos(v),u,3\sin(v) \right> \ \ 0 \le u \le 4, \ \ 0 \le v \le \frac{\pi}{2}$.   Here $x^2+z^2 = 9\cos^2(v)+9\sin^2(v)=9$.
+Then, partial derivative tangent vectors are $\mathbf{r}_u = \left< 0, 1,0  \right>$ and $\mathbf{r}_v = \left< -3\sin(v), 0, 3\cos(v) \right>$, therefore normal vector is:
+$$ \mathbf{n} = \mathbf{r}_u \times \mathbf{r}_v = \begin{pmatrix}
+\mathbf{i} & \mathbf{j} & \mathbf{k}\\
+0           & 1 &     0 \\
+-3\sin(v) & 0 & 3\cos(v)
+\end{pmatrix} = $$
+$$3\cos(v) \mathbf{i}-0 \mathbf{j} +(3\sin(v)) \mathbf{k} = \left<  3\cos(v),0,3\sin(v) \right>$$
+Then the norm of this normal vector is:
+$$||\mathbf{n}|| = \sqrt{9 \cos^2(v)+ 9\sin^2(v) } =3$$
+Therefore, the surface integral is
+$$\int\int_S fdS =  \int\int f || \mathbf{n} || dvdu =  \int_0^4\int_0^{\pi/2} [2(3\cos(v))+3u+4(3\sin(v))]3dvdu=$$
+$$ \int_0^{\pi/2} \left(18u\cos(v)+9\frac{u^2}{2}+ 36u\sin(v))\right)_0^4  dv= $$
+$$ \left(72\sin(v)+72v - 144\cos(v) \right)_0^{\pi/2} = 36\pi+216$$
+
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('u,v,x,y,z'); assume(u>0)
+f(x,y,z) =2*x+3*y+4*z;
+r(u,v) = vector([3*cos(v),u,3*sin(v)])
+ru(u,v) = derivative(r(u,v),u)
+rv(u,v) = derivative(r(u,v),v)
+show('r(u,v) = ',r(u,v))
+show('ru(u,v) = ',ru(u,v))
+show('rv(u,v) = ',rv(u,v))
+n(u,v) = ru(u,v).cross_product(rv(u,v)) 
+show('normal vector n(u,v) = ',n(u,v))
+nnorm(u,v) = (n.norm(2)).full_simplify()
+show('normal vector nnorm(u,v) = ',nnorm(u,v))
+show(f(r(u,v)[0],r(u,v)[1],r(u,v)[2])* nnorm(u,v))
+Int = ( f(r(u,v)[0],r(u,v)[1],r(u,v)[2])* nnorm(u,v) ). \
+        integrate(u,0,4).integrate(v,0,pi/2)
+show('Int = ', Int, ' = ', N(Int))
+parametric_plot3d(r(u,v),(u,0,4),(v,0,pi/2),opacity=0.5)
+\end{verbatim}
+\end{programcode}
+The output is shown in Figure \ref{CylinderYZ2}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch10VectorFields/CylinderYZ2}
+\caption{Cylindrical parametrization of the above integral}
+\label{CylinderYZ2}       % Give a unique label
+\end{figure}
+
+
+
+Let's now consider surface integral of $f(x,y,z)=x^2$ over a sphere of radius $a$ parametrized with spherical coordinates: $\mathbf{r}(u,v) = \left< a sin(u)cos(v),a sin(u)sin(v),a cos(u) \right> \ \ 0 \le u \le \pi, \ \ 0 \le v \le 2\pi$.  
+Then, partial derivative tangent vectors are $\mathbf{r}_u = \left< a cos(u)cos(v),a cos(u)sin(v),-a sin(u)   \right>$ and $\mathbf{r}_v = \left<  -a sin(u)sin(v),a sin(u)cos(v),0 \right>$, therefore normal vector is:
+$$ \mathbf{n} = \mathbf{r}_u \times \mathbf{r}_v = \begin{pmatrix}
+\mathbf{i} & \mathbf{j} & \mathbf{k}\\
+a cos(u)cos(v) & a cos(u)sin(v) & -a sin(u) \\
+-a sin(u)sin(v) & a sin(u)cos(v)  &   0
+\end{pmatrix} = $$
+$$\left< a^2 sin^2(u)cos(v), a^2 sin^2(u)sin(v), a^2 cos(u)sin(u)(cos^2(v)+sin^2(v)) \right> $$
+Then the norm of this normal vector is:
+$$||\mathbf{n}|| = a^2\sqrt{sin^4(u)(cos^2(v)+sin^2(v))+cos^2(u)sin^2(u) } =a^2sin(u)$$
+Therefore, surface integral is
+$$\int\int_S fdS =  \int\int f || \mathbf{n} || dvdu =  \int_0^{2\pi}\int_0^{\pi} a^2 sin^2(u)cos^2(v) a^2sin(u)dvdu=$$
+$$a^4 \int_0^{2\pi}cos^2(v) dv \int_0^{\pi} sin^3(u)du = a^4 \int_0^{2\pi} \frac{1+cos(2v)}{2} dv \int_0^{\pi} (cos^2(u)-1)d(cos(u)) =$$
+$$ a^4 \left( \frac{u}{2}+\frac{sin(2v)}{4} \right)_0^{2\pi}  \left( \frac{cos^3(u)}{3} - cos(u) \right)_0^{\pi} =  \frac{4}{3}\pi a^4$$
+
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('u,v,x,y,z,a'); assume(a>0); assume(sin(u)>0)
+f(x,y,z) =x^2;
+r(u,v) = vector([a*sin(u)*cos(v),a*sin(u)*sin(v),a*cos(u)])
+ru(u,v) = derivative(r(u,v),u)
+rv(u,v) = derivative(r(u,v),v)
+show('r(u,v) = ',r(u,v))
+show('ru(u,v) = ',ru(u,v))
+show('rv(u,v) = ',rv(u,v))
+n(u,v) = ru(u,v).cross_product(rv(u,v)) 
+show('normal vector n(u,v) = <')
+show(n(u,v)[0],','); show(n(u,v)[1],','); show(n(u,v)[2],'>')
+nnorm(u,v) = (n.norm(2)).full_simplify()
+show('normal vector nnorm(u,v) = ',nnorm(u,v))
+show(f(r(u,v)[0],r(u,v)[1],r(u,v)[2])* nnorm(u,v))
+Int = ( f(r(u,v)[0],r(u,v)[1],r(u,v)[2])* nnorm(u,v) ). \
+        integrate(u,0,pi).integrate(v,0,2*pi)
+show('Int = ', Int)
+parametric_plot3d([2*sin(u)*cos(v),2*sin(u)*sin(v),2*cos(u)],
+                  (u,0,pi),(v,0,2*pi),opacity=0.5)
+\end{verbatim}
+\end{programcode}
+The output is shown in Figure \ref{SphereIntx2}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch10VectorFields/SphereIntx2}
+\caption{Integral of $x^2$ over a sphere}
+\label{SphereIntx2}       % Give a unique label
+\end{figure}
+
+As an application of such surface integrals, let's consider a cone-shaped surface lamina S given by $z=g(x,y)=4-2\sqrt{x^2+y^2}$ as shown in the Figure below.   At each point on S, the density $\rho = Kr$ is proportional to the radial distance to the z-axis.  Find the mass $m$ of the lamina.   To find intersection with $xy$\-plane, set $z=4-2\sqrt{x^2+y^2}=0$, so $\sqrt{x^2+y^2}=2 \ \Rightarrow \ x^2+y^2=4$ \- circle of radius 2.   
+$$g_x(x,y) = -2\frac{2x}{2\sqrt{x^2+y^2}}=-\frac{2x}{\sqrt{x^2+y^2}}$$
+$$ g_y(x,y) = -2\frac{2y}{2\sqrt{x^2+y^2}}=-\frac{2y}{\sqrt{x^2+y^2}} \ \ \ \Rightarrow$$
+$$ \sqrt{1+g_x^2+g_y^2} = \sqrt{ 1+\frac{4x^2}{x^2+y^2} +\frac{4y^2}{x^2+y^2} }  = \sqrt{5} $$
+Then mass is
+$$m = \int\int \rho dS = \int_0^{2\pi}\int_0^2 Kr  \sqrt{5} r dr d\theta =  2\pi  \sqrt{5} K \left( \frac{r^3}{3} \right)_0^2 =  \frac{16K\pi \sqrt{5} }{3} $$
+
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y,z,r,K');  
+g(x,y) = 4-2*sqrt(x^2+y^2);
+gx(x,y) = derivative(g(x,y),x)
+gy(x,y) = derivative(g(x,y),y)
+dS(x,y) = sqrt(1+gx(x,y)^2+gy(x,y)^2).full_simplify()
+show('gx(x,y) = ',gx(x,y),' gy(x,y) = ',
+     gy(x,y), ' dS = ', dS(x,y))
+f(r) =K*r; 
+show('integrand = f(r)*r*sqrt(5) = ', f(r)*r*sqrt(5))
+m = ( f(r)*r*sqrt(5) ).integrate(r,0,2).integrate(y,0,2*pi)
+show('m = ', m)
+
+show(parametric_plot3d([x,y,g(x,y)],
+                  (x,-2,2),(y,-2,2),opacity=0.5))
+
+\end{verbatim}
+\end{programcode}
+The output is shown in Figure \ref{SurfIntCone}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch10VectorFields/SurfIntCone}
+\caption{Mass of a cone-shaped lamina}
+\label{SurfIntCone}       % Give a unique label
+\end{figure}
+
+
+Let's also consider a flux integral of a vector field.   Let S be the portion of the paraboloid $z = g(x, y) = 9 – x^2 – y^2$ lying above the xy-plane, oriented by an upward unit normal vector.   A fluid of constant density $\rho=K$ is flowing through the surface S according to the vector field $F(x, y, z) = <x,y,3z>$.   Find the rate of mass flow through S: $\int\int \rho\mathbf{F}d\mathbf{S}$.   
+ $$\int\int \rho\mathbf{F}d\mathbf{S} = \int\int \rho\mathbf{F}\cdot \mathbf{N}dS =  \int\int \rho\mathbf{F}\cdot \frac{\mathbf{r}_u \times \mathbf{r}_v}{||\mathbf{r}_u \times \mathbf{r}_v||} ||\mathbf{r}_u \times \mathbf{r}_v||dA = \int\int \rho\mathbf{F}\cdot (\mathbf{r}_u \times \mathbf{r}_v)dA$$
+In this case, the surface is given explicitly: $\mathbf{r} = \left<  x,y,g(x,y) \right>$
+$$ \mathbf{n} = \mathbf{r}_u \times \mathbf{r}_v = \begin{pmatrix}
+\mathbf{i} & \mathbf{j} & \mathbf{k}\\
+1   & 0 &     g_x(x,y) \\
+0   & 1 &   g_y(x,y)
+\end{pmatrix}  = \left<  -g_x(x,y), -g_y(x,y),1 \right>$$
+In our case  $\mathbf{n} = \mathbf{r}_u \times \mathbf{r}_v = \left<  2x, 2y,1 \right>$, so 
+$$\mathbf{F}d\mathbf{S} = \left<  x, y, 3z \right> \cdot \left<  2x, 2y,1 \right>=2x^2+2y^2+3z=2x^2+2y^2+3(9-x^2-y^2)=27- x^2-y^2$$
+Set  $z = g(x, y) = 9 – x^2 – y^2 = 0$, so $x^2+y^2=9$ - circle of radius 3. Then
+ $$\int\int \rho\mathbf{F}d\mathbf{S} = \int_0^3 \int_0^{2\pi} K(27-r^2)r dr d\theta = 2\pi K \left( 27\frac{r^2}{2} - \frac{r^4}{4} \right)_0^{3} =\frac{405\pi K}{2} $$
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y,z,r,t,K');  
+F(x,y,z) = vector([x,y,3*z])
+g(x,y) = 9-(x^2+y^2);
+gx(x,y) = derivative(g(x,y),x)
+gy(x,y) = derivative(g(x,y),y)
+show('gx(x,y) = ',gx(x,y),' gy(x,y) = ', gy(x,y))
+dS(x,y) = vector([-gx(x,y),-gy(x,y),1])
+FdS = F(x,y,g(x,y)).dot_product(dS(x,y))
+show('FdS = ',FdS)
+Flux = ( K*(27-r^2)*r ).integrate(r,0,3).integrate(t,0,2*pi)
+show('Flux = ',Flux)
+parametric_plot3d([x,y,g(x,y)],
+                  (x,-2,2),(y,-2,2),opacity=0.5)
+
+\end{verbatim}
+\end{programcode}
+The output is shown in Figure \ref{FluxInteg}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch10VectorFields/FluxInteg}
+\caption{Flux integral of constant density fluid}
+\label{FluxInteg}       % Give a unique label
+\end{figure}
+
+
+
+
+
+
+
+
+\section{Divergence Theorem}
+
+The Divergence Theorem states that for a solid region $Q$ bounded by a closed surface $S$ oriented outwards, $\int\int_S \mathbf{F}d\mathbf{S} = \int\int\int div( \mathbf{F})dV$ for any vector field $ \mathbf{F}$ with continuous partial derivatives.   Let's first verify this theorem for a paraboloid $z=g(x,y)=9-(x^2+y^2)$ above $xy$-plane and vector field $\mathbf{F} = \left< x,y,x^2+y^2+z^2 \right>$.    The closed surface $S$ consists of the upper paraboloid $S_1$ and the bottom flat disk $S_2$ of radius $3$.
+
+First, for $S_1$: $g(x,y) = 9-x^2-y^2; \  \ \Rightarrow \ g_x = -2x; \ \ g_y=-2y \  \ \Rightarrow \ \mathbf{n} = \mathbf{r}_u \times \mathbf{r}_v = \left<  -g_x, -g_y,1 \right>= \left<  2x, 2y,1 \right>$, so
+$$\mathbf{F}d\mathbf{S} = \left<  x, y, x^2+y^2+z^2 \right> \cdot \left<  2x, 2y,1 \right>= 2x^2+2y^2+x^2+y^2+z^2=$$
+$$ 3x^2+3y^2+(9-x^2-y^2)^2=3r^2+(9-r^2)^2$$
+ $$\int\int_{S_1}\mathbf{F}d\mathbf{S} = \int_0^3 \int_0^{2\pi} (3r^2+(9-r^2)^2)r dr d\theta = 2\pi  \int_0^3 (81 -15r^2 + r^4)r dr  = $$
+ $$ =  2\pi \left( 81 \frac{r^2}{2} -15 \frac{r^4}{4} + \frac{r^6}{6} \right)_0^3 = \frac{729 \pi}{2}$$
+
+Next, for $S_2$, note that it must have a normal vector directed outwards, which is down in this case. Then for $g(x,y) =0; \  \ \Rightarrow \ g_x = 0; \ \ g_y=0 \  \ \Rightarrow \ \mathbf{n} = \mathbf{r}_u \times \mathbf{r}_v = \left<  g_x,g_y,-1 \right>= \left<  0, 0, -1 \right>$, so
+$$\mathbf{F}d\mathbf{S} = \left<  x, y, x^2+y^2+z^2 \right> \cdot \left<  0, 0,-1 \right>= -x^2-y^2=-r^2$$
+$$\int\int_{S_1}\mathbf{F}d\mathbf{S} = \int_0^3 \int_0^{2\pi} (-r^2)r dr d\theta = 2\pi  \int_0^3 (-r^3) dr  =  -2\pi \left( \frac{r^4}{4}\right)_0^3 = - \frac{81 \pi}{2}$$
+Then overall 
+$$\int\int_{S}\mathbf{F}d\mathbf{S} = \int\int_{S_1}\mathbf{F}d\mathbf{S}+\int\int_{S_2}\mathbf{F}d\mathbf{S}=\frac{729 \pi}{2} - \frac{81 \pi}{2} = 324\pi$$
+Now, let's consider the divergence integral.   First of all, the divergence of the vector field is $div(\mathbf{F}) = 1+1+2z=2+2z$.  Then
+$$ \int\int\int div(\mathbf{F}) dV = \int_0^{2\pi}\int_0^3 \int_0^{9-r^2} 2+2z dz r dr d\theta = 2\pi \int_0^3 \left(2z + z^2 \right)_0^{9-r^2} rdr =$$
+$$  2\pi \int_0^3 \left(2(9-r^2) + (9-r^2)^2 \right) rdr =  2\pi \int_0^3 \left(  99r -20r^3 + r^5 \right) rdr =$$
+$$ 2\pi \left( 99\frac{r^2}{2} - 20\frac{r^4}{4}+\frac{r^6}{6} \right)_0^3 =324 \pi $$So, we confirmed that they are the same.   The SageMath cells below compute these integrals.  We begin with the flux over the curved parabolic surface:
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y,z,r,t,');  
+F(x,y,z) = vector([x,y,x^2+y^2+z^2])
+g(x,y) = 9-(x^2+y^2);
+gx(x,y) = derivative(g(x,y),x)
+gy(x,y) = derivative(g(x,y),y)
+show('gx(x,y) = ',gx(x,y),' gy(x,y) = ', gy(x,y))
+dS(x,y) = vector([-gx(x,y),-gy(x,y),1])
+FdS = F(x,y,g(x,y)).dot_product(dS(x,y))
+show('FdS = ',FdS)
+Flux1 = ( ((9-r^2)^2 + 3*r^2)*r ).
+     integrate(r,0,3).integrate(t,0,2*pi)
+show('Flux1 = ',Flux1)
+plot3d(g(x,y),(x,-3,3),(y,-3,3))
+parametric_plot3d([r*cos(t),r*sin(t),9-r^2],(r,0,3),(t,0,2*pi))
+
+\end{verbatim}
+\end{programcode}
+The output is shown in Figure \ref{DivTheorFlux1}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch10VectorFields/DivTheorFlux1}
+\caption{Flux integral over paraboloid part of the solid for the Divergence Theorem}
+\label{DivTheorFlux1}       % Give a unique label
+\end{figure}
+
+Let's now find flux over the $xy$-plane, the flat part of the solid.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+g(x,y) = 0;
+gx(x,y) = derivative(g(x,y),x)
+gy(x,y) = derivative(g(x,y),y)
+show('gx(x,y) = ',gx(x,y),' gy(x,y) = ', gy(x,y))
+dS(x,y) = -vector([-gx(x,y),-gy(x,y),1])
+FdS = F(x,y,g(x,y)).dot_product(dS(x,y))
+show('FdS = ',FdS)
+Flux2 = ( (-r^2)*r ).integrate(r,0,3).integrate(t,0,2*pi)
+show('Flux2 = ',Flux2)
+
+\end{verbatim}
+\end{programcode}
+The output is shown in Figure \ref{DivTheorFlux2}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch10VectorFields/DivTheorFlux2}
+\caption{Flux integral over flat xy-plane part of the solid for the Divergence Theorem}
+\label{DivTheorFlux2}       % Give a unique label
+\end{figure}
+
+Finally, let's compare it to the volume integral of the divergence.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+divF(x,y,z) = F.div()(x,y,z)
+show('divF = ',divF(x,y,z))
+show('Int DivF = ',(divF(x,y,z)*r).integrate(z,0,9-r^2).
+                      integrate(r,0,3).integrate(t,0,2*pi))
+show('Flux1 + Flux2 = ', Flux1 + Flux2)
+
+\end{verbatim}
+\end{programcode}
+The output is shown in Figure \ref{DivIntTheor}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch10VectorFields/DivIntTheor}
+\caption{Flux integral over flat xy-plane part of the solid for the Divergence Theorem}
+\label{DivIntTheor}       % Give a unique label
+\end{figure}
+
+Let's consider a surface integral of a complex vector field 
+$$\mathbf{F} = \left< 3x-sin(y^2),2xy+e^{z^2},tan(xy) \right>$$
+over a closed surface bounded by cylinder $x^2+y^2=9$, $xy$-plane, and slanted plane $x+z=4$.   The direct surface integral would be impossible to take, however, the divergence theorem $\int\int_S \mathbf{F}d\mathbf{S} = \int\int\int div( \mathbf{F})dV$ turns 3 surface integrals into one volume integral of much simpler scalar field  $div(\mathbf{F}) = 3+2x$.
+$$ \int\int\int div(\mathbf{F}) dV = \int_0^{2\pi}\int_0^3 \int_0^{4-r\cos(t)} (3+2r \cos(t)) dz r dr d\theta = $$
+$$ \int_0^{2\pi} \int_0^3  (3+2r \cos(t)) ( 4-r \cos(t))  r dr d\theta = $$
+$$ \int_0^{2\pi} \int_0^3  (12 +5r \cos(t) - 2r^2 \cos^2(t))  r dr d\theta =$$
+$$  \int_0^{2\pi} \left( 6r^2 +5\frac{r^3}{3}\cos(t) - \frac{r^4}{4}(1+\cos(2t)) \right)_0^3 d\theta = \frac{135\pi}{2} $$
+Note that $\int_0^{2\pi} \cos(t) dt = \int_0^{2\pi} \cos(2t) dt =0$ because of the periodicity.
+The SageMath cell below illustrates this computation as well as the surfaces.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y,z,r,t,');  
+F(x,y,z) = vector([3*x-sin(y^2),2*x*y+e^(z^2),tan(x*y)])
+divF(x,y,z) = F.div()(x,y,z)
+show('divF = ',divF(x,y,z))
+
+show('Int DivF = ',((2*r*cos(t)+3)*r).integrate(z,0,4-r*cos(t)).
+                      integrate(r,0,3).integrate(t,0,2*pi))
+p1 = implicit_plot3d(x^2+y^2==9,(x,-3,3),(y,-3,3),(z,0,4))
+p2 = plot3d(4-x,(x,-3,3),(y,-3,3),opacity=0.5,color='red')
+(p1+p2).show()
+
+\end{verbatim}
+\end{programcode}
+The output is shown in Figure \ref{DivTheorCylinderCut}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch10VectorFields/DivTheorCylinderCut}
+\caption{Application of the Divergence Theorem on a cylinder and slanted plane}
+\label{DivTheorCylinderCut}       % Give a unique label
+\end{figure}
+
+
+Another example where the divergence theorem simplifies computations enormously is the surface integral of the vector field  $\mathbf{F} = \left< x^3-sin(z^2),y^3+e^{z^2},z^3-7xy \right>$ over the sphere of radius 3.    Once again, the direct surface integration is out of question for such a complex vector field, especially over a sphere where the parametrization derivatives cross product is rather complex itself (see previous section).  However, the divergence of our vector field is much simpler: $div(\mathbf{F}) = 3x^2+3y^2+3z^2=3\rho^2$, where $\rho$ is the distance from the origin in spherical coordinates.
+$$ \int\int_S \mathbf{F} d \mathbf{S} = \int\int\int div(\mathbf{F}) dV = \int_0^{2\pi}\int_0^{\pi} \int_0^3 3\rho^2 \rho^2 sin(\phi) d\rho d\phi d\theta = $$
+$$ 2\pi \left( -cos(\phi) \right)_0^{\pi} 3 \left( \frac{\rho^5}{5} \right)_0^3 = \frac{2916\pi}{5}$$
+The SageMath cell below illustrates this computation as well as the surface.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y,z,r,t,');  
+F(x,y,z) = vector([x^3-sin(z^2),y^3+e^(z^2),z^3-7*x*y])
+divF(x,y,z) = F.div()(x,y,z)
+show('divF = ',divF(x,y,z))
+
+var('rho,phi,theta')
+show('Int DivF = ',((3*rho^2)*rho^2*sin(phi)).integrate(rho,0,3).
+                      integrate(phi,0,pi).integrate(theta,0,2*pi))
+
+implicit_plot3d(x^2+y^2+z^2==9,(x,-3,3),(y,-3,3),(z,-3,3))
+
+\end{verbatim}
+\end{programcode}
+The output is shown in Figure \ref{DivTheorSphere.png}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch10VectorFields/DivTheorSphere.png}
+\caption{Application of the Divergence Theorem on a sphere}
+\label{DivTheorSphere.png}       % Give a unique label
+\end{figure}
+
+
+The Divergence Theorem was stated for a simple solid region $Q$ bounded by a closed surface $S$, but it is also valid for regions that are the finite unions of simple solid regions.   For example, let Q be the solid bounded by the closed surfaces $S_1$ and $S_2$ \- inner and outer closed surfaces, respectively.  The solid's surface is the union $S = S_1 \cup S_2$. Note that the normal direction is pointing outside the solid for both $S_1 (\mathbf{-N_1})$ and $S_2  (\mathbf{N_2})$, but for the inner $S_1$ surface $\mathbf{N_1}$ is into the solid.  The simplest plot with two spheres illustrates the idea in the SageMath cell below.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y,z')
+p1 = implicit_plot3d(x^2+y^2+z^2==1,(x,-3,3),
+             (y,-3,3),(z,-3,3),color='red',opacity = 0.5)
+p2 = implicit_plot3d(x^2+y^2+z^2==9,(x,-3,3),
+             (y,-3,3),(z,-3,3),opacity = 0.5)
+r2 = vector([0,3,0]);  N2 = vector([0,1,0]); 
+p3 = plot(N2, start=r2, color='black', thickness = 5) 
+r1 = vector([0,1,0]);  N1 = vector([0,-1,0]); 
+p4 = plot(N1, start=r1, color='black', thickness = 5) 
+r1 = vector([0,1,0]);  N11 = vector([0,1,0]); 
+p5 = plot(N11, start=r1, color='black', thickness = 5) 
+(p1+p2+p3+p4+p5).show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Figure \ref{DivTheorInnerSurf.png}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch10VectorFields/DivTheorInnerSurf.png}
+\caption{Divergence Theorem illustration with inner surface}
+\label{DivTheorInnerSurf.png}       % Give a unique label
+\end{figure}
+
+Then
+$$\int\int\int div(\mathbf{F}) dV = \int\int_S \mathbf{F}d\mathbf{S} =\int\int_{S_1} \mathbf{F} \cdot (-\mathbf{N_1})d\mathbf{S} + \int\int_{S_2} \mathbf{F} \cdot \mathbf{N_2} d\mathbf{S}=$$
+$$-\int\int_{S_1} \mathbf{F} \cdot \mathbf{N_1}d\mathbf{S} +\int\int_{S_2} \mathbf{F} \cdot \mathbf{N_2} d\mathbf{S}$$
+
+Let's now consider an arbitrary surface $S_2$ enclosing electric charge $q$ at the origin.  We can always find a sphere $S_1$ of small enough radius $a$ enclosing the charge at the origin completely inside $S_2$.  The electric field of a point charge is quadratic: $\mathbf{E} = kq\frac{\mathbf{r}}{||\mathbf{r}||^3}=kq \frac{\left< x,y,z \right>}{(x^2+y^2+z^2)^{3/2}}$.
+$$div(\mathbf{E} ) = kq\left(  \frac{1}{(x^2+y^2+z^2)^{3/2}} -x \frac{3}{2} \frac{2x}{(x^2+y^2+z^2)^{5/2}}  \right) +$$
+$$\left( \frac{1}{(x^2+y^2+z^2)^{3/2}} -y \frac{3}{2} \frac{2y}{(x^2+y^2+z^2)^{5/2}}  \right) + $$
+$$\left( \frac{1}{(x^2+y^2+z^2)^{3/2}} - z \frac{3}{2} \frac{2z}{(x^2+y^2+z^2)^{5/2}}   \right) = 0$$
+Then
+$$\int\int_{S_2} \mathbf{E} \cdot \mathbf{N_2} d\mathbf{S} = \int\int_{S_1} \mathbf{E} \cdot \mathbf{N_1} d\mathbf{S} = 
+\int\int_{S_1}   kq\frac{\mathbf{r}}{||\mathbf{r}||^3} \cdot \frac{\mathbf{r}}{||\mathbf{r}||} dS = $$
+$$ \int\int_{S_1}   kq\frac{||\mathbf{r}||^2}{||\mathbf{r}||^4} dS = kq\frac{1}{a^2} \int\int_{S_1}    dS = \frac{kq}{a^2}4\pi a^2 = 4\pi k q$$This shows that the flux of electric field of a point charge at the origin is $4\pi k q$ through ANY closed surface that contains it.   Also, note that there is no contradiction that the flux integral of this zero divergence field over a closed sphere containing origin is not zero, because the inverse quadratic field is not continuous at the origin.   I just wanted to mention this result here without any special SageMath calculation as this point is often not made clear in a regular Calculus course.
+
+
+
+
+
+
+
+\section{Stokes Theorem}
+
+The Stokes Theorem states that for an oriented surface $S$ bounded by positively oriented curve $C$:  $\int_C \mathbf{F}d\mathbf{r} = \int\int_S curl( \mathbf{F})d\mathbf{S}$ for any vector field $ \mathbf{F}$ with continuous partial derivatives.   Once again, let's first verify this theorem for a paraboloid $S$: $z=g(x,y)=9-(x^2+y^2)$ above $ xy$-plane and vector field $\mathbf{F} = \left< 5z,3x,2y^2 \right>$.    The surface $S$ boundary is counterclockwise oriented circle $C$ or radius 3 parametrized by $\mathbf{r}(t) = \left< 3\cos(t),3\sin(t),0 \right>$.   The curl of $\mathbf{F}$ is:
+$$curl(\mathbf{F}) = \begin{pmatrix}
+\mathbf{i}& \mathbf{j} & \mathbf{k}\\
+\frac{\partial}{\partial x} & \frac{\partial}{\partial y} & \frac{\partial}{\partial z} \\
+5z &   3x &  2y^2
+\end{pmatrix} = \left<4y, 5,3 \right> $$
+
+For $S$: $g(x,y) = 9-x^2-y^2; \  \ \Rightarrow \ g_x = -2x; \ \ g_y=-2y \  \ \Rightarrow \ \mathbf{n} = \mathbf{r}_u \times \mathbf{r}_v = \left<  -g_x, -g_y,1 \right>= \left<  2x, 2y,1 \right>$, so
+$$curl(\mathbf{F})d\mathbf{S} = \left<  4y, 5, 3 \right> \cdot \left<  2x, 2y,1 \right>dA= (8xy+10y+3)dA $$
+ $$\int\int_{S}curl(\mathbf{F})d\mathbf{S}  = \int_0^3 \int_0^{2\pi} (8r^2 \cos(t)\sin(t) +10r \sin(t)+3)r dr d\theta = $$
+ $$ 2\pi  3\left( \frac{r^2}{2} \right)_0^3 =27\pi$$
+The integrals $\int_0^{2\pi} \sin(t) dt = \int_0^{2\pi} \cos(t)\sin(t) dt =0$ because of the periodicity.
+
+Now, let's consider the line integral.   The derivative of the parametrization $\mathbf{r}(t) =\left< 3\cos(t),3\sin(t),0 \right> $ is  $\mathbf{r}'(t) =\left< -3\sin(t),3\cos(t),0 \right> $.
+$$ \int \mathbf{F} d\mathbf{r} =\int \mathbf{F}\cdot \mathbf{r'}(t) dt =  \int_0^{2\pi}  \left< 5z,3x,2y^2 \right> \cdot  \left< -3\sin(t),3\cos(t),0 \right>  dt =$$
+$$  \int_0^{2\pi} \left< 5\cdot 0,3 \cdot 3\cos(t),2 \cdot 9\sin^2(t) \right>\cdot  \left< -3\sin(t),3\cos(t),0 \right>  dt=$$
+$$   \int_0^{2\pi} 27\cos^2(t) dt=\int_0^{2\pi} 27\frac{1+\cos(2t)}{2} dt= 27\pi$$
+So, we confirmed that they are the same.   The SageMath cell below computes these integrals.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y,z,r,t,');  
+F(x,y,z) = vector([5*z,3*x,2*y^2])
+curlF(x,y,z) = F.curl()(x,y,z)
+show('curl of F = ', curlF(x,y,z))
+g(x,y) = 9-(x^2+y^2);
+gx(x,y) = derivative(g(x,y),x)
+gy(x,y) = derivative(g(x,y),y)
+show('gx(x,y) = ',gx(x,y),' gy(x,y) = ', gy(x,y))
+dS(x,y) = vector([-gx(x,y),-gy(x,y),1])
+curlFdS = curlF(x,y,g(x,y)).dot_product(dS(x,y))
+show('curlFdS = ',curlFdS)
+show('Int curl dS = ',((8*r*cos(t)*r*sin(t)+10*r*sin(t)+3)*r).
+                 integrate(r,0,3).integrate(t,0,2*pi))
+parametric_plot3d([r*cos(t),r*sin(t),9-r^2],(r,0,3),(t,0,2*pi))
+\end{verbatim}
+\end{programcode}
+The output is shown in Figure \ref{StokesTheor1.png}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch10VectorFields/StokesTheor1.png}
+\caption{Stokes Theorem surface integral of curl}
+\label{StokesTheor1.png}       % Give a unique label
+\end{figure}
+
+Let's now compute the line integral over the circular border to confirm the Stokes Theorem.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+r(t) = vector([3*cos(t),3*sin(t),0]); 
+rp(t) = derivative(r(t),t)
+show('r(t) = ',r(t))
+show('rp(t) = ',rp(t))
+Fdr(t) = F(r(t)[0],r(t)[1],r(t)[2]).dot_product(rp(t))
+show('Fdr(t) = ', Fdr(t))
+\end{verbatim}
+\end{programcode}
+The output is shown in Figure \ref{StokesTheor2.png}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch10VectorFields/StokesTheor2.png}
+\caption{Stokes Theorem line integral on the border}
+\label{StokesTheor2.png}       % Give a unique label
+\end{figure}
+
+Note that the circle of radius 3 in the $xy$-plane also bounds a simple disk in the same plane.   For this surface $g(x,y)=0$, so $\left< -g_x,-g_y,1 \right>=\left< 0,0,1 \right>$, therefore the surface curl integral becomes particularly simple:
+ $$\int\int_{S}curl(\mathbf{F})d\mathbf{S}  =\int\int_{S} \left<  4y, 5, 3 \right> \cdot \left<  0, 0,1 \right>dA = 3 \cdot \pi 3^2 = 27\pi $$
+This is the same answer that was obtained most easily.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y,z,r,t,');  
+F(x,y,z) = vector([5*z,3*x,2*y^2])
+curlF(x,y,z) = F.curl()(x,y,z)
+show('curl of F = ', curlF(x,y,z))
+g(x,y) = 0;
+gx(x,y) = derivative(g(x,y),x)
+gy(x,y) = derivative(g(x,y),y)
+show('gx(x,y) = ',gx(x,y),' gy(x,y) = ', gy(x,y))
+dS(x,y) = vector([-gx(x,y),-gy(x,y),1])
+curlFdS = curlF(x,y,g(x,y)).dot_product(dS(x,y))
+show('curlFdS = ',curlFdS)
+show('Int curl dS = ',((3)*r).
+                 integrate(r,0,3).integrate(t,0,2*pi))
+\end{verbatim}
+\end{programcode}
+The output is shown in Figure \ref{StokesTheor3.png}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch10VectorFields/StokesTheor3.png}
+\caption{Stokes Theorem surface integral of the curl on a flat disk}
+\label{StokesTheor3.png}       % Give a unique label
+\end{figure}
+
+
+
+Let's consider a line integral of a complex vector field $\mathbf{F} = \left< sin(x^2)-2y^3,2x^3,\tan(z)+e^{z^2} \right>$ over the intersection of the cylinder $x^2+y^2=9$, and a slanted plane $x+z=4$.   The direct line integral would be impossible to take, however, the Stokes theorem $\int_C \mathbf{F}d\mathbf{r} = \int\int_S curl( \mathbf{F})d\mathbf{S}$ has a much simpler curl:
+$$curl(\mathbf{F}) = \begin{pmatrix}
+\mathbf{i}& \mathbf{j} & \mathbf{k}\\
+\frac{\partial}{\partial x} & \frac{\partial}{\partial y} & \frac{\partial}{\partial z} \\
+ sin(x^2)-2y^3 &   2x^3  & tan(z)+e^{z^2}
+\end{pmatrix} = \left<0, 0,6x^2+6y^2 \right> $$
+For $S$: $g(x,y) = 4-x; \  \ \Rightarrow \ g_x = -1; \ \ g_y=0 \  \ \Rightarrow \ \mathbf{n} = \mathbf{r}_u \times \mathbf{r}_v = \left<  -g_x, -g_y,1 \right>= \left<  1, 0,1 \right>$, so
+$$curl(\mathbf{F})d\mathbf{S} = \left<  0, 0,6x^2+6y^2 \right> \cdot \left<  1, 0,1 \right>dA= (6x^2+6y^2)dA $$
+$$\int_C \mathbf{F}d\mathbf{r} =   \int\int_{S}curl(\mathbf{F})d\mathbf{S}  = \int_0^{2\pi}  \int_0^3 (6r^2)r dr d\theta = 2\pi  6\left( \frac{r^4}{4} \right)_0^3 =243\pi$$
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y,z,r,t,');  
+F(x,y,z) = vector([sin(x^2)-2*y^3,2*x^3,tan(z)+e^(z^2)])
+curlF(x,y,z) = F.curl()(x,y,z)
+show('curl of F = ', curlF(x,y,z))
+g(x,y) = 4-x;
+gx(x,y) = derivative(g(x,y),x)
+gy(x,y) = derivative(g(x,y),y)
+show('gx(x,y) = ',gx(x,y),' gy(x,y) = ', gy(x,y))
+dS(x,y) = vector([-gx(x,y),-gy(x,y),1])
+curlFdS = curlF(x,y,g(x,y)).dot_product(dS(x,y))
+show('curlFdS = ',curlFdS)
+show('Int curl dS = ',((6*r^2)*r).
+                 integrate(r,0,3).integrate(t,0,2*pi))
+p1 = implicit_plot3d(x^2+y^2==9,(x,-3,3),(y,-3,3),(z,0,4))
+p2 = plot3d(4-x,(x,-3,3),(y,-3,3),opacity=0.5,color='red')
+(p1+p2).show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Figure \ref{StokesCylinderPlane.png}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch10VectorFields/StokesCylinderPlane.png}
+\caption{Stokes' Theorem of cylinder and plane}
+\label{StokesCylinderPlane.png}       % Give a unique label
+\end{figure}

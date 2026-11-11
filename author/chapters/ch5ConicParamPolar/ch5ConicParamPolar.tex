@@ -1,0 +1,860 @@
+\chapter{Conics, Parametric Curves, and Polar Coordinates}
+
+\section{Parabolas, Ellipses, and Hyperbolas} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Consider first a generic parabola equation and let's complete the squares to derive its standard form.
+$$ y = 2-2x-x^2 = -(x^2+2x)+2 = -(x^2+2x+1-1)+2 =$$
+$$ -((x+1)^2-1)+2 = -(x+1)^2+3 \Rightarrow $$
+$$(x+1)^2 = -(y-3) = 4\left( -\frac{1}{4}\right)(y-3)$$
+Comparing it to the standard form of a parabola $(x-h)^2=4p(y-k)^2$ we see that the parabola is down with the $\text{Vertex} = (h,k) = (-1,3)$ and $p=\left( -\frac{1}{4}\right)$.  Therefore, the focus is at $F = (h,k+p) = (-1,2\frac{3}{4})$ and the directrix is $y=k-p =3\frac{1}{4}$.   In the code, we set all the equations and points locations in terms of $h, k$, and $p$.  The parabola is plotted twice: first from the given implicit equation using $implicit\_plot()$, then again using the derived standard form.  The fact that we can see only one parabola confirms that they are the same.  
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset()
+F0(x,y) = 2-2*x-x^2-y;   a1 = -4; b1 = 2; c1 = 0; d1 = 4  #
+p1 = implicit_plot(F0(x,y)==0,(x,a1,b1),(y,c1,d1), gridlines=True)
+h = -1;  k = 3;  p = -1/4
+F1(x,y) = (x-h)^2-4*p*(y-k)
+p2 = implicit_plot(F1(x,y)==0,(x,a1,b1),(y,c1,d1), gridlines=True)
+p3 = point([(h,k+p),(h,k)],color='red',size=50);
+show('focus = ',(h,k+p),' vertex = ',(h,k) )
+p4 = plot(k-p,(x,a1,b1),color='green')
+(p1+p2+p3+p4).show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Parabola1}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch5ConicParamPolar/Parabola1.png}
+\caption{Vertical parabola graph}
+\label{Parabola1}       % Give a unique label
+\end{figure}
+
+
+Analogously, consider a horizontal parabola: 
+$$ y^2+6y+8x+25=0 \ \ \  \Rightarrow y^2+6y+9 - 9+ 8x+25=0  $$
+$$ (y+3)^2 = -8x-16 = -8(x+2) = 4(-2)(x+2)$$
+Once again, comparing to a standard form $(y+k)^2=4p(x-h)$, we see that the parabola is down with $\text{Vertex} = (h,k) = (-2,-3)$ and $p=-2$, which results in the focus at $F = (h+p) = (-4,-3)$ and the directrix $x=h-p = 0$.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset()
+F0(x,y) = y^2+6*y+8*x+25;   a1 = -8; b1 = 1; c1 = -10; d1 = 4
+p1 = implicit_plot(F0(x,y)==0,(x,a1,b1),(y,c1,d1), gridlines=True)
+h = -2;  k = -3;  p = -2
+F1(x,y) = (y-k)^2-4*p*(x-h)
+p2 = implicit_plot(F1(x,y)==0,(x,a1,b1),(y,c1,d1), \
+                   gridlines=True, figsize = (4,3))
+p3 = point([(h+p,k),(h,k)],color='red',size=50);  
+show('focus = ',(h+p,k),' vertex = ', (h,k) )
+p4 = implicit_plot(x==(h-p),(x,a1,b1),(y,c1,d1), color='green')
+(p1+p2+p3+p4).show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Parabola2}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch5ConicParamPolar/Parabola2.png}
+\caption{Horizontal parabola}
+\label{Parabola2}       % Give a unique label
+\end{figure}
+
+
+
+Let's now turn to an ellipse. 
+$$4x^2+16x+9y^2-18y-11=0 \ \ \ \ \ \Rightarrow  \ \ $$
+$$ 4(x^2+4x+4-4)+9(y^2-2y+1-1)=11 $$
+$$ 4(x+2)^2-16+9(y-1)^2-9=11 \ \ \ \ \ \Rightarrow  \ \  $$
+$$ 4(x+2)^2+9(y-1)^2 =36 \ \ \ \ \ \Rightarrow  \ \  \  \frac{(x+2)^2}{9} + \frac{(y-1)^2}{4} = 1$$
+Comparing this equation to a standard form of ellipse $\frac{(x-h)^2}{a^2}+\frac{(y-k)^2}{b^2}=1$, we see that $a = 3, \ b = 2 \ \  \Rightarrow \ \ c= \sqrt{a^2-b^2} = \sqrt{3^2-2^2} = \sqrt{5} $.  The major axis is on the line $y=k =1$, the center is at $C=(h,k) = (-2,1)$.  The foci are at $F=(h \pm c,k) = (-2 \pm \sqrt{5}, 1)$.    The major vertices are at  $(h-a,k) =(-5,1) \text{and} (h+a,k)=(1,1)$, while the minor vertices are at  $(h,k-b) = (-2,-1) \text{and} (h,k+b) =(-2,3)$
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset
+F0(x,y) = 4*x^2+16*x+9*y^2-18*y-11;   
+a1 = -6; b1 = 2; c1 = -2; d1 = 4
+p1 = implicit_plot(F0(x,y)==0,(x,a1,b1),(y,c1,d1), \
+                   gridlines=True)
+h = -2;  k = 1;  a = 3; b = 2;  c = sqrt(a^2-b^2)
+F1(x,y) = (x-h)^2/a^2+(y-k)^2/b^2-1
+vertices = [(h-a,k),(h+a,k),(h,k-b),(h,k+b)]
+foci = [(h-c,k),(h+c,k)]
+p2 = implicit_plot(F1(x,y)==0,(x,a1,b1),(y,c1,d1), \
+                   gridlines=True, figsize = (4,3))
+p3 = point(vertices+foci,color='red',size=50);  
+show('vertices = ', vertices)
+show('foci = ', foci)
+(p1+p2+p3).show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Ellipse1}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch5ConicParamPolar/Ellipse1.png}
+\caption{Horizontal ellipse}
+\label{Ellipse1}       % Give a unique label
+\end{figure}
+
+
+Consider now a different ellipse. 
+$$16x^2-32x+9y^2+18y-119=0 \ \ \ \ \ \Rightarrow $$
+$$ 16(x^2-2x+1-1)+9(y^2+2y+1-1)=119$$
+$$16(x-1)^2-16+9(y+1)^2-9=119 \ \ \ \ \ \Rightarrow  \ \ $$
+$$ 16(x-1)^2+9(y+1)^2=144$$
+$$ \frac{(x-1)^2}{9} + \frac{(y+1)^2}{16} = 1$$
+Once again, comparing this equation to a standard form of ellipse $\frac{(x-h)^2}{b^2}+\frac{(y-k)^2}{a^2}=1$, we see that Then $a = 4, \ b = 3 \ \  \Rightarrow \ \ c= \sqrt{a^2-b^2} = \sqrt{4^2-3^2} = \sqrt{7} $.  The major axis is on the line $x=h = 1$, the center is at $C=(h,k) = (1,-1)$.  The foci are at $F=(h,k \pm c) =(1,-1 \pm \sqrt{7})$.    The major vertices are at  $(h,k-b)=(1,3) \text{and} (h,k+b)= (1,-5)$, while the minor vertices are at  $(h-a,k) = (-2,-1) \text{and} (h+a,k)= (4,-1)$
+
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset
+F0(x,y) = 16*x^2-32*x+9*y^2+18*y-119;   
+a1 = -3; b1 = 5; c1 = -6; d1 = 4
+p1 = implicit_plot(F0(x,y)==0,(x,a1,b1),(y,c1,d1), \
+                   gridlines=True)
+h = 1;  k = -1;  a = 4; b = 3;  c = sqrt(a^2-b^2)
+F1(x,y) = (x-h)^2/b^2+(y-k)^2/a^2-1
+vertices = [(h-b,k),(h+b,k),(h,k-a),(h,k+a)]
+foci = [(h,k-c),(h,k+c)]
+show('vertices = ', vertices)
+show('foci = ', foci)
+p2 = implicit_plot(F1(x,y)==0,(x,a1,b1),(y,c1,d1), \
+                   figsize = (4,3), gridlines=True)
+p3 = point(vertices+foci,color='red',size=50);  
+(p1+p2+p3).show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Ellipse2}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch5ConicParamPolar/Ellipse2.png}
+\caption{Vertical ellipse}
+\label{Ellipse2}       % Give a unique label
+\end{figure}
+
+
+Let's investigate a hyperbola. 
+$$4x^2-9y^2=36 \ \ \ \ \ \Rightarrow   \frac{x^2}{9} - \frac{y^2}{4} = 1$$
+Let's compare this equation to a standard form of hyperbola $\frac{(x-h)^2}{a^2}-\frac{(y-k)^2}{b^2}=1$.  The traverse axes are horizontal and $a = 3, \ b = 2 \ \  \Rightarrow \ \ c= \sqrt{a^2+b^2} = \sqrt{3^2+2^2} = \sqrt{13} $.  The center is at $C=(h,k) = (0,0)$.  The foci are at $F=(h \pm c,k) = (\pm \sqrt{13},0)$.    The vertices are at  $(h-a,k)=(-3,0) \text{and} (h+a,k)=(3,0)$.   The asymptotes are $y=k \pm \frac{b}{a}(x-h) = \pm \frac{2}{3} x$.   The rectangle is $[h-a,h+a] \text{by} [k-b,k+b] = [-3,3] \text{by}  [-2,2]$.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset
+F0(x,y) = 4*x^2-9*y^2-36;  
+a1 = -6; b1 = 6; c1 = -4; d1 = 4
+p1 = implicit_plot(F0(x,y)==0, (x,a1,b1),(y,c1,d1), \
+                   gridlines=True, figsize = (4,3))
+h = 0;  k = 0;  a = 3; b = 2;  c = sqrt(a^2+b^2)
+F1(x,y) = (x-h)^2/a^2-(y-k)^2/b^2-1
+vertices = [(h-a,k),(h+a,k)]
+foci = [(h-c,k),(h+c,k)]
+show('vertices = ', vertices)
+show('foci = ', foci)
+p2 = implicit_plot(F1(x,y)==0, \
+            (x,a1,b1),(y,c1,d1), gridlines=True)
+p3 = point(vertices+foci,color='red',size=50);  
+p4 = plot(k+b/a*(x-h), (x,a1,b1), color = 'red'); 
+p5 = plot(k-b/a*(x-h), (x,a1,b1), color = 'green');  
+show('Asymptotes = ',k+b/a*(x-h),' and ',k-b/a*(x-h))
+(p1+p2+p3+p4+p5).show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Hyperbola1}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch5ConicParamPolar/Hyperbola1.png}
+\caption{Horizontal hyperbola}
+\label{Hyperbola1}       % Give a unique label
+\end{figure}
+
+
+
+Finally, one last hyperbola.
+$$y^2-16x^2+64x=208 \ \  \Rightarrow \ \ \ y^2-16(x^2-4x+4-4)=208    \ \  \Rightarrow $$
+$$ y^2-16(x-2)^2 +64=208  \ \  \Rightarrow \ \ \ y^2-16(x-2)^2 =144  \ \  \Rightarrow$$
+$$ \ \ \ \frac{y^2}{144}-\frac{(x-2^2)}{9}=1 $$
+The traverse axes are vertical and $a = 12, \ b = 3 \ \  \Rightarrow \ \ c= \sqrt{a^2+b^2} = \sqrt{12^2+3^2} = \sqrt{153} $.  The center is at $C=(h,k) = (2,0)$.  The foci are at $F=(h,k \pm c) = (2,\pm \sqrt{153})$.    The vertices are at  $(h,k-a) = (2,12) \text{and} (h,k+a) = (2,-12)$.   The asymptotes are $y=k \pm \frac{a}{b}(x-h) =  \pm 4(x-2)$.   The rectangle is $[h-b,h+b] \text{by}  [k-a,k+a]  = [-1,5] \text{by}  [-12,12]$.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset
+F0(x,y) = 4*x^2-9*y^2-36;  
+a1 = -6; b1 = 6; c1 = -4; d1 = 4
+p1 = implicit_plot(F0(x,y)==0, (x,a1,b1),(y,c1,d1), \
+                   gridlines=True, figsize = (4,3))
+h = 0;  k = 0;  a = 3; b = 2;  c = sqrt(a^2+b^2)
+F1(x,y) = (x-h)^2/a^2-(y-k)^2/b^2-1
+vertices = [(h-a,k),(h+a,k)]
+foci = [(h-c,k),(h+c,k)]
+show('vertices = ', vertices)
+show('foci = ', foci)
+p2 = implicit_plot(F1(x,y)==0, \
+            (x,a1,b1),(y,c1,d1), gridlines=True)
+p3 = point(vertices+foci,color='red',size=50);  
+p4 = plot(k+b/a*(x-h), (x,a1,b1), color = 'red'); 
+p5 = plot(k-b/a*(x-h), (x,a1,b1), color = 'green');  
+show('Asymptotes = ',k+b/a*(x-h),' and ',k-b/a*(x-h))
+(p1+p2+p3+p4+p5).show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Hyperbola2}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch5ConicParamPolar/Hyperbola2.png}
+\caption{Vertical hyperbola}
+\label{Hyperbola2}       % Give a unique label
+\end{figure}
+
+
+
+
+
+
+
+
+
+
+\section{Parametric Curves} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+As a first example of a parametric curve, let's consider the parabolic trajectory of a ball thrown at 45° at the initial velocity of 48 feet per second.
+$$ a_x =0 \ \ \Rightarrow \ \ v_x = \int_0^t a_x dt + v_{0x} =v_{0x} = v_0 \cos(\theta_0)=48\frac{\sqrt{2}}{2}=24\sqrt{2}  \ \ \Rightarrow$$
+$$ x = \int_0^t v_x dt + x_0 = \int_0^t 24\sqrt{2} dt + 0 = 24\sqrt{2} t$$
+$$ a_y =-g = -32 \ \ \Rightarrow \ \ v_x = \int_0^t -32 dt + v_{0y} =-32t + v_0 \sin(\theta_0)=$$
+$$ -32t +48\frac{\sqrt{2}}{2}=-32t+24\sqrt{2}  \ \ \Rightarrow $$ 
+$$ y = \int_0^t v_y dt + y_0 = \int_0^t -32t+24\sqrt{2} dt = -16t^2 + 24\sqrt{2}t$$
+The parameter $t$ can be eliminated to obtain $y$ vs. $x$ trajectory equation.
+$$ t = \frac{x}{24\sqrt{2}} \ \ \ \ \ \ \ \  \ y = -16 \frac{x^2}{24^2(2)}+24\sqrt{2}\frac{x}{24\sqrt{2}} = -\frac{x^2}{72}+x$$The SageMath cell below derives these equations plots parametric and explicit curves.  They overlap confirming that they are the same.  The parametrization makes it a path with direction of motion.
+
+In addition, let's find a tangent line at $t = 0.5$, say.   First, compute derivative \(slope\) at any point is given by the ratio:$$\frac{dy}{dx} = \frac{\frac{dy}{dt}}{\frac{dx}{dt}} = \frac{-32t+ 24\sqrt{2}}{24\sqrt{2}}$$
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('t')
+x0 = 0; y0 = 0; th0 = pi/4; v0 = 48;  ts = 0.5
+ax(t) = 0;  vx(t) = integrate(ax(t),t) + v0*cos(th0);  
+x1(t) = integrate(vx(t),t) + x0;
+show('ax(t) = ',ax(t),'; vx(t) = ',vx(t),'; x1(t) = ',x1(t))
+ay(t) = -32;  vy(t) = integrate(ay(t),t) + v0*sin(th0);  
+y1(t) = integrate(vy(t),t) + y0;
+show('ay(t) = ',ay(t),'; vy(t) = ',vy(t),'; y1(t) = ',y1(t))
+x1t(t) = derivative(x1(t),t); y1t(t) = derivative(y1(t),t)
+yx(t) = y1t(t)/x1t(t);   
+show('x1t(t) = ',x1t(t),'; y1t(t) = ',y1t(t))
+show('dy/dx = ',yx(t))
+m = N(yx(ts)); xs = N(x1(ts)); ys = N(y1(ts));
+show('slope of the tangent line = m = ', m)
+show('at point xs = ', xs, '  ys = ',ys)
+p1 = parametric_plot((x1(t), y1(t)), (t, 0, 2.2))
+p2 = plot(-x^2/72+x,(x,0,72),color='red', figsize = (4,3))
+p3 = plot(ys+m*(x-xs),(x,0,30)); (p1+p2+p3).show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{ProjectileParam}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch5ConicParamPolar/ProjectileParam.png}
+\caption{Projectile parametric curve}
+\label{ProjectileParam}       % Give a unique label
+\end{figure}
+
+
+
+Next,  let's consider a standard parametrization of a circle:
+$$ x(t) = 2\cos(t); \ \ \ y(t) = 2\sin(t) \ \ \ \Rightarrow \ \ $$
+$$ x^2+y^2 = 4\cos^2(t) + 4\sin^2(t) = 4$$
+This is a circle of radius 2 centered at \(0,0\) that is traversed counterclockwise starting at $(2,0)$ at $t=0$.
+The same circle can be parametrized differently:
+$$ x(t) = 2\sin(2t); \ \ \ y(t) = 2\cos(2t) \ \ \ \Rightarrow \ \ $$
+$$ x^2+y^2 = 4\sin^2(2t) + 4\cos^2(2t) = 4$$
+This time, it is traversed clockwise \emph{twice} starting at $(0,2)$.   The SageMath code below shows that these two parametrizations overlap.
+An ellipse centered at $(0,0)$ with half axes $3$ and $2$ and traversed clockwise once is parametrized below.
+$$ x(t) = 3\sin(t); \ \ \ y(t) = 2\cos(t) \ \ \ \Rightarrow \ \ $$
+$$ \frac{x^2}{9} + \frac{y^2}{4} = \sin^2(t) + \cos^2(t) = 1$$
+In addition, we compute the tangent line for the ellipse at $t=\frac{\pi}{6}$.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('t'); ts = pi/6
+x1(t) = 2*cos(t); y1(t) = 2*sin(t);
+p1 = parametric_plot((x1(t), y1(t)), (t, 0, 2*pi), \
+                     figsize = (4,3), color='red')
+x2(t) = 2*sin(2*t); y2(t) = 2*cos(2*t);
+p2 = parametric_plot((x2(t), y2(t)), (t, 0, 2*pi),color='blue')
+x3(t) = 3*sin(t); y3(t) = 2*cos(t);
+p3 = parametric_plot((x3(t), y3(t)), (t, 0, 2*pi),color='green')
+
+# calculating derivative and tangent line for the ellipse
+x3t(t) = derivative(x3(t),t); y3t(t) = derivative(y3(t),t)
+yx(t) = y3t(t)/x3t(t);   
+show('x3t(t) = ',x3t(t),'; y3t(t) = ',y3t(t),'; dy/dx = ',yx(t))
+m = N(yx(ts)); xs = N(x3(ts)); ys = N(y3(ts));
+show('m = ', m, '  xs = ', xs, '  ys = ',ys)
+p4 = plot(ys+m*(x-xs),(x,0,3),color='red'); (p1+p2+p3+p4).show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{CircleEllipse}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch5ConicParamPolar/CircleEllipse.png}
+\caption{Circle and ellipse parametrizations}
+\label{CircleEllipse}       % Give a unique label
+\end{figure}
+
+
+An interesting approach to parametrizing a curve is given by using slope as a parameter.   For example:
+$$ y = f(x) = 4-2x^2; \ \ \ \Rightarrow \ \  y'=f'(x) = m = -4x  \ \Rightarrow \ \ $$
+$$ x = -\frac{m}{4}; \ \ \  \ \ \ y =4-2x^2 =4-2\left(-\frac{m}{4}\right)^2 = 4-\frac{m^2}{8}$$
+As the slope increases from large negative values, the $x$ coordinate decreases and the parabola is traversed from right to left.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('m')
+x1(t) = -m/4; y1(t) = 4-2*(-m/4)^2;
+parametric_plot((x1(m), y1(m)), (m, -7, 7))
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{ParamSlope}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch5ConicParamPolar/ParamSlope.png}
+\caption{Circle and ellipse parametrizations}
+\label{ParamSlope}       % Give a unique label
+\end{figure}
+
+
+
+The two SageMath cells below show complex parametric dependencies.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('t')
+x1(t) = t+2*sin(2*t); y1(t) = t+2*cos(5*t);
+parametric_plot((x1(t), y1(t)), (t, -4*pi, 4*pi), \
+                figsize = (4,3),color='blue')
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Param2}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch5ConicParamPolar/Param2.png}
+\caption{Complex parametric curve linear and trig}
+\label{Param2}       % Give a unique label
+\end{figure}
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('t')
+x1(t) = 1.5*cos(t)-cos(30*t); y1(t) = 1.5*sin(t)-sin(30*t);
+parametric_plot((x1(t), y1(t)), (t, -4*pi, 4*pi),color='blue')
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Param3}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch5ConicParamPolar/Param3.png}
+\caption{Complex parametric curve mix of trig}
+\label{Param3}       % Give a unique label
+\end{figure}
+
+
+In the next few SageMath cells, we investigate a more complicated self-intersecting curve:
+$$x(t) = t^2; \ \ \ \ \ \ \ y(t) = t^3-3t$$
+First, let's plot it to see that the self-intersection occurs at $(3,0)$.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('t')
+x1(t) = t^2;  y1(t) = t^3-3*t; 
+parametric_plot((x1(t), y1(t)), (t, -2, 2), figsize = (4,3))
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{SelfIntersect1}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch5ConicParamPolar/SelfIntersect1.png}
+\caption{Self-intersecting algebraic curve}
+\label{SelfIntersect1}       % Give a unique label
+\end{figure}
+
+For which values of the parameter $t$ is this point attained?
+$$x(t) = t^2 = 3; \ \ \ \ \ \ \ y(t) = t^3-3t = t(t^2-3)=0 \ \ \ \ \  \  \Rightarrow \ \ t=\pm \sqrt{3}$$
+The SageMath cell below shows these two solutions from the `solve()` command.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+sol = solve([x1(t)==3,y1(t)==0],t); 
+show(sol)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{SelfIntersect2}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch5ConicParamPolar/SelfIntersect2.png}
+\caption{Parameter $t$ at self-intersection}
+\label{SelfIntersect2}       % Give a unique label
+\end{figure}
+
+List indices and `rhs()` command can extract the solutions above.   Then component derivatives and slope can be obtained.
+$$ \frac{dx}{dt} = 2t; \ \ \ \ \ \ \  \frac{dy}{dt} = 3t^2-3;  \ \ \ \ \Rightarrow \ \  \frac{dy}{dx} = \frac{\frac{dy}{dt}}{\frac{dx}{dt}} = \frac{3t^2-3}{2t} =  \frac{3}{2}\left( t-\frac{1}{t} \right) $$
+The SageMath cell below computes these derivatives and two tangent lines at $(3,0)$
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+ts1 = sol[0][0].rhs();  ts2 = sol[1][0].rhs()
+x1t(t) = derivative(x1(t),t); y1t(t) = derivative(y1(t),t)
+yx(t) = y1t(t)/x1t(t);   
+show('x1t(t) = ',x1t(t),'; y1t(t) = ',y1t(t),'; dy/dx = ',yx(t))
+m1 = N(yx(ts1)); xs1 = N(x1(ts1)); ys1 = N(y1(ts1));
+show('m1 = {:.3f}, xs1 = {:.3f}, ys1 = {:.3f}'.format(m1,xs1,ys1))
+m2 = N(yx(ts2)); xs2 = N(x1(ts2)); ys2 = N(y1(ts2));
+show('m2 = {:.3f}, xs2 = {:.3f}, ys2 = {:.3f}'.format(m2,xs2,ys2))
+p1 = parametric_plot((x1(t), y1(t)), (t, -2, 2), figsize = (4,3))
+p2 = plot(ys1+m1*(x-xs1),(x,1,5),color='red')
+p3 = plot(ys2+m2*(x-xs2),(x,1,5),color='red'); (p1+p2+p3).show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{SelfIntersect3}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch5ConicParamPolar/SelfIntersect3.png}
+\caption{Tangent lines at self-intersection}
+\label{SelfIntersect3}       % Give a unique label
+\end{figure}
+
+
+Using 0's of derivatives we can find points where the tangent lines are horizontal and vertical.
+$$  \frac{dx}{dt} = 2t = 0  \ \ \Rightarrow \ t=0;    \ \ \ \ \ \ \  \frac{dy}{dt} = 3t^2-3 = 3(t^2-1)=0 \ \ \Rightarrow \ t= \pm 1   $$
+At $t=0 \ \ \Rightarrow \frac{dy}{dx} = \frac{\frac{dy}{dt}}{\frac{dx}{dt}}=\frac{-3}{0}=-\infty$, so we obtain vertical tangent line, while at $t=\pm 1 \ \ \Rightarrow \frac{dy}{dx} = \frac{\frac{dy}{dt}}{\frac{dx}{dt}}=\frac{0}{\pm 2}=0$ \- horizontal tangent lines.  The SageMath cell computes it and places points on the graph there the required tangent lines touch.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+sol = solve(x1t(t)==0,t)
+show(' dx/dt = 0  produces solutions = ', sol)
+sol = solve(y1t(t)==0,t)
+show(' dy/dt = 0  produces solutions = ', sol)
+p1 = parametric_plot((x1(t), y1(t)), (t, -2, 2), figsize = (4,3))
+p2 = points([(x1(0),y1(0)),(x1(-1),y1(-1)),
+             (x1(1),y1(1))],color='red',size=50)
+(p1+p2).show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{SelfIntersect4}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch5ConicParamPolar/SelfIntersect4.png}
+\caption{Points where the tangent lines are vertical or horizontal}
+\label{SelfIntersect4}       % Give a unique label
+\end{figure}
+
+
+Finally, the second derivative can be computed and plotted as a function of $t$ to investigate concavity.
+$$\frac{d^2y}{dx^2} = \frac{\frac{d}{dt} \left( \frac{dy}{dx} \right)}{\frac{dx}{dt}} = \frac{\frac{d}{dt}\frac{3}{2}\left( t-\frac{1}{t} \right)}{2t} = \frac{\frac{3}{2}\left( 1+\frac{1}{t^2} \right)}{2t} = \frac{3\left( t^2+1 \right)}{4t^3} $$
+The $t^2+1$ is always positive, so the sign of the 2nd derivative is determined by the $t^3$ term.  Therefore, the function is concave up for positive $t$ and concave down for negative.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+yxt(t) = derivative(yx(t),t).full_simplify(); yxx(t) = yxt(t)/x1t
+show('yxt(t) = ',yxt(t),'   yxx(t) = ', yxx(t))
+plot(yxx(t),(t,-2,2),ymin=-20,ymax=20,color='blue')
+parametric_plot((x1(t), y1(t)), (t, 0, 4*pi),color='blue')
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{SelfIntersect5}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch5ConicParamPolar/SelfIntersect5.png}
+\caption{Concavity of the self-intersecting curve above}
+\label{SelfIntersect5}       % Give a unique label
+\end{figure}
+
+
+
+In the SageMath cell below we consider a cycloid with wheel radius 2 and compute its arc length and area above x-axis.
+$$ x = 2(t-\sin(t)); \ \ \ \ \ y = 2(1-\cos(t)) \ \ \Rightarrow $$
+$$  x' = 2(1-\cos(t)) \ \ \ \ \ y' = 2\sin(t) $$
+$$ \sqrt{(x')^2+(y')^2} =  \sqrt{4(1-2\cos(t)+\cos^2(t))+4\sin^2(t)} = $$
+$$ 2\sqrt{2-2\cos(t)} = 2\sqrt{4\frac{1-\cos(t)}{2}} = 2\sqrt{4\sin^2\left( \frac{t}{2}\right)} = 4\sin\left( \frac{t}{2}\right)   $$
+$$Arc \ length = L = \int_0^{2\pi}  \sqrt{(x')^2+(y')^2} dt = $$
+$$ \int_0^{2\pi}4\sin\left( \frac{t}{2}\right) dt =-4 \left( \frac{\cos\left( \frac{t}{2}\right)}{ \frac{1}{2}}\right)_0^{2\pi} =16$$
+SageMath has hard time simplifying the integrand in this case, so a numerical integration is more efficient.
+
+The computation of the area under a parametric graph is much simpler.
+$$ A = \int ydx = \int_0^{2\pi} y(t)x'(t)dt =  \int_0^{2\pi} 2(1-\cos(t))  2(1-\cos(t)) dt = $$
+$$  4\int_0^{2\pi} 1-2\cos(t)+\cos^2(t) dt = 4\int_0^{2\pi} 1-2\cos(t)+\frac{1+\cos(2t)}{2} dt = $$
+$$ 4\int_0^{2\pi} \frac{3}{2}-2\cos(t)+\frac{\cos(2t)}{2} dt = 4\left( \frac{3}{2}t-2\sin(t)+ \frac{\sin(2t)}{4}\right)_0^{2\pi} =12\pi$$
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('t')
+x1(t) = 2*(t-sin(t)); y1(t) = 2*(1-cos(t));
+x1t(t) = derivative(x1(t),t); y1t(t) = derivative(y1(t),t)
+show('x1(t) = ',x1(t),' y1(t) = ',y1(t))
+show('x1t(t) = ',x1t(t),' y1t(t) = ',y1t(t))
+integrand = sqrt(x1t(t)^2 + y1t(t)^2).full_simplify()
+show('integrand = ',integrand)
+# L = integrate(integrand,t,0,2*pi);  # fails
+L = numerical_integral(integrand,0,2*pi)
+print('one arc length = ', L)
+A = integrate(y1(t)*x1t(t),t,0,2*pi)
+print('area of one arc length = ', A)
+parametric_plot((x1(t), y1(t)), (t, 0, 4*pi),color='blue')
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{CycloidArcArea}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch5ConicParamPolar/CycloidArcArea.png}
+\caption{Arc Length of a cycloid and area under it}
+\label{CycloidArcArea}       % Give a unique label
+\end{figure}
+
+
+
+
+
+
+
+
+
+
+
+\section{Polar Coordinates} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+First, let's consider switching between rectangular and polar coordinate systems and vice-versa.  The conversion from polar to cartesian is straightforward: 
+$$ x = r\ cos(\theta); \ \ \ \ \ \ \   y = r \sin(\theta)$$
+The opposite conversion (rectangular to polar) requires some care as `arctan()` function is $\pi$ \- periodic with range $\left(-\frac{\pi}{2},\frac{\pi}{2}  \right)$, so there is a special `atan2(y,x)` function that takes quadrant into the account.  
+$$ r = \sqrt{x^2+y^2} \ \ \ \ \ \ \ \ \ \theta = arctan\left(\frac{y}{x}  \right) = atan2(y,x)$$
+The SageMath cell below illustrates these conversions and plots the points.   Note that the 3rd point has a negative $r$-coordinate that corresponds to reflection in the origin.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset()
+x1 = -1;  y1 = 1
+r1 = sqrt(x1^2+y1^2)
+theta1 = atan2(y1,x1)
+show('x1 = ',x1,'  y1 = ',y1,'  r1 = ',\
+     r1,' theta1 = ',theta1)
+r2 = 1;  theta2 = 11*pi/6
+x2 = r2*cos(theta2); y2 = r2*sin(theta2); 
+show('x2 = ',x2, '  y2 = ',y2,'  r2 = ',\
+     r2,'  theta2 = ',theta2)
+r3 = -1;  theta3 = 11*pi/6
+x3 = r3*cos(theta3); y3 = r3*sin(theta3); 
+show('x3 = ',x3, '  y3 = ',y3,'  r3 = ',
+     r3,'  theta3 = ',theta3)
+points([(x1,y1),(x2,y2),(x3,y3)],size = 50, color = 'red')
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{PolarPoints}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch5ConicParamPolar/PolarPoints.png}
+\caption{Coordinate transformations for polar coordinates}
+\label{PolarPoints}       % Give a unique label
+\end{figure}
+
+
+
+
+In order to graph a complex graph like $r=\cos(2\theta)$, a regular graph of $r$ vs. $\theta$ must be matched with a polar graph.   When $r<0$, an origin reflection is required.   We use SageMath `inset()` option below to include the regular `cos(2t)` graph inside a polar graph.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset()
+r(t) = cos(2*t)
+p1 = plot(r(t),(t,0,2*pi))
+p2 = polar_plot(r(t), (t, 0, 2*pi), thickness=2)
+p2.inset(p1) 
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Polar1}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch5ConicParamPolar/Polar1.png}
+\caption{Matching $r=cos(2\theta)$, with the corresponding polar graph}
+\label{Polar1}       % Give a unique label
+\end{figure}
+
+The graph of $r=\cos(3\theta)$ is produced by SageMath analogously.   Note that this time the interval $[0,\pi]$ already covers the entire graph.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+r(t) = cos(3*t)
+p1 = plot(r(t),(t,0,pi))
+p2 = polar_plot(r(t), (t, 0, pi), thickness=2)
+p2.inset(p1) 
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Polar2}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch5ConicParamPolar/Polar2.png}
+\caption{Matching $r=cos(3\theta)$, with the corresponding polar graph}
+\label{Polar2}       % Give a unique label
+\end{figure}
+
+
+
+A simple, yet interesting polar graph is given by $r=2\cos(\theta)$.   There is a good trick to derive an equivalent cartesian equation quickly - multiply both sides of this equation by $r$:
+$$r^2=2r\cos(\theta) \ \ \ \Rightarrow \ \ \ x^2+y^2 = 2x  \ \ \ \Rightarrow \ \ \ x^2-2x+1-1+y^2 = 0  \ \ \Rightarrow$$
+$$(x-1)^2+y^2 = 1 \ \ \ \text{Circle of radius } r=1 \ \text{ with center at } \ (1,0)$$ 
+In this case, the interval $0 \le t \le \pi$ covers the entire graph as well.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+r(t) = 2*cos(t)
+p1 = plot(r(t),(t,0,pi))
+p2 = polar_plot(r(t), (t, 0, pi), thickness=2)
+p2.inset(p1)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Polar3}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch5ConicParamPolar/Polar3.png}
+\caption{Matching $r=2\cos(\theta)$, with the corresponding polar graph}
+\label{Polar3}       % Give a unique label
+\end{figure}
+
+
+Continuing with the calculation above for $r = 2\cos(\theta)$, let's find parametric $\theta$-derivatives and slope of the tangent line at $\theta_s = \frac{\pi}{3}$. 
+$$x(\theta) = r(\theta)\cos(\theta) = 2\cos(\theta)\cos(\theta) =2\cos^2(\theta) \ \ \Rightarrow \ \ $$
+$$ x'(\theta) = 4\cos(\theta)(-\sin(\theta))=-2\sin(2\theta)$$
+$$y(\theta) = r(\theta)\sin(\theta) = 2\cos(\theta)\sin(\theta) =\sin(2\theta) \ \ \Rightarrow \ \ $$
+$$ y'(\theta) = 2\cos(2\theta)$$
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+x1(t) = r(t)*cos(t); y1(t) = r(t)*sin(t);  ts = pi/3
+x1t(t) = derivative(x1(t),t).simplify_trig(); 
+y1t(t) = derivative(y1(t),t).simplify_trig()
+yx(t) = (y1t(t)/x1t(t)).simplify_trig();   
+show('x1(t) = ',x1(t),';  y1(t) = ',y1(t))
+show('x1t(t) = ',x1t(t),'; y1t(t) = ',y1t(t))
+show(' dy/dx = ',yx(t))
+m = N(yx(ts)); xs = N(x1(ts)); ys = N(y1(ts));
+show('slope of the tangent line = m = ', m)
+show(' at the point  xs = ', xs, '  ys = ',ys)
+p3 = plot(ys+m*(x-xs),(x,0,1),color='red',figsize = (4,3))
+(p2+p3).show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Polar3calc}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch5ConicParamPolar/Polar3calc.png}
+\caption{Slope and tangent line for a circle with center off $(0,0)$}
+\label{Polar3calc}       % Give a unique label
+\end{figure}
+
+
+
+In order to find points where the tangent line is horizontal/vertical, we solve the equations:
+$$\frac{dx}{dt} = -2\sin(2\theta) = 0  \ \ \ \Rightarrow \ \ \ 2\theta = 0, \pi, ... \ \ \Rightarrow \ \ \ \theta = 0, \frac{\pi}{2}$$
+$$\frac{dy}{dt} = 2\cos(2\theta) = 0  \ \ \ \Rightarrow \ \ \ 2\theta = \frac{\pi}{2},\frac{3\pi}{2}, ... \ \ \Rightarrow \ \ \ \theta =  \frac{\pi}{4},\frac{3\pi}{4}$$
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+sol1 = solve(x1t(t)==0,t); 
+show('Possible vertical tangent line points = ',sol1)
+sol2 = solve(y1t(t)==0,t); 
+show('Possible horizontal tangent line points = ',sol2)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Polar3calcA}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch5ConicParamPolar/Polar3calcA.png}
+\caption{Points with horizontal/vertical tangent lines}
+\label{Polar3calcA}       % Give a unique label
+\end{figure}
+
+
+The figure below shows the graph with the corresponding points using $\theta$-values above.
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+sol1 = solve(x1t(t)==0,t); 
+show('Possible vertical tangent line points = ',sol1)
+sol2 = solve(y1t(t)==0,t); show(sol2)
+show('Possible horizontal tangent line points = ',sol2)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Polar3calcB}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch5ConicParamPolar/Polar3calcB.png}
+\caption{Polar graph with points where tangent lines are horizontal/vertical}
+\label{Polar3calcB}       % Give a unique label
+\end{figure}
+
+
+There is a multitude of possible interesting and complex polar graphs. The next few SageMath cells show some of them.
+ 
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+# Cardioid
+r(t) = 1+sin(t)
+p1 = plot(r(t),(t,0,2*pi))
+p2 = polar_plot(r(t), (t, 0, 2*pi), thickness=2)
+p2.inset(p1)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Polar4}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.4]{chapters/ch5ConicParamPolar/Polar4.png}
+\caption{Cardioid polar graph}
+\label{Polar4}       % Give a unique label
+\end{figure}
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+# Limacon
+r(t) = 1-2*sin(t)
+p1 = plot(r(t),(t,0,2*pi))
+p2 = polar_plot(r(t), (t, 0, 2*pi), thickness=2)
+p2.inset(p1,pos=(0.1, 0.2, 0.3, 0.3))
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Polar5}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.4]{chapters/ch5ConicParamPolar/Polar5.png}
+\caption{Limacon polar graph}
+\label{Polar5}       % Give a unique label
+\end{figure}
+
+
+
+Next, let's investigate the area and arc length in polar graphs.   Consider a cardioid.  First, the area of this polar graph:
+$$r = 1+\cos(\theta); \ \ \ \ \ \ A = \frac{1}{2}\int_\alpha^\beta r^2 d\theta =\frac{1}{2}\int_0^{2\pi} (1+\cos(\theta))^2d\theta$$
+$$ \frac{1}{2}\int_0^{2\pi} 1+2\cos(\theta) + \cos^2(\theta)d\theta = \frac{1}{2}\int_0^{2\pi} 1+2\cos(\theta) + \frac{1+\cos(2\theta)}{2}d\theta = $$
+$$\frac{1}{2}\int_0^{2\pi}  \frac{3}{2}+2\cos(\theta) + \frac{\cos(2\theta)}{2}d\theta =\frac{1}{2}\left(  \frac{3}{2}\theta+2\sin(\theta)+  \frac{\sin(2\theta)}{4}\right)_0^{2\pi} =\frac{3}{2}\pi$$
+The arc length of this cardioid:
+$$L = \int_\alpha^\beta \sqrt{r^2+(r')^2} d\theta = 2 \int_0^{\pi} \sqrt{(1+\cos(\theta))^2+(-\sin(\theta)^2} d\theta = $$
+$$ 2 \int_0^{\pi} \sqrt{1+2\cos(\theta) + \cos^2(\theta)+\sin^2(\theta)} d\theta = 2\int_0^{\pi} \sqrt{2+2\cos(\theta)} d\theta =$$
+$$ 2\int_0^{\pi} \sqrt{4\cos^2\left(\frac{\theta}{2} \right)} d\theta = 2\int_0^{\pi} 2cos \left(\frac{\theta}{2} \right) d\theta = 4\frac{\sin\left(\frac{\theta}{2}\right)}{\frac{1}{2}}_0^{\pi} = 8$$In the case of the cardioid above the integrals were amenable to an analytic computation.   In general, these integrals can be more complex and better computed numerically as shown in the SageMath cell below.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+# Cardioid
+reset(); t0 = 0; tf = 2*pi
+r(t) = 1+cos(t)
+A = 1/2*integrate(r(t)^2,t,t0,tf)
+show('Area inside polar graph = A = ', A)
+rt(t) = derivative(r(t),t)
+temp = (r(t)^2 + rt(t)^2).simplify_trig()
+show('r(t) = ',r(t),'  rt(t) = ',rt(t),'  temp = ',temp)
+L = numerical_integral(sqrt(temp),t0,tf)
+show('Arc length of polar graph = L = ', L)
+p1 = plot(r(t),(t,t0,tf))
+p2 = polar_plot(r(t), (t, t0, tf), thickness=2)
+p2.inset(p1,pos=(0.5, 0.2, 0.2, 0.2)) 
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Polar6}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch5ConicParamPolar/Polar6.png}
+\caption{Cardioid area and arc length}
+\label{Polar6}       % Give a unique label
+\end{figure}
+
+
+
+Analogously for a 3-petal flower, the area is computed quite easily:
+$$r = 2sin(3\theta); \ \ \ \ \ \ A = \frac{1}{2}\int_\alpha^\beta r^2 d\theta =\frac{1}{2}\int_0^\pi 4sin^2(3\theta) d\theta =$$
+$$2\int_0^{\pi} \frac{1-cos(6\theta)}{2}d\theta = \left( \theta - \frac{sin(6\theta)}{12} \right)_0^{\pi}  =\pi $$
+However, the arc length requires numerical integral:
+$$L = \int_\alpha^\beta \sqrt{r^2+(r')^2} d\theta = 2 \int_0^{\pi} \sqrt{(2sin(3\theta))^2+(6cos(3\theta))^2} d\theta $$
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); t0 = 0; tf = pi
+r(t) = 2*sin(3*t)
+A = 1/2*integrate(r(t)^2,t,t0,tf)
+show('Area inside polar graph = A = ', A)
+rt(t) = derivative(r(t),t)
+temp = (r(t)^2 + rt(t)^2).simplify_trig()
+show('r(t) = ',r(t),'  rt(t) = ',rt(t))
+show('  temp = ',temp)
+L = numerical_integral(sqrt(temp),t0,tf)
+show('Arc length of polar graph = L = ', L)
+p1 = plot(r(t),(t,t0,tf))
+p2 = polar_plot(r(t), (t, t0, tf), thickness=2)
+p2.inset(p1,pos=(0.7, 0.2, 0.2, 0.2))
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Polar7}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch5ConicParamPolar/Polar7.png}
+\caption{3-petal flower area and arc length}
+\label{Polar7}       % Give a unique label
+\end{figure}
+
+
+Consider a more complicated area in between loops of Limacon.  The goal is to find the area between inner and outer loops.
+First, consider the zeros of the graph.
+$$r = 1-2sin(\theta) =0 \ \ \Rightarrow \ \ \ sin(\theta) = \frac{1}{2} \ \ \ \Rightarrow \ \ \theta = \frac{\pi}{6} , \frac{5\pi}{6},  \frac{13\pi}{6}$$Based on the inset graph and the corresponding polar graph we find two areas \- between $(\frac{\pi}{6} , \frac{5\pi}{6})$ and between $(\frac{5\pi}{6},  \frac{13\pi}{6})$ and subtract them.
+$$A = \frac{1}{2}\int_\alpha^\beta r^2 d\theta =\frac{1}{2}\int_{\pi/6}^{5\pi/6}(1-4sin(\theta) +sin^2(\theta))d\theta = $$
+$$ \frac{1}{2}\int_{\pi/6}^{5\pi/6} \left(1-4sin(\theta) +4\frac{1-sin(2\theta)}{2}\right)d\theta =$$
+$$ \frac{1}{2} \left( 3\theta+4cos(\theta) + 2\cos(2\theta) \right)_{\pi/6}^{5\pi/6} =\pi -\frac{3}{2}\sqrt{3}$$
+The 2nd integral is found analogously.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+# Limacon
+r(t) = 1-2*sin(t)
+sol = solve(r(t)==0,t)
+show(sol)
+A1 = 1/2*integrate(r(t)^2,t,pi/6,5*pi/6)
+show('Area inside polar graph = A1 = ', A1)
+A2 = 1/2*integrate(r(t)^2,t,5*pi/6,13*pi/6)
+show('Area inside polar graph = A2 = ', A2)
+show('The area in between = A2 - A1 = ', A2-A1)
+p1 = plot(r(t),(t,0,13*pi/6))
+p2 = polar_plot(r(t), (t, 0, 13*pi/6), thickness=2)
+p2.inset(p1,pos=(0.1, 0.2, 0.3, 0.3)) 
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Polar8}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch5ConicParamPolar/Polar8.png}
+\caption{Area in between loops of Lemacon}
+\label{Polar8}       % Give a unique label
+\end{figure}
+
+
+
+Finally, let's consider an area in the intersection of two graphs: $r_1(t) = -6cos(\theta)$ and $r_2(t) = 2 - 2cos(\theta)$.  
+The intersection points:
+$$r_1(t) = -6\cos(\theta) =  2 - 2\cos(\theta) = r_2(t)$$
+$$ -6\cos(\theta) = 2 - 2\cos(\theta)   \ \ \  \Rightarrow \cos(\theta) = -\frac{1}{2} \ \ \ \Rightarrow \ \ \theta = \frac{2\pi}{3} , \frac{4\pi}{3}$$
+From $\frac{\pi}{2}$ up to $\frac{2\pi}{3}$ the integration goes to the circle $r_1(t)$ and from $\frac{2\pi}{3}$ to $\pi$, the it goes to the cardioid $r_2(t)$.  The corresponding areas are computed in the SageMath cell below.  Note that the circle is traversed from 0 to $\pi$, while the cardioid requires 0 to $2\pi$.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); r1(t) = -6*cos(t);  r2(t) = 2 - 2*cos(t)
+sol = solve(r1(t)==r2(t),t);  show(sol)
+A1 = 1/2*integrate(r1(t)^2,t,pi/2,2*pi/3)
+show('Area inside polar graph = A1 = ', A1)
+A2 = 1/2*integrate(r2(t)^2,t,2*pi/3,pi)
+show('Area inside polar graph = A2 = ', A2)
+show('The total area = 2*(A1 + A2) = ', 2*(A1 + A2))
+p1 = plot(r1(t),(t,0,pi),color='red', figsize = (4,3))
+p2 = plot(r2(t),(t,0,2*pi),color='blue')
+(p1+p2).show()
+Graph()
+p1 = polar_plot(r1(t), (t, 0, pi), thickness=2, color='red')
+p2 = polar_plot(r2(t), (t, 0, 2*pi), thickness=2, color='blue')
+(p1+p2).show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Polar9}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch5ConicParamPolar/Polar9.png}
+\caption{Area in between two polar graphs}
+\label{Polar9}       % Give a unique label
+\end{figure}

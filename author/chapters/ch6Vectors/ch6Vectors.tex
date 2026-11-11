@@ -1,0 +1,999 @@
+\chapter{Vectors}
+
+\section{Introduction to Plane (2D) Vectors}
+
+The SageMath has good graphing utilities for vectors as shown below.   We also illustrate addition, subtraction, and scalar multiplication of vectors.
+First, the difference of coordinates of points $P(x_1,y_1)=(1,-2) \ \text{and} \ Q(x_2,y_2)$ is used to create both vectors, for example $ \mathbf{u} = \left<x_2-x_1, y_2-y_1 \right> = \left<3-1,3-(-2) \right> =  \left<2,5\right>= \left<u_1, u_2\right> $. Then all the operations are performed on a component-by-component basis. The length (Eucleadean 2-norm) of vector $\mathbf{u}$  is $|\mathbf{u}| =\sqrt{u_1^2+u_2^2} = \sqrt{2^2+5^2} =\sqrt{29} $, therefore the unit vector in the direction of $\mathbf{u}$ is given by $\frac{\mathbf{u}}{|\mathbf{u}|}= \frac{1}{\sqrt{29}}\left<2,5\right>$.  The SageMath has a convenient method for norm -\texttt{ .norm(2)}.
+
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset;  x1 = 1; y1 = -2;  x2 = 3;  y2 = 3
+u = vector([x2-x1,y2-y1])
+p1 = plot(u, color='red', gridlines='true', 
+          legend_label='u', figsize = (4,3))
+x1 = -1; y1 = 2;  x2 = 3;  y2 = -2
+v = vector([x2-x1,y2-y1])
+p2 = plot(v, color='blue', legend_label='v')
+w1 = u+v; w2 = u-v; w3 = u/u.norm(2); w4 = -0.5*u+0.7*v
+p3 = plot(w1, color='green', legend_label='w1')
+p4 = plot(w2, start=v, color='magenta', legend_label='w2')
+p5 = plot(w3, color='black', legend_label='w3')
+p6 = plot(w4, color='orange', legend_label='w4')
+show('u = ',u,'  v = ',v,'  w1 = ', w1)
+show('w2 = ',w2,'  w3 = ',w3)
+show('w4 = ', w4)
+(p1+p2+p3+p4+p5+p6).show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{AddSubtractScalar}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch6Vectors/AddSubtractScalar.png}
+\caption{Vectors addition, subtraction, and scalar multiplication}
+\label{AddSubtractScalar}       % Give a unique label
+\end{figure}
+
+Vectors have numerous practical applications.  Here is a navigation application.   Consider an airplane flying at 600 miles per hour at $30^o$ to the positive x-axis (East).  It encounters strong South wind at 85 miles/hour.  A vector addition must be used to find the resulting velocity direction.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset;  
+theta1 = 30;  th1 = theta1*pi/180
+theta2 = 270;  th2 = theta2*pi/180
+v1norm = 600;   v2norm = 85
+v1 = v1norm * vector([cos(th1),sin(th1)])
+v2 = v2norm * vector([cos(th2),sin(th2)])
+v3 = v1+v2 
+show('v1 = ',v1,'  v2 = ',v2,'  v3 = ', v3)
+p1 = plot(v1, color='red', legend_label='v1', figsize = (4,3))
+p2 = plot(v2, start=v1, color='blue', legend_label='v2')
+p3 = plot(v3, color='green', legend_label='v3')
+(p1+p2+p3).show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{NavigationAddVectors}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch6Vectors/NavigationAddVectors.png}
+\caption{Navigation application of vectors addition}
+\label{NavigationAddVectors}       % Give a unique label
+\end{figure}
+
+
+
+
+
+
+
+
+
+\section{Space Coordinates and 3-D Vectors}
+
+The SageMath similarly works with 3-D space vectors, although visualization is a bit more complex. I plotted only a few vectors on one graph to keep it clear. The graph could be rotated for a better view.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset;  
+x1 = -1; y1 = -2; z1 = 3; x2 = -2;  y2 = 2; z2 = 1
+u = vector([x2-x1,y2-y1,z2-z1])
+p1 = plot(u, color='red', gridlines='true', 
+                legend_label='u', thickness=5)
+x1 = -1; y1 = 2; z1 = -4; x2 = 3;  y2 = -2; z2 = -2
+v = vector([x2-x1,y2-y1,z2-z1])
+p2 = plot(v, color='blue', legend_label='v', thickness=5)
+w1 = u+v; w2 = u-v; w3 = u/u.norm(2); w4 = -1/4*u+1/2*v
+p3 = plot(w1, color='green', legend_label='w1', thickness=5)
+# p4 = plot(w2, start=v, color='magenta', legend_label='w2')
+# p5 = plot(w3, color='black', legend_label='w3')
+# p6 = plot(w4, color='orange', legend_label='w4')
+show('u = ',u,'  v = ',v,'  w1 = ', w1)
+show('w2 = ',w2,'  w3 = ',w3)
+show('  w4 = ', w4)
+(p1+p2+p3).show(); 
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Vectors3d}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch6Vectors/Vectors3d.png}
+\caption{Vectors in 3D}
+\label{Vectors3d}       % Give a unique label
+\end{figure}
+
+Next, let's consider a geometric example.    Assume we are given two points $P=(-2,3,1)$ and $Q=(0,2,-4)$ on a diameter of the 3\-D sphere.  The center is the midpoint of the interval $PQ$, so its coordinates are $\left( \frac{-2+0}{2}, \frac{3+2}{2}, \frac{1-4}{2} \right) = \left( -1, \frac{5}{2}, \frac{-3}{2} \right)$.  To find the radius, first find vector $\mathbf{u}=\mathbf{PQ}=\left< 0-(-2),2-3,-4-1\right>=\left<2,-1,-5\right>$.    Then the diameter is $||\mathbf{u}|| = \sqrt{2^2+(-1)^2+(-5)^2}=\sqrt{30}$, so the radius is half of that $r = \frac{\sqrt{30}}{2}$.  The equation of sphere is $(x-x_0)^2+(y-y_0)^2+(z-z_0)^2=r^2$, so $(x+1)^2+(y-5/2)^2+(z+3/2)^2=\frac{15}{2}$
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x','y','z')
+x1 = -2; y1 = 3; z1 = 1; x2 = 0;  y2 = 2; z2 = -4
+x0 = (x1+x2)/2; y0 = (y1+y2)/2; z0 = (z1+z2)/2; 
+u = vector([x2-x1,y2-y1,z2-z1])
+un = u.norm(2);  r = un/2
+show('x0 = ',x0,' y0 = ',y0,' z0 = ',z0,' u = ',u,' r = ',r)
+sphere_eq = (x-x0)^2+(y-y0)^2+(z-z0)^2==r^2
+show('sphere_eq = ', sphere_eq)
+implicit_plot3d(sphere_eq,(x,-7,2),(y,-2,5.5),(z,-4,2))
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{3dSphereVectors}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch6Vectors/3dSphereVectors.png}
+\caption{Vectors defining 3D sphere}
+\label{3dSphereVectors}       % Give a unique label
+\end{figure}
+
+
+As a practical application of forces in 3D, let's consider a heavier 90 lb professional TV camera standing on a tripod at a height of 5ft.  Using the coordinates of the support points, we can find and plot vector forces below.  The calculation uses the symmetry of the forces to equate the sum of  $\mathbf{F_1} = c \mathbf{u_1}$, $\mathbf{F_2} = c \mathbf{u_2}$, and $\mathbf{F_3} = c \mathbf{u_3}$ to the overall gravity force and obtain a simple equation for the z-component: $3 \cdot(-5c) = -90$, so that $c = 6$.
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset()
+x1 = 0; y1 = 0; z1 = 5; x2 = 1;  y2 = 0; z2 = 0
+x3 = -1/2; y3 =  sqrt(3)/2; z3 = 0;   W = 90;
+x4 = -1/2; y4 = -sqrt(3)/2; z4 = 0;
+u1 = vector([x2-x1,y2-y1,z2-z1])
+u2 = vector([x3-x1,y3-y1,z3-z1])
+u3 = vector([x4-x1,y4-y1,z4-z1])
+show('u1 = ',u1,'  u2 = ',u2,'  u3 = ',u3,)
+c = W/(3*z1);  F1 = c*u1; F2 = c*u2; F3 = c*u3; 
+show('F1 = ',F1,'  F2 = ',F2,'  F3 = ',F3,)
+p1 = plot(F1, color='red', gridlines='true',
+                 legend_label='F1', thickness=5)
+p2 = plot(F2, color='green', legend_label='F2', thickness=5)
+p3 = plot(F3, color='blue', legend_label='F3', thickness=5)
+(p1+p2+p3).show(); 
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{tripod}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch6Vectors/tripod.png}
+\caption{Tripod forces}
+\label{tripod}       % Give a unique label
+\end{figure}
+
+
+
+
+
+
+\section{Dot Product}
+
+The next SageMath cell illustrates some properties of vector dot products.   It is a scalar product independent of the order of multiplication.  For example, 
+$$\mathbf{u_1}=\left< -1,2 \right>, \ \ \ \ \mathbf{u_2}=\left< 3,4 \right>, \ \ \ \ \mathbf{u_3}=\left< -8,6 \right>$$
+$$ \mathbf{u_1} \cdot  \mathbf{u_2} = -1 \cdot 3+2\cdot 4 =3 \cdot (-1)+4\cdot 2 = \mathbf{u_2} \cdot  \mathbf{u_1}   $$
+$$  \mathbf{(2u_1)} \cdot  \mathbf{u_2} = \mathbf{u_1} \cdot  \mathbf{(2u_2)} = 2 ( \mathbf{u_1} \cdot  \mathbf{u_2} )$$
+$$  \mathbf{u_1} \cdot  \mathbf{u_1}  = (-1)^2 + 2^2 = ||\mathbf{u_1}||^2$$
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset()
+u1 = vector([-1,2]); u2 = vector([3,4]); u3 = vector([-8,6])
+show('u1 dot u2 = ',u1.dot_product(u2), 
+     ' = u2 dot u1 = ',u2.dot_product(u1))
+show('(u1 dot u2)*u3 = ',u1.dot_product(u2)*u3)
+show('u1 dot (2u2) = ',u1.dot_product(2*u2))
+show('(2u1) dot u2 = ',(2*u1).dot_product(u2))
+show('u3 dot u3 = ',u3.dot_product(u3), 
+     ' = u3.norm(2)^2 = ',u3.norm(2)^2)
+p1 = plot(u1, color='red', gridlines='true', 
+          figsize = (4,3), legend_label='u1')
+p2 = plot(u2, color='green', legend_label='u2')
+p3 = plot(u3, color='blue', legend_label='u3')
+(p1+p2+p3).show(); 
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{DotProductVectors}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch6Vectors/DotProductVectors.png}
+\caption{Dot product illustration}
+\label{DotProductVectors}       % Give a unique label
+\end{figure}
+
+
+In the next SageMath cell, we illustrate the dot product for 3D vectors and use it to compute the angle between two vectors using:
+$$\cos(\theta) = \frac{\mathbf{u} \cdot \mathbf{v}}{||\mathbf{u}||||\mathbf{v}||}$$
+The vectors $\mathbf{u_1}$ and $\mathbf{u_3}$ are perpendicular to each other, while $\mathbf{u_1}$ and $\mathbf{u_4}$ are in opposite directions.
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset()
+u1 = vector([-1,3,2]); u2 = vector([2,-4,1]); 
+u3 = vector([2,0,1]);  u4 = vector([2,-6,-4]); 
+u1n = u1.norm(2);  u2n = u2.norm(2);
+u3n = u3.norm(2);  u4n = u4.norm(2);
+show(' u1n = ',u1n,' u2n = ',u2n,
+     ' u3n = ',u3n,' u4n = ',u4n )
+
+u1du2 = u1.dot_product(u2)
+th12 = N(acos(u1du2/(u1n*u2n)))
+print('u1 dot u2 = {:.2f}, th12 = {:.3f} rad = {:.3f} deg'
+      .format(u1du2,th12,N(th12*180/pi)))
+
+u1du3 = u1.dot_product(u3)
+th13 = N(acos(u1du3/(u1n*u3n)))
+print('u1 dot u3 = {:.2f}, th13 = {:.3f} rad = {:.3f} deg'
+      .format(u1du3,th13,N(th13*180/pi)))
+
+u2du3 = u2.dot_product(u3)
+th23 = N(acos(u2du3/(u2n*u3n)))
+print('u2 dot u3 = {:.2f}, th23 = {:.3f} rad = {:.3f} deg'
+      .format(u2du3,th23,N(th23*180/pi)))
+
+u1du4 = u1.dot_product(u4)
+th14 = N(acos(u1du4/(u1n*u4n)))
+print('u1 dot u4 = {:.2f}, th14 = {:.3f} rad = {:.3f} deg'
+      .format(u1du4,th14,N(th14*180/pi)))
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{DotProductAngles}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch6Vectors/DotProductAngles.png}
+\caption{Dot product angles}
+\label{DotProductAngles}       % Give a unique label
+\end{figure}
+
+
+The dot product can be used to define the projection of one vector onto another.   For example for 2-D vectors $\mathbf{u_1}=\left<9,7 \right>$ and $\mathbf{u_2}=\left< 1,3 \right>$:
+$$ \mathbf{u_1} \cdot  \mathbf{u_2} = 9 \cdot 1+7\cdot 3 = 30 \ \ \ \ \  ||\mathbf{u_2}||^2= 1^2+3^2=10$$
+$$ \mathbf{w_1} = proj_{\mathbf{u_2}}  (\mathbf{u_1}) = \frac{(\mathbf{u_1} \cdot  \mathbf{u_2}) \mathbf{u_2}}{||\mathbf{u_2}||^2} = \frac{30 \left< 1,3 \right>}{10} = \left< 3,9 \right> $$
+The perpendicular projection to  $\mathbf{u_1}$ can be obtained via subtraction:
+$$\ \ \mathbf{w_2} = \mathbf{u_1} - \mathbf{w_1} =\left<9,7 \right> -  \left< 3,9 \right> =  \left< 6,-2 \right>$$
+$$\mathbf{w_1} \cdot  \mathbf{w_2} = \left< 3,9 \right>\cdot \left< 6,-2 \right> = 18-18=0$$
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset()
+u1 = vector([9,7]); u2 = vector([1,3]); 
+u1n = u1.norm(2);  u2n = u2.norm(2);
+show(' u1n = ',u1n,' u2n = ',u2n )
+u1du2 = u1.dot_product(u2)
+w1 = u1du2 * u2 / u2n^2;   w2 = u1 - w1
+w1dw2 = w1.dot_product(w2)
+show('u1du2 = ',u1du2,'  w1 = ',w1,
+      '  w2 = ',w2, '  w1dw2 = ',w1dw2)
+p1 = plot(u1, color='red', gridlines='true',
+          legend_label='u1', aspect_ratio=1)
+p2 = plot(u2, color='green', legend_label='u2')
+p3 = plot(w1, color='blue', legend_label='w1')
+p4 = plot(w2, start = w1,color='black', 
+          figsize = (4,3), legend_label='w2')
+(p1+p2+p3+p4).show(); 
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Projections2d}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch6Vectors/Projections2d.png}
+\caption{2D vector projections}
+\label{Projections2d}       % Give a unique label
+\end{figure}
+
+
+The computations in 3-D space are the same. For example:
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset()
+u1 = vector([8,2,0]); u2 = vector([2,1,-1]); 
+u1n = u1.norm(2);  u2n = u2.norm(2);
+show('u1n = ',u1n,' u2n = ',u2n )
+u1du2 = u1.dot_product(u2)
+w1 = u1du2 * u2 / u2n^2;   w2 = u1 - w1
+w1dw2 = w1.dot_product(w2)
+show('u1du2 = ',u1du2,'  w1 = ',w1,
+      '  w2 = ',w2, '  w1dw2 = ',w1dw2)
+p1 = plot(u1, color='red', gridlines='true',
+          legend_label='u1', aspect_ratio=1, thickness=5)
+p2 = plot(u2, color='green', legend_label='u2', thickness=5)
+p3 = plot(w1, color='blue', legend_label='w1', thickness=5)
+p4 = plot(w2, start = w1,color='black', legend_label='w2', thickness=5)
+(p1+p2+p3+p4).show(); 
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Projections3d}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch6Vectors/Projections3d.png}
+\caption{3D vector projections}
+\label{Projections3d}       % Give a unique label
+\end{figure}
+
+
+
+As an application of dot product and projections let's consider an 800 lb boat on a ramp inclined at 20 degrees to the horizontal.   The 800 lb gravitational force $\mathbf{F} = \left< 0,-800\right>$ can be "separated" into two perpendicular component forces.   The first force is the projection of  $\mathbf{F}$ onto the direction of the ramp  $\mathbf{v} = \left< \cos(20^o), \sin(20^o) \right>$, which tries to roll the boat into the water and can be used to find the required strength of the rope.  The second component is the orthogonal projection which tries to break the ramp and can be used to compute the required tensile strength of it.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset()
+F = vector([0,-800]); th = N(20*pi/180)
+v = vector([cos(th),sin(th)]);  vn = v.norm(2);
+Fdv = F.dot_product(v)
+w1 = Fdv * v / vn^2;   w2 = F - w1
+w1dw2 = w1.dot_product(w2)
+show('w2 = ',w2); show('w1dw2 = ',w1dw2)
+show('force magnitudes:')
+show('w1n = ',w1.norm(2),'  w2n = ',w2.norm(2))
+p1 = plot(F, color='red', gridlines='true',
+  figsize=(4,4),legend_label='F', aspect_ratio=1)
+p2 = plot(w1, color='green', legend_label='w1')
+p3 = plot(w2, color='blue', legend_label='w2')
+(p1+p2+p3).show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Projections3d}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch6Vectors/Projections3d.png}
+\caption{3D vector projections}
+\label{Projections3d}       % Give a unique label
+\end{figure}
+
+
+
+
+
+
+
+
+\section{Cross-Product}
+
+The SageMath cell below illustrates the cross-product, and area of the parallelogram based on these vectors being equal to the magnitude of the cross product.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset()
+u1 = vector([2,-3,4]); u2 = vector([1,0,1]); 
+u1n = u1.norm(2);  u2n = u2.norm(2);
+show('u1n = ',u1n,' u2n = ',u2n )
+u3 = u1.cross_product(u2)
+show('u3 = ',u3)
+
+u1du2 = u1.dot_product(u2)
+th12 = N(acos(u1du2/(u1n*u2n)))
+show('u1 dot u2 = {:.2f}, th12 = {:.3f} rad = {:.3f} deg'
+      .format(u1du2,th12,N(th12*180/pi)))
+A1 = N(u1n*u2n*sin(th12))
+A2 = N(u3.norm(2))
+show('Area computed both ways: A1 = {:.3f}, A2 = {:.3f}'.
+     format(A1,A2))
+p1 = plot(u1, color='red', gridlines='true',
+          legend_label='u1', aspect_ratio=1, thickness=5)
+p2 = plot(u2, color='green', legend_label='u2', thickness=5)
+p3 = plot(u3, color='blue' , legend_label='w1', thickness=5)
+(p1+p2+p3).show(); 
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{CrossProduct}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch6Vectors/CrossProduct.png}
+\caption{Cross-product illustration}
+\label{CrossProduct}       % Give a unique label
+\end{figure}
+
+
+The SageMath symbolic computation can be used to check some general cross-product properties.  For example
+$$ \mathbf{u} \times \mathbf{v}  = - \mathbf{v} \times\mathbf{u} \ \ \ \ \ \ \ \ \ \ \ \mathbf{u} \cdot (\mathbf{v} \times \mathbf{w}) =  \mathbf{w} \cdot (\mathbf{u} \times \mathbf{v})  $$
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset();  var('u1','u2','u3','v1','v2','v3','w1','w2','w3',)
+u = vector([u1,u2,u3]); v = vector([v1,v2,v3]);
+w = vector([w1,w2,w3]);
+ucv = u.cross_product(v);   vcu = v.cross_product(u)
+show('u cross v = ', ucv); show('v cross u = ', vcu) 
+show('check = ',simplify(ucv + vcu))
+
+udvcw = expand(u.dot_product(v.cross_product(w)))
+wducv = expand(w.dot_product(u.cross_product(v)))
+show('udvcw = ', udvcw); show('wducv = ', wducv)
+show('check = ',simplify(udvcw - wducv))
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{CrossProperties}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch6Vectors/CrossProperties.png}
+\caption{Cross-product properties checks}
+\label{CrossProperties}       % Give a unique label
+\end{figure}
+
+As an application of cross\-products, let's consider a vertical downward force of 70 lb applied to the end of a 3 feet lever \(PQ\) attached to an axle at point P.  Find moment $\mathbf{M} = \mathbf{PQ
+} \times \mathbf{F}$ of this force about P when the angle is 60 degrees.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset();
+F = vector([0,0,-70]);  th = 60*pi/180; 
+PQ = N(3*vector([0,cos(th),sin(th)]))
+M = PQ.cross_product(F)
+show('PQ = ', PQ)
+show('F = ', F)
+show('M = ', M)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Torque}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch6Vectors/Torque.png}
+\caption{Torque illustration}
+\label{Torque}       % Give a unique label
+\end{figure}
+
+Another application of cross-products is given by the volume of a parallelepiped with given vector edges. For example:
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset()
+u1 = vector([2,-3,4]); u2 = vector([-5,0,3]); 
+u3 = vector([-3,2,4]);
+V = abs(u1.dot_product(u2.cross_product(u3)))
+show('Volume = V = ',V)
+p1 = plot(u1, color='red', gridlines='true',
+          legend_label='u1', aspect_ratio=1, thickness=5)
+p2 = plot(u2, color='green', legend_label='u2', thickness=5)
+p3 = plot(u3, color='blue', legend_label='w1', thickness=5)
+(p1+p2+p3).show(); 
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{VolumeVectors}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch6Vectors/VolumeVectors.png}
+\caption{Volume of parallepiped based on three vectors}
+\label{VolumeVectors}       % Give a unique label
+\end{figure}
+
+
+
+
+
+
+
+
+
+\section{Lines and Planes in 3-D}
+
+To define a line in 3-D space, a point and a direction vector of the line must be given.   For example, we find the equation of the line passing through point $P(-2,3,4)$ in the direction of the given vector $\mathbf{v}=\left<  1,2,3  \right>$.   The equation of the line is $x(t) =-2+t \ \ \ \ \  y(t) =3+2t  \ \ \ \ \  z(t) =4+3t$.   Note that this equation of the line is not unique.   Say, by letting $t =1$ in the equation of the line, we obtain another point $Q = (-1, 5, 7)$, which is also on this line.   In addition, we can use any scalar multiple of the direction vector $\mathbf{v}$, say $2\mathbf{v}$, as another direction vector.   Then we get equivalent equation of this line:   $x = -1 + 2t \ \ \ \ \   y = 5 + 4t \ \ \ \ \   z = 7 + 6t$.
+
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('t')
+x0=-2; y0=3; z0=4;   v = vector([1,2,3])
+x(t) = x0 + v[0]*t; y(t) = y0 + v[1]*t; 
+z(t) = z0 + v[2]*t
+show('Line equation based on point (',x0,
+     ',',y0,',',z0,')')
+show('and direction vector v = ',v,' is:'); 
+show('x(t) = ',x(t))
+show('y(t) = ',y(t)); show('z(t) = ',z(t))
+t1 = 1; x1 = x(t1); y1 = y(t1); z1 = z(t1);
+show('At t = ',t1,' the point on the line is =(',
+     x1,',',y1,',',z1,')')
+X(t) = x1 + 2*v[0]*t; Y(t) = y1 + 2*v[1]*t; 
+Z(t) = z1 + 2*v[2]*t
+show('Line equation based on point (',x1,
+     ',',y1,',',z1,')')
+show('and direction vector 2v = ',2*v,' is:') 
+show('X(t) = ',X(t))
+show('Y(t) = ',Y(t)); show('Z(t) = ',Z(t))
+p1 = plot(v, color='red', gridlines='true', \
+          legend_label='v', thickness=10)
+p2 = parametric_plot3d([x(t), y(t), z(t)], \
+                       (0,1), thickness=5)
+p3 = parametric_plot3d([X(t), Y(t), Z(t)], \
+                       (0,0.5), thickness=5)
+(p1+p2+p3).show();
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{LineEquation}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch6Vectors/LineEquation.png}
+\caption{Line equation in 3D}
+\label{LineEquationLineEquation}       % Give a unique label
+\end{figure}
+
+
+
+A variation on the previous example is obtained if we seek an equation of the line between the given two points $P(2,-3,1)$ and $Q(6,0,-1)$.   First, a direction vector is given by $\mathbf{v} =\mathbf{PQ} =\left< 6-2,0-(-3),-1-1 \right> =  \left< 4,3,-2 \right> $.    Then, an equation of line based on point $P$ and direction vector $\mathbf{PQ}$ is  $x(t) =2+4t \ \ \ \ \  y(t) =-3+3t  \ \ \ \ \  z(t) =1-2t$.   Note that in the resulting equation $\mathbf{r}(0) = P$  and  $\mathbf{r}(1) = Q$ and for  $0<t<1$, $\mathbf{r}(t)$ covers the line segment $PQ$.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('t')
+x0=2; y0=-3; z0=1;  x1=6; y1=0; z1=-1;  
+v = vector([x1-x0,y1-y0,z1-z0]); 
+x(t) = x0 + v[0]*t; y(t) = y0 + v[1]*t; 
+z(t) = z0 + v[2]*t
+show('Line equation based on point (',x0,
+     ',',y0,',',z0,')')
+show('and direction vector v = ',v,' is:'); 
+show('x(t) = ',x(t))
+show('y(t) = ',y(t)); show('z(t) = ',z(t))
+p1 = plot(v, color='red', gridlines='true', \
+          legend_label='v', thickness=10)
+p2 = parametric_plot3d([x(t), y(t), z(t)], \
+                     (-3,3), thickness=5)
+(p1+p2).show(); 
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{LineTwoPts}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch6Vectors/LineTwoPts.png}
+\caption{Line equation in 3D based on two points}
+\label{LineTwoPts}       % Give a unique label
+\end{figure}
+
+In the problem below, we find the equation of the plane based on three points $P(-2,1,-1), \ \ Q(3,0,1), \ \ R(-3,2,1), \ \ $.   First, vectors $\mathbf{PQ}$ and $\mathbf{PR}$ are found, and their cross-product gives vector $\mathbf{n} = \mathbf{PQ} \times \mathbf{PR}$ perpendicular to the plane.   Then \texttt{implicit\_plot3d()} is used to plot the plane along with all vectors.  In addition, we can find the angle between the normal vector to this plane $\mathbf{n}$ and the unit vector along the z-axis $\mathbf{k} = < 0,0,1 >$, which represents the angle between the given plane and $xy$ plane.   
+$$ \cos(\theta) = \frac{\mathbf{n}  \cdot \mathbf{k} }{||\mathbf{n} || ||\mathbf{k}|| } = \frac{<n_0,n_1,n_2> \cdot <0,0,1>}{||\mathbf{n} ||}  = \frac{n_2}{||\mathbf{n} ||} $$ 
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y,z')
+x1=-2; y1=1; z1=-1;  x2=3; y2=0; z2=1; x3=-3; y3=2; z3=1;
+P = vector([x1,y1,z1]);  # starting position
+u = vector([x2-x1,y2-y1,z2-z1]); show('u = ',u)
+v = vector([x3-x1,y3-y1,z3-z1]); show('v = ',v)
+n = u.cross_product(v); show('n = ',n)
+k = vector([0,0,1]);   
+theta = N(arccos(n[2]/n.norm(2))*180/pi)
+show('Angle of this plane with xy plane is = ',theta)
+show(n[0]*(x-x1)+n[1]*(y-y1)+n[2]*(z-z1))
+p1 = plot(u, start = P, color='red', gridlines='true', \
+          legend_label='u', thickness=10)
+p2 = plot(v, start = P, color='green', gridlines='true', \
+          legend_label='v', thickness=10)
+p3 = plot(n, start = P, color='blue', gridlines='true', \
+          legend_label='n', thickness=10)
+p4 = implicit_plot3d(n[0]*(x-x1)+n[1]*(y-y1)+n[2]*(z-z1)==0,\
+                     (x,-5,5), (y,-5,5), (z,-5,5))
+(p1+p2+p3+p4).show(); 
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Plane3pts}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch6Vectors/Plane3pts.png}
+\caption{Plane based on three points}
+\label{Plane3pts}       % Give a unique label
+\end{figure}
+
+
+Consider now the intersection of two planes: $2x-3y+z=0 \ \ and \ \ x+2y-z=0$.  The SageMath cell below computes the angle between the normal vectors to the plane (same as the angle between the planes), and finds 
+the cross product of these normal vectors, which is the direction vector of the line of intersection of two planes.   In addition, `solve()` is applied to the equations of planes to find the parametric equation of this line of intersection.  Once we obtain this solution, we plot it over all the planes and vectors to confirm that we get the same line.
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y,z')
+n1 = vector([2,-3,1]); 
+n2 = vector([1,2,-1]); 
+n1dotn2 = n1.dot_product(n2);  
+n1norm = n1.norm(2);  n2norm = n2.norm(2);  
+theta = arccos(n1dotn2/(n1norm*n2norm))*180/pi
+v = n1.cross_product(n2)
+show('n1dotn2 = ',n1dotn2,' ; n1norm = ', n1norm,
+     ' ; n2norm= ', n2norm)
+show('cross product n1 x n2 = v = ',v)
+show('Angle between planes = ',N(theta))
+
+sol = solve([n1[0]*x+n1[1]*y+n1[2]*z==0,
+       n2[0]*x+n2[1]*y+n2[2]*z==0],[x,y,z])
+show('intersection of planes = sol = ',sol)
+
+p1 = plot(n1, color='red', gridlines='true', \
+          legend_label='u', thickness=10)
+p2 = plot(n2, color='green', gridlines='true', \
+          legend_label='v', thickness=10)
+p3 = plot(v,  color='blue', gridlines='true', \
+          legend_label='n', thickness=10)
+p4 = implicit_plot3d(2*x-3*y+z==0, (x,-5,5), \
+          (y,-5,5), (z,-5,5), opacity = 0.5)
+p5 = implicit_plot3d(x+2*y-z==0, (x,-5,5), \
+   (y,-5,5), (z,-5,5),color='red', opacity = 0.5)
+var('t')
+p6 = parametric_plot3d([1/7*t,3/7*t,t],\
+                  (t,-4,4), thickness=10)
+(p1+p2+p3+p4+p5+p6).show(); 
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{PlanesIntersection}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch6Vectors/PlanesIntersection.png}
+\caption{Intersection of two planes}
+\label{PlanesIntersection}       % Give a unique label
+\end{figure}
+
+In the next SageMath cell, we illustrate the formula for the distance between the given point $Q=(2,-4,-3)$ and the plane $2x-3y+z=6$.   The simplest point $P(3,0,0)$ is picked on the plane and the distance from Q to the plain is obtained as the orthogonal projection of the vector $\mathbf{PQ}= \left< -1,-4,-3 \right>$ onto the normal vector of the plane $\mathbf{n}=\left< 2,-3,1 \right>$: 
+$$D = \frac{|\mathbf{PQ} \cdot \mathbf{n}|}{||\mathbf{n}||}$$
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y,z')
+x1=3; y1=0; z1=0;  x2=2; y2=-4; z2=3; 
+P = vector([x1,y1,z1]);  # starting position
+PQ = vector([x2-x1,y2-y1,z2-z1]); show('PQ = ',PQ)
+n = vector([2,-3,1]);
+D = abs(PQ.dot_product(n))/n.norm(2)
+show('Distance from Q to the plane = ',D)
+show(n[0]*(x-x1)+n[1]*(y-y1)+n[2]*(z-z1))
+p1 = plot(PQ, start = P, color='red', gridlines='true', 
+          legend_label='PQ', thickness=10)
+p2 = plot(n, start = P, color='blue', gridlines='true', 
+          legend_label='n', thickness=10)
+p3 = implicit_plot3d(n[0]*(x-x1)+n[1]*(y-y1)+n[2]*(z-z1)==0, 
+               (x,-9,9), (y,-9,9), (z,-9,9), opacity=0.5)
+(p1+p2+p3).show(); 
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{DistanceToPlane}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch6Vectors/DistanceToPlane.png}
+\caption{Distance from a point to the plane}
+\label{DistanceToPlane}       % Give a unique label
+\end{figure}
+
+
+Similarly, we can find the distance between point $Q(2,4,-5)$ and the line given by $x = -1+ 4t \ \ \ \ y = 2 – 3t \ \ \ \ z = -3 + 5t$ (therefore its direction vector is $\mathbf{u} = <4,-3,5>$).  Note that to get a point P on the line, we can just take $t = 0$ to obtain $P(-1,2,-3)$.  Then the distance is:
+$$D = \frac{||\mathbf{PQ} \times \mathbf{u} ||}{||\mathbf{u} ||}$$ 
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y,z')
+x1=3; y1=0; z1=0;  x2=2; y2=-4; z2=3; 
+P = vector([x1,y1,z1]);  # starting position
+PQ = vector([x2-x1,y2-y1,z2-z1]); show('PQ = ',PQ)
+n = vector([2,-3,1]);
+D = abs(PQ.dot_product(n))/n.norm(2)
+show('Distance from Q to the plane = ',D)
+show(n[0]*(x-x1)+n[1]*(y-y1)+n[2]*(z-z1))
+p1 = plot(PQ, start = P, color='red', gridlines='true', 
+          legend_label='PQ', thickness=10)
+p2 = plot(n, start = P, color='blue', gridlines='true', 
+          legend_label='n', thickness=10)
+p3 = implicit_plot3d(n[0]*(x-x1)+n[1]*(y-y1)+n[2]*(z-z1)==0, 
+               (x,-9,9), (y,-9,9), (z,-9,9), opacity=0.5)
+(p1+p2+p3).show(); 
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{DistanceToLine}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch6Vectors/DistanceToLine.png}
+\caption{Distance from a point to the line}
+\label{DistanceToLine}       % Give a unique label
+\end{figure}
+
+
+
+
+
+
+
+\section{Surfaces in 3D Space}
+
+Let's begin the discussion of 3D surfaces by considering a standard cylinder using SageMath \texttt{implicit\_plot3d()} command.
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset();  var('y,z')
+F0(x,y) = x^2+y^2-4;   
+a1 = -3; b1 = 3; c1 = -3; d1 = 3; e1 = -1; f1 = 4
+implicit_plot3d(F0(x,y)==0,(x,a1,b1),(y,c1,d1),
+                (z,e1,f1),gridlines=True)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Cylinder}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch6Vectors/Cylinder.png}
+\caption{Circular cylinder}
+\label{Cylinder}       % Give a unique label
+\end{figure}
+
+A cylindrical surface need not be an actual cylinder.   It is just missing one of the coordinates.   For example, $z=y^2$ is plotted by SageMath below.
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset();  var('y,z')
+F0(x,y) = z-y^2;   a1 = -3; b1 = 5;
+c1 = -6; d1 = 4; e1 = -1; f1 = 4
+implicit_plot3d(F0(x,y)==0,(x,a1,b1),(y,c1,d1),\
+                (z,e1,f1),gridlines=True)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{CylinderParabola}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch6Vectors/CylinderParabola.png}
+\caption{Cylindrical surface based on a parabola}
+\label{CylinderParabola}       % Give a unique label
+\end{figure}
+
+
+As an example of a quadric surface, let's consider 
+$$4x^2-3y^2+12z^2+12=0  \ \ \ \Rightarrow \ \ \ \ 4x^2-3y^2+12z^2=-12  \ \ \ \Rightarrow $$
+$$ \frac{y^2}{4} -\frac{x^2}{3} -z^2=1$$
+Therefore, the surface is a hyperboloid of two sheets with the y-axis as its axis, as illustrated in the SageMath cell below.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset();  var('x,y,z')
+F0(x,y) = 4*x^2 - 3*y^2 + 12*z^2 + 12;   
+a1 = -6; b1 = 6; c1 = -6; d1 = 6; e1 = -4; f1 = 4
+implicit_plot3d(F0(x,y)==0,(x,a1,b1),(y,c1,d1),(z,e1,f1))
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{TwoSheetsHyperboloid}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch6Vectors/TwoSheetsHyperboloid.png}
+\caption{Two sheets hyperboloid}
+\label{TwoSheetsHyperboloid}       % Give a unique label
+\end{figure}
+
+Another standard example of a quadric surface is a paraboloid $y=2x^2+3z^2$ along the y-axis.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset();  var('y,z')
+F0(x,y) = 2*x^2+3*z^2-y;   
+a1 = -1; b1 = 1; c1 = 0; d1 = 1; e1 = -1; f1 = 1
+implicit_plot3d(F0(x,y)==0,(x,a1,b1),(y,c1,d1),\
+                (z,e1,f1),gridlines=True)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Paraboloid}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch6Vectors/Paraboloid.png}
+\caption{Paraboloid}
+\label{Paraboloid}       % Give a unique label
+\end{figure}
+
+Let's also consider a classic saddle graph $z=y^2-x^2$.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset();  var('y,z')
+F0(x,y) = y^2-x^2-z;   
+a1 = -2; b1 = 2; c1 = -2; d1 = 2; e1 = -2; f1 = 2
+implicit_plot3d(F0(x,y)==0,(x,a1,b1),(y,c1,d1),\
+                (z,e1,f1),gridlines=True)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Saddle}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch6Vectors/Saddle.png}
+\caption{Saddle - hyperbolic paraboloid}
+\label{Saddle}       % Give a unique label
+\end{figure}
+
+For a quadric surface not centered at the origin, you can form a standard equation by completing the squares.  For example:
+$$4x^2+y^2+4z^2-4y-24z+36=0 \ \ \ \Rightarrow \ \ \ \ $$
+$$4x^2+(y^2-4y+4-4)+4(z^2-6z+9-9)+36=0  \ \ \ \Rightarrow \ \ \ \ $$
+$$4x^2+(y-2)^2+4(z-3)^2=4  \ \ \ \Rightarrow \ \ \ \  \frac{x^2}{1}+  \frac{(y-2)^2}{2^2} + \frac{(z-3)^2}{1} =1$$
+This is an ellipsoid centered at $(0,2,3)$ with half axes $1, 2, 1$ in $x, y, z$ directions, respectively.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset();  var('y,z')
+F0(x,y) = 4*x^2+y^2+4*z^2-4*y-24*z+36;   
+a1 = -2; b1 = 2; c1 = -1; d1 = 4; e1 = 2; f1 = 4
+implicit_plot3d(F0(x,y)==0,(x,a1,b1),(y,c1,d1),\
+                (z,e1,f1),gridlines=True)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{EllipsoidOff0}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch6Vectors/EllipsoidOff0.png}
+\caption{Ellipsoid not centered at the origin}
+\label{EllipsoidOff0}       % Give a unique label
+\end{figure}
+
+
+
+
+
+
+
+
+
+\section{Cylindrical and Spherical Coordinates}
+
+Cylindrical coordinates are just a 3D extension of the polar coordinates, so the transfer from cartesian to cylindrical and back is done the same way for polar coordinates.   
+The conversion from cylindrical to cartesian is straightforward: 
+$$r = \sqrt{x^2+y^2} \ \ \ \ \ \ \ \ \ \theta = arctan\left(\frac{y}{x}  \right) = atan2(y,x)   \ \ \ \ \ \ \ \ \ z = z$$
+The opposite conversion (cartesian to cylindrical) requires again the \texttt{atan2(y,x)} function that takes quadrant into the account.  
+$$r = \sqrt{x^2+y^2} \ \ \ \ \ \ \ \ \ \theta = arctan\left(\frac{y}{x}  \right) = atan2(y,x)   \ \ \ \ \ \ \ \ \ z = z$$
+The SageMath cell below illustrates these conversions and plots the points in two dimensions.  
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset()
+x1 = 1;  y1 = -2
+r1 = sqrt(x1^2+y1^2)
+theta1 = atan2(y1,x1)
+show('x1 = ',x1,'  y1 = ',y1,'  r1 = ',
+     r1,' theta1 = ',theta1)
+r2 = 1;  theta2 = 5*pi/6
+x2 = r2*cos(theta2); y2 = r2*sin(theta2); 
+show('x2 = ',x2, '  y2 = ',y2,'  r2 = ',
+     r2,'  theta2 = ',theta2)
+points([(x1,y1),(x2,y2)],size = 50, 
+       figsize = (4,3), color = 'red')
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{PolarPts}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch6Vectors/PolarPts.png}
+\caption{Points in polar coordinates}
+\label{PolarPts}       % Give a unique label
+\end{figure}
+
+SageMath can plot cylindrical surfaces directly using `Cylindrical` coordinate transformation, as shown in several standard graphs below.    
+We begin with a standard cylinder $r=3$ of radius 3 with the z-axis as a center axis.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+S = Cylindrical('radius', ['azimuth', 'height'])
+theta, z = var('theta, z')
+plot3d(3, (theta, 0, 2*pi), (z, -2, 2), transformation=S)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{PolarCylinder}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch6Vectors/PolarCylinder.png}
+\caption{Cylinder in polar coordinates}
+\label{PolarCylinder}       % Give a unique label
+\end{figure}
+
+
+Next, SageMath cell shows a cone:
+
+$$x^2+y^2=4z^2 \ \ \ \ \Rightarrow \ \ \ r^2=4z^2  \ \ \ \ \Rightarrow \ \ \ r=2z$$
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+S = Cylindrical('radius', ['azimuth', 'height'])
+theta, z = var('theta, z')
+plot3d(2*z, (theta, 0, 2*pi), (z, -3, 3), transformation=S)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{CylindricalCone}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch6Vectors/CylindricalCone.png}
+\caption{Cone in polar coordinates}
+\label{CylindricalCone}       % Give a unique label
+\end{figure}
+
+
+Finally, let's look at a hyperboloid of one sheet.    
+$$x^2+y^2-z^2=1 \ \ \ \ \Rightarrow \ \ \ r^2-z^2=1  \ \ \ \ \Rightarrow \ \ \ r=\sqrt{z^2+1}$$
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+S = Cylindrical('radius', ['azimuth', 'height'])
+theta, z = var('theta, z')
+plot3d(sqrt(z^2+1), (theta, 0, 2*pi), (z, -3, 3), transformation=S)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{PolarHyperboloid}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch6Vectors/PolarHyperboloid.png}
+\caption{One sheet hyperboloid in polar coordinates}
+\label{PolarHyperboloid}       % Give a unique label
+\end{figure}
+
+Let's consider a cylinder centered off the z\-axis.   Ye, again, it uses the same trick of multiplying both sides of the equation by $r$ and switching to cartesian coordinates to see the standard equation of the circle of radius 1 centered at $(1,0)$:
+$$r=2cos(\theta)\ \ \ \ \Rightarrow \ \ \ r^2=2rcos(\theta)  \ \ \ \ \Rightarrow \ \ \ x^2+y^2=2x $$
+$$  x^2-2x+1-1+y^2=0  \ \ \ \ \Rightarrow \ \ \ (x-1)^2+y^2=1$$
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+S = Cylindrical('radius', ['azimuth', 'height'])
+theta, z = var('theta, z')
+plot3d(2*cos(theta), (theta, 0, 2*pi), 
+       (z, -3, 3), transformation=S)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{CylinderOff}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch6Vectors/CylinderOff.png}
+\caption{Cylinder off the z axis}
+\label{CylinderOff}       % Give a unique label
+\end{figure}
+
+Alternatively, many cylindrical surfaces can be thought of as surfaces of rotation and implemented with the \texttt{revolution\_plot3d} command.  
+For example: $z = x^2+y^2 = r^2$.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+var('r');  f = r^2
+revolution_plot3d(f, (r,0,2), show_curve=True,\
+       opacity=0.7).show(aspect_ratio=(1,1,1))
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{ParaboloidRotate}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch6Vectors/ParaboloidRotate.png}
+\caption{Paraboloid as figure of rotation}
+\label{ParaboloidRotate}       % Give a unique label
+\end{figure}
+
+
+Similarly, a cone could be obtained by rotating a line, as shown in the SageMath cell below:
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+var('r');  f = 2*r
+revolution_plot3d(f, (r,0,2), show_curve=True, \
+         opacity=0.7).show(aspect_ratio=(1,1,1))
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{ConeRotate}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch6Vectors/ConeRotate.png}
+\caption{Cone as figure of rotation}
+\label{ConeRotate}       % Give a unique label
+\end{figure}
+
+
+SageMath can also be used to plot surfaces in spherical coordinates using `Spherical()` coordinate transformation.   For example, the cell below shows a portion of a sphere of radius 3 centered at the origin with angles bounded by $0 \le \phi \le \frac{\pi}{2}$ and $0 \le \theta \le \pi$.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+S = Spherical('radius', ['inclination', 'azimuth'])
+phi, theta = var('phi,theta')
+plot3d(3, (phi,0,pi/2), (theta, 0, pi), transformation=S)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{SphereCut}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch6Vectors/SphereCut.png}
+\caption{A quarter sphere}
+\label{SphereCut}       % Give a unique label
+\end{figure}
+
+
+Next, consider a sphere centered off the origin.   A similar trick of multiplying by $\rho$ is used to derive the cartesian equation.
+$$\rho = 4 cos(\phi) \ \ \ \ \Rightarrow \ \ \ \rho^2 = 4 \rho cos(\phi) \ \ \ \ \Rightarrow \ \ \ x^2+y^2+z^2=4z $$
+$$ x^2+y^2+z^2 -4z -4+4 = 0  \ \ \ \ \Rightarrow \ \ \ x^2+y^2+(z-2)^2=4$$
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+S = Spherical('radius', ['inclination', 'azimuth'])
+phi, theta = var('phi,theta')
+plot3d(4*cos(phi), (phi,0,pi), (theta, 0, 2*pi), transformation=S)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{SphereOffCenter}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch6Vectors/SphereOffCenter.png}
+\caption{Sphere off origin}
+\label{SphereOffCenter}       % Give a unique label
+\end{figure}
+
+On the other hand, if we list \texttt{inclination} first in the \text{Spherical} transformation, then it is the dependent variable, and setting it to $\frac{\pi}{4}$, we obtain a cone.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+S = Spherical('inclination', ['radius', 'azimuth'])
+r, theta = var('r,theta')
+plot3d(pi/4, (r,0,3), (theta, 0, 2*pi), transformation=S)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{ConeSpherical}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch6Vectors/ConeSpherical.png}
+\caption{Cone in spherical coordinates}
+\label{ConeSpherical}       % Give a unique label
+\end{figure}

@@ -1,0 +1,1450 @@
+\chapter{Functions of Several Variables}
+
+\section{Introduction to Functions of Several Variables}
+
+SageMath defines functions of several variables in the same common mathematical notation as functions of one variable, for example, $f(x,y)=\frac{1}{2}\sin(\pi(x^2+y^2))$.   The command \texttt{plot3d()} is used to plot a 3D surface, which can be rotated in SageMath.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+x, y = var('x y')
+f(x,y) = sin(pi*(x^2 + y^2))/2
+plot3d(f(x,y), (x, -1, 1), (y, -1, 1))
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Function3d}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch8FunctionsMultiple/Function3d.png}
+\caption{Function graph in 3D}
+\label{Function3d}       % Give a unique label
+\end{figure}
+
+The domain restrictions of the functions of several variables are similar to one-variable functions as well.  For example, $z = f(x,y) = \sqrt{9-x^2-3y^2}$ cannot have negative numbers under he square root, so 
+$$9-x^2-3y^2 \ge 0 \ \ \ \Rightarrow \ \ \ x^2+3y^2  \le 9   \ \ \ \Rightarrow \ \ \ \frac{x^2}{9}+\frac{y^2}{3} \le 1$$
+This is the inside of an ellipse.  Unfortunately, \texttt{plot3d()} produces a picture with a very ragged edge at the xy-plane.   However, in SageMath's defense, many other CAS systems have similar issues with the square root function.  We can rearrange the original function in terms $x,y,z$ surface.   Specifically:
+$$z = \sqrt{9-x^2-3y^2} \ge 0 \ \ \ \Rightarrow \ \ \ 9-x^2-3y^2=z^2  \ \ \ \Rightarrow \ \ \ \frac{x^2}{9}+\frac{y^2}{3} +\frac{z^2}{9}=1$$
+This is the upper half of the ellipsoid.
+
+In addition, it is helpful to consider level curves:
+$$z = f(x,y) = \sqrt{9-x^2-3y^2} = c = const \ \ \ \Rightarrow \ \ \ 9-x^2-3y^2=c^2 \ \ \ \Rightarrow \ \ \ x^2+3y^2=9-c^2$$
+So the level curves are ellipses, too.   They can be shown with the \texttt{contour\_plot()} command.  Note how the spacing is much smaller toward the rim of the ellipse, where z changes more rapidly.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+var('x,y')
+f(x,y) = sqrt(9-x^2-3*y^2)
+p1 = plot3d(f(x,y),(x,-4,4),(y,-2,2)); show(p1)
+p2 = contour_plot(f(x,y),(x,-4,4),(y,-2,2)); 
+show(p2)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{LevelCurvesEllipsoid}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch8FunctionsMultiple/LevelCurvesEllipsoid.png}
+\caption{Level curves for ellpsoid}
+\label{LevelCurvesEllipsoid}       % Give a unique label
+\end{figure}
+
+
+In the next SageMath cell, we consider a classical hyperbolic paraboloid (saddle) $z = f(x,y)=y^2-x^2$.   Its level curves are hyperbolas.   The cross-sections $z = y^2$ for $x=0$ and $z = -x^2$ for $y=0$ are parabolas up and down, respectively.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+var('x,y')
+f(x,y) = y^2-x^2
+p1 = plot3d(f(x,y),(x,-2,2),(y,-2,2))
+p2 = contour_plot(f(x,y),(x,-4,4),(y,-4,4))
+show(p1); show(p2)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{HyperbolicParaboloid}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch8FunctionsMultiple/HyperbolicParaboloid.png}
+\caption{Hyperbolic paraboloid with level curves}
+\label{HyperbolicParaboloid}       % Give a unique label
+\end{figure}
+
+An interesting practical example of a function of two variables used in economics is the Cobb-Douglas production function.  This function is used as a model to represent the numbers of units produced by varying amounts of labor and capital.   If $x$ measures the units of labor and $y$ measures the units of capital, the number of units produced is given by: $f(x,y) =Cx^ay^{1-a}$.   Note that doubling both $x$ and $y$ would double the production level:  $f(2x,2y) =C(2x)^a(2y)^{1-a} = C2^{a+1-a} x^ay^{1-a} = 2f(x,y)$.   In the SageMath cell below, note that we have to set \texttt{aspect\_ratio=[1,1,0.01]} to account for wildly different axes ranges.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+var('x,y'); a = 0.2;  C = 100
+f(x,y) = C*x^a*y^(1-a)
+p1 = plot3d(f(x,y),(x,0,3000),(y,0,3000),
+            aspect_ratio=[1,1,0.01]); 
+p2 = contour_plot(f(x,y),(x,0,3000),(y,0,3000)); 
+show(p1);  show(p2)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{CobbDouglas}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch8FunctionsMultiple/CobbDouglas.png}
+\caption{Coub-Douglas function with level curves}
+\label{CobbDouglas}       % Give a unique label
+\end{figure}
+
+
+
+
+
+
+
+
+
+
+\section{Partial Derivatives and Differentials}
+
+The SageMath cell below illustrates the computation of 1st and 2nd-order partial derivatives, gradients, and hessian. The notation is quite convenient.
+Let's start with a quadratic function $f(x,y)=8-2x^2+xy-y^2$.   Then:
+$$f_x = -4x+y;  \ \ \ f_y = x-2y; \ \ \ f_{xx} = -4; \ \ \  f_{yy} = -2; \ \ \  f_{xy} =f_{yx} =1$$
+$$grad(f) = \left< f_x,f_y \right> = \left<-4x+y,x-2y \right>$$
+$$Hessian=  \begin{bmatrix}
+     f_{xx} & f_{xy} \\
+   f_{yx} & f_{yy} \\
+  \end{bmatrix} = \begin{bmatrix}
+     -4 & 1 \\
+   1 & -2 \\
+  \end{bmatrix}$$
+Consider a point $P = (1,2)$ in the $f(x,y)$ domain.   The first derivatives $f_x(1,2) =-2$ and $f_y(1,2) =-3$ are the slopes in the $x$ and $y$ - directions in vertical planes $y=2$ and $x=1$, respectively.  The tangent lines parametric equations are obtained by setting $x$ or $y$ change to be one and $z$ change equal to the corresponding slopes.
+$$ \text{Tangent line corresponding to x-derivative} =$$
+$$\left< x_1 + t, y_1, z_1 + f_x(x_1,y_1)t  \right> = \left< 1 + t, 2, 4 -2t  \right>$$
+$$ \text{Tangent line corresponding to y-derivative} =$$
+$$ \left< x_1 , y_1+t, z_1 + f_y(x_1,y_1)t  \right> = \left< 1, 2+t, 4 -3t  \right>$$
+In the figure below, we plot these tangent lines as well as the tangent plane: 
+$$z_{tang} =f(x_1,y_1) + f_x(x_1,y_1) (x-x_1)+ f_y(x_1,y_1) (y-y_1)$$
+$$= 4-2(x-1)-3(y-2)=12-2x-3y$$
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+var('x,y,t')
+f(x,y) = 8-2*x^2+x*y-y^2
+fx(x,y) = derivative(f(x,y),x); 
+fy(x,y) = derivative(f(x,y),y)
+fxx(x,y) = derivative(f(x,y),x,x);  
+fyy(x,y) = derivative(f(x,y),y,y)
+fxy(x,y) = derivative(f(x,y),x,y); 
+fyx(x,y) = derivative(f(x,y),y,x)
+show('f(x,y)  = ', f(x,y)); 
+show('fx(x,y) = ', fx(x,y))
+show('fy(x,y) = ', fy(x,y)); 
+show('Total differential = dz =\
+              (',fx(x,y),')dx + (',fy(x,y),')dy')
+show('fxx(x,y) = ', fxx(x,y)); 
+show('fyy(x,y) = ', fyy(x,y))
+show('fxy(x,y) = ', fxy(x,y)); 
+show('fyx(x,y) = ', fyx(x,y))
+gradf(x,y) = f.gradient()(x,y); 
+show('gradient f = ', gradf(x,y))
+hessf(x,y) = f.hessian()(x,y); 
+show('hessian of f = ', hessf(x,y))
+
+x1 = 1; y1 = 2; z1 = f(x1,y1);
+p1 = plot3d(f(x,y),(x,-4,4),(y,-7,7), 
+                        aspect_ratio=[1,1,0.1])
+fx1 = fx(x1,y1); fy1 = fy(x1,y1); 
+ztang(x,y) = z1 + fx1*(x-x1) + fy1*(y-y1)
+show('x1 =',x1,' y1 =',y1,' z1 = ',z1, 
+                   ' fx1 = ',fx1,' fy1 = ',fy1)
+show('Tangent line for x-derivative = :')
+show( '<',x1 + t,',',y1,',',z1 + fx1*t,'>')
+show('Tangent line for y-derivative = :')
+show('<', x1 ,',',y1+t,',',z1 + fy1*t,'>')
+show('tangent plane: z =',ztang(x,y))
+p2 = plot3d(ztang(x,y),(x,-4,4),(y,-4,4),
+            color='red',opacity = 0.2)
+p3 = parametric_plot3d([x1+t,y1,z1+fx1*t],
+          (t,-3,3),color='green',thickness = 5) 
+p4 = parametric_plot3d([x1,y1+t,z1+fy1*t],
+          (t,-3,3),color='magenta',thickness = 5) 
+(p1+p2+p3+p4).show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Derivatives2D}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch8FunctionsMultiple/Derivatives2D.png}
+\caption{Derivatives in 2D}
+\label{Derivatives2D}       % Give a unique label
+\end{figure}
+
+The computations above extend naturally to a function of 3 variables $w = f(x,y,z)$ with the same equality of the mixed partial derivatives as illustrated in the SageMath cell below.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+var('x,y,z')
+f(x,y,z) = y*e^x+x*ln(z)
+fx(x,y,z) = derivative(f(x,y,z),x);  
+fy(x,y,z) = derivative(f(x,y,z),y)
+fz(x,y,z) = derivative(f(x,y,z),z)
+fxz(x,y,z) = derivative(f(x,y,z),x,z);  
+fzx(x,y,z) = derivative(f(x,y,z),z,x)
+fzz(x,y,z) = derivative(f(x,y,z),z,z)
+fxzz(x,y,z) = derivative(f(x,y,z),x,z,z);  
+fzxz(x,y,z) = derivative(f(x,y,z),z,x,z)
+fzzx(x,y,z) = derivative(f(x,y,z),z,z,x)
+show('f(x,y,z)  = ', f(x,y,z))
+show('fx(x,y,z) = ', fx(x,y,z))
+show('fy(x,y,z) = ', fy(x,y,z))
+show('fz(x,y,z) = ', fz(x,y,z))
+show('Total differential = dz = (',fx(x,y,z),')dx + (',
+     fy(x,y,z),')dy + (',fz(x,y,z),')dz')
+show('fxz(x,y,z) = ', fxz(x,y,z))
+show('fzx(x,y,z) = ', fzx(x,y,z))
+show('fzz(x,y,z) = ', fzz(x,y,z))
+show('fxzz(x,y,z) = ', fxzz(x,y,z))
+show('fzxz(x,y,z) = ', fzxz(x,y,z))
+show('fzzx(x,y,z) = ', fzzx(x,y,z))
+gradf(x,y,z) = f.gradient()(x,y,z);  
+show('gradient f = ', gradf(x,y,z))
+hessf(x,y,z) = f.hessian()(x,y,z); 
+show('hessian of f = ', hessf(x,y,z))
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Derivatives3D}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch8FunctionsMultiple/Derivatives3D.png}
+\caption{Derivatives in 3D}
+\label{Derivatives3D}       % Give a unique label
+\end{figure}
+
+
+
+
+The tangent plane locally approximates a function curvy surface, which can also be written in terms of differentials.  For example, we use the differential $dz$ to approximate the change in the function $z=f(x,y) = \sqrt{9-2x^2-y^2}$
+as (x, y) moves from the point (1, 1) to the point (1.01, 0.97).
+$$f(x,y) = \sqrt{9-2x^2-y^2}  \ \ \ \Rightarrow \ \ \  f_x = \frac{-2x}{\sqrt{9-2x^2-y^2}};  \ \ \ \  f_y = \frac{-y}{\sqrt{9-2x^2-y^2}}$$
+$$\text{At} \ x_1 = 1; \ y_1 = 1  \ \ \ \ f(x_1,y_1) =\sqrt{6}; \ \ \  f_x(x_1,y_1)=-\frac{2}{\sqrt{6}}; \ \ \ \ f_x(x_1,y_1)=-\frac{1}{\sqrt{6}};$$
+$$z_{tang} =f(x_1,y_1) + f_x(x_1,y_1) (x-x_1)+ f_y(x_1,y_1) (y-y_1)$$
+$$ =  -\frac{1}{3} \, \sqrt{6} {\left(x - 1\right)} - \frac{1}{6} \, \sqrt{6} {\left(y - 1\right)} + \sqrt{6} $$
+$$dz = f_x(x_1,y_1) dx+ f_y(x_1,y_1)dy =-\frac{2}{\sqrt{6}} 0.01  -\frac{1}{\sqrt{6}}(-0.03) =0.004082$$
+Comparing this to the exact function change $\Delta z = f(1.01,0.97) -  f(1,1)=0.00385$, we see that the approximation is good.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y,t')
+f(x,y) = sqrt(9-2*x^2-y^2)
+fx(x,y) = derivative(f(x,y),x);  
+fy(x,y) = derivative(f(x,y),y)
+show('f(x,y)  = ', f(x,y))
+show('fx(x,y) = ', fx(x,y))
+show('fy(x,y) = ', fy(x,y))
+show('Total differential = dz = (',
+     fx(x,y),')dx + (',fy(x,y),')dy')
+gradf(x,y) = f.gradient()(x,y);  
+show('gradient f = ', gradf(x,y))
+
+x1 = 1; y1 = 1; z1 = f(x1,y1);  
+dx = 0.01; dy = -0.03
+p1 = plot3d(f(x,y),(x,-3,3),(y,-3,3), 
+            aspect_ratio=[1,1,1],opacity = 0.9)
+fx1 = fx(x1,y1); fy1 = fy(x1,y1); 
+ztang(x,y) = z1 + fx1*(x-x1) + fy1*(y-y1)
+dz = N(fx1*dx + fy1*dy);  
+dz_exact = N(f(x1+dx,y1+dy) - f(x1,y1))
+show('x1 =',x1,' y1 =',y1,' z1 = ',
+     z1,' fx1 = ',fx1,' fy1 = ',fy1)
+show('tangent plane: z =',ztang(x,y))
+show('dz = ',dz, '   dz_exact = ', dz_exact)
+fapprox = N(f(x1,y1) + dz)
+fexact  = f(x1+dx,y1+dy)
+show('fapprox = ',fapprox)
+show('fexact = ',fexact)
+p2 = plot3d(ztang(x,y),(x,0.1,1.9),
+     (y,0.1,1.9),color='red',opacity = 0.5)
+(p1+p2).show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{TangPlaneApprox}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch8FunctionsMultiple/TangPlaneApprox.png}
+\caption{Tangent plane approximation}
+\label{TangPlaneApprox}       % Give a unique label
+\end{figure}
+
+
+Next, let's use differentials to approximate the propagated error introduced by an error in measurement.  For example, consider a box of size $30 \times 40 \times 10$ with an error in length measurement of $0.02$.   Then
+$$Volume = f(x,y,z) = xyz \ \ \ \Rightarrow  $$
+$$ f_x(x,y,z)=yz; \ \ \ f_y(x,y,z)=xz; \ \ \ f_z(x,y,z)=xy;$$
+$$dV = df = f_xdx+f_ydy+f_zdz = yzdx+xzdy+xydz =$$
+$$400\cdot 0.02+300\cdot 0.02+1200\cdot 0.02  = 38 $$
+$$\text{Relative Error = } \ \frac{dV}{V} = \frac{df}{f} =\frac{38}{30 \cdot 40 \cdot 10} = 0.00317$$
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y,z')
+f(x,y,z) = x*y*z
+fx(x,y,z) = derivative(f(x,y,z),x)  
+fy(x,y,z) = derivative(f(x,y,z),y)
+fz(x,y,z) = derivative(f(x,y,z),z)
+show('f(x,y,z) = ', f(x,y,z))
+show('fx(x,y,z) = ', fx(x,y,z))
+show('fy(x,y,z) = ', fy(x,y,z))
+show('fz(x,y,z) = ', fz(x,y,z))
+
+x1, y1, z1 = 30, 40, 10; dx, dy, dz = 0.02, 0.02, 0.02; 
+fx1 = fx(x1,y1,z1); fy1 = fy(x1,y1,z1); fz1 = fz(x1,y1,z1); 
+df = N(fx1*dx + fy1*dy + fz1*dz);  
+print('x1 =',x1,' y1 =',y1,' z1 = ',z1)
+print('fx1 = ',fx1,' fy1 = ',fy1, ' fz1 = ',fz1)
+print('Absolute Error Estimate = dV =  ',df)
+print('Relative Error Estimate = dV/V =  ',df/f(x1,y1,z1))
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{ErrorPropagationBox}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch8FunctionsMultiple/ErrorPropagationBox.png}
+\caption{Measurements error propagation in a box}
+\label{ErrorPropagationBox}       % Give a unique label
+\end{figure}
+
+The measurement error need not be the same in all directions.   For example, consider a cone with a radius of $10$ and height $20$ with measurement errors $0.02$ in radius and $0.01$ in height.     Then
+$$Volume = f(x,y,z) = \frac{1}{3}\pi r^2 h \ \ \ \Rightarrow  \ \ \ $$
+$$ f_r(r,h)= \frac{2}{3}\pi r h; \ \ \  f_h(r,h)= \frac{1}{3}\pi r^2;$$
+$$dV = df = f_rdr+f_hdh = \frac{2}{3}\pi r hdr+\frac{1}{3}\pi r^2dh =$$
+$$\frac{2}{3}\pi 10 \cdot 20 \cdot 0.02 +\frac{1}{3}\pi 10^2 \cdot 0.01   = 9.425$$
+$$\text{Relative Error = } \ \frac{dV}{V} = \frac{df}{f} =\frac{3.00}{\frac{1}{3}\pi 10^2 20} = 0.0045$$
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y,z')
+f(r,h) = 1/3*pi*r^2*h
+fr(r,h) = derivative(f(r,h),r)  
+fh(r,h) = derivative(f(r,h),h)
+show('f(r,h) = ', f(r,h))
+show('fr(r,h) = ', fr(r,h))
+show('fh(r,h) = ', fh(r,h))
+
+r1 = 10; h1 = 20; dr, dh = 0.02, 0.01; 
+fr1 = fr(r1,h1); fh1 = fh(r1,h1); 
+df = N(fr1*dr + fh1*dh);  
+show('r1 =',r1,' h1 =',h1,' fr1 = ',fr1,' fh1 = ',fh1)
+show('Absolute Error Estimate = df =  ',df)
+show('Relative Error Estimate = df/f =  ',N(df/f(r1,h1)))
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{ErrorPropagatCone}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch8FunctionsMultiple/ErrorPropagatCone.png}
+\caption{Measurements error propagation in a cone}
+\label{ErrorPropagatCone}       % Give a unique label
+\end{figure}
+
+
+
+
+
+
+
+
+
+\section{Multivariate Chain Rule}
+
+First, consider the chain rule with one independent variable.
+$$w = f(x,y) = 2xy^2-3x^2y$$
+$$ f_x(x,y) = 2y^2-6xy; \ \ \ \  f_y(x,y) = 4xy-3x^2; $$
+$$ x(t) =\cos(t); \ \ \ \ y(t) = e^{2t}; \ \ \Rightarrow \ \ \   x_t(t) = -\sin(t); \ \ \ \ y_t(t) = 2e^{2t}$$
+$$ \frac{df}{dt} = f_x(x,y)x_t(t) + f_y(x,y)y_t(t) = ( 2y^2-6xy)x_t(t)+ ( 4xy-3x^2)y_t(t) =$$
+$$ 2 \, {\left(3 \, \cos\left(t\right) e^{\left(2 \, t\right)} - e^{\left(4 \, t\right)}\right)} \sin\left(t\right) -2 \, {\left(3 \, \cos\left(t\right)^{2} - 4 \, \cos\left(t\right) e^{\left(2 \, t\right)}\right)} e^{\left(2 \, t\right)} $$
+$$ \frac{df}{dt}(0) = 2$$
+Another way to apply chain rule is to compute $f_x(x,y)$ and $f_y(x,y)$ at the corresponding point $(x_0=x(t_0), y_0=y(t_0)) = (1,1)$ and multiply by $x_t(t_0)$ and $y_t(t_0)$, respectively.
+$$\frac{df}{dt}(0)  = f_x(x_0,y_0)x_t(t_0) +  f_y(x_0,y_0)y_t(t_0) = -4 \cdot 0 + 1 \cdot 2 =2$$
+This derivative can be interpreted as the rate of change of $w$ in time $t$ as point $(x,y)$ moves along the 
+curve C given by parametric equations $x = x(t)$ and $y = y(t)$.  In particular, at $t = 0$, the point is at $(1,1)$ and $dw/dt = 2$ is the rate of increase $( > 0 )$ as we move along C.  If w(x,y) represents the temperature, then the composition function $w(x(t),y(t))$ represents the temperature at points on C, and $dw/dt$ is the rate of change of temperature along C. 
+
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y,t')
+f(x,y) = 2*x*y^2-3*x^2*y
+fx(x,y) = derivative(f(x,y),x);  
+fy(x,y) = derivative(f(x,y),y)
+show('f(x,y)  = ', f(x,y))
+show('fx(x,y) = ', fx(x,y))
+show('fy(x,y) = ', fy(x,y))
+X(t) = cos(t); Y(t) = e^(2*t);  t0 = 0;
+Xt(t) = derivative(X(t),t);  
+Yt(t) = derivative(Y(t),t); 
+dft(t) = fx(X(t),Y(t))*Xt(t) + fy(X(t),Y(t))*Yt(t)
+show('X(t) = ',X(t),'   Y(t) = ',Y(t))
+show('Xt(t) = ',Xt(t),'   Yt(t) = ',Yt(t))
+show('dft(t) = ',dft(t))
+show('dft(t0) = ',dft(t0))
+# step by step approach 
+X0 = X(t0); Y0 = Y(t0); 
+Xt0 = Xt(t0); Yt0 = Yt(t0); 
+fx0 = fx(X0,Y0); fy0 = fy(X0,Y0); 
+dft0 = fx0*Xt0 + fy0*Yt0
+show('X0 = ',X0,'  Y0 = ',Y0,'  Xt0 = ',Xt0,'  Yt0 = ',Yt0)
+show('fx0 = ',fx0,' fy0 = ',fy0)
+show('dft0 = ', dft0)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{ChainRule1}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch8FunctionsMultiple/ChainRule1.png}
+\caption{Chain rule with one independent variable}
+\label{ChainRule1}       % Give a unique label
+\end{figure}
+
+
+As a practical application, consider two objects travelling on elliptical paths, as shown in the SageMath cell below.  At what rate does the distance between the objects $s=\sqrt{(x_2-x_1)^2+(y_2-y_1)^2}$ change when $t=\pi$?   The manual calculation is quite tedious, and SageMath helps a lot.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x1,x2,y1,y2,t')
+f(x1,x2,y1,y2) = sqrt((x2-x1)^2+(y2-y1)^2)
+fx1(x1,x2,y1,y2) = derivative(f(x1,x2,y1,y2),x1);  
+fx2(x1,x2,y1,y2) = derivative(f(x1,x2,y1,y2),x2);  
+fy1(x1,x2,y1,y2) = derivative(f(x1,x2,y1,y2),y1);  
+fy2(x1,x2,y1,y2) = derivative(f(x1,x2,y1,y2),y2);  
+show('f(x1,x2,y1,y2)  = ', f(x1,x2,y1,y2))
+show('fx1(x1,x2,y1,y2) = ', fx1(x1,x2,y1,y2))
+show('fx2(x1,x2,y1,y2) = ', fx2(x1,x2,y1,y2))
+show('fy1(x1,x2,y1,y2) = ', fy1(x1,x2,y1,y2))
+show('fy2(x1,x2,y1,y2) = ', fy2(x1,x2,y1,y2))
+X1(t) = 3*cos(t); Y1(t) = 2*sin(t);  t0 = pi;
+X2(t) = 2*sin(2*t); Y2(t) = 4*cos(2*t);  
+X1t(t) = derivative(X1(t),t); 
+Y1t(t) = derivative(Y1(t),t); 
+X2t(t) = derivative(X2(t),t);  Y2t(t) = derivative(Y2(t),t); 
+show('X1(t) = ',X1(t),'   Y1(t) = ',Y1(t))
+show('X2(t) = ',X2(t),'   Y2(t) = ',Y2(t))
+show('X1t(t) = ',X1t(t),'   Y1t(t) = ',Y1t(t))
+show('X2t(t) = ',X2t(t),'   Y2t(t) = ',Y2t(t))
+
+X10 = X1(t0); Y10 = Y1(t0); 
+X20 = X2(t0); Y20 = Y2(t0); 
+X1t0 = X1t(t0); Y1t0 = Y1t(t0); 
+X2t0 = X2t(t0); Y2t0 = Y2t(t0);
+fx10 = fx1(X10,Y10,X20,Y20); 
+fy10 = fy1(X10,Y10,X20,Y20)
+fx20 = fx2(X10,Y10,X20,Y20); 
+fy20 = fy2(X10,Y10,X20,Y20)
+dft0 = fx10*X1t0 + fy10*Y1t0 + \
+       fx20*X2t0 + fy20*Y2t0
+show('X10 = ',X10,'  Y10 = ',Y10,
+     '  X2t0 = ',X2t0,'  Y2t0 = ',Y2t0)
+show('X20 = ',X20,'  Y20 = ',Y20,
+     '  X2t0 = ',X2t0,'  Y2t0 = ',Y2t0)
+show('fx10 = ',fx10,' fy10 = ',
+     fy10, ' fx20 = ',fx20,' fy20 = ',fy20, )
+show('Final derivative = dft0 = ', dft0)
+p1 = parametric_plot([X1(t),Y1(t)],(t,0,2*pi),
+                     figsize=(4,3),color='red')
+p2 = parametric_plot([X2(t),Y2(t)],(t,0,  pi))
+(p1+p2).show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{EllipticalPaths}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch8FunctionsMultiple/EllipticalPaths.png}
+\caption{Chain rule for elliptical paths}
+\label{EllipticalPaths}       % Give a unique label
+\end{figure}
+
+
+Now, consider chain rule with two independent variables $s$ and $t$.
+$$w = f(x,y) = 2x^2y^3; \ \ \ \ f_x(x,y) = 4xy^3; \ \ \ \  f_y(x,y) = 6x^2y^2;$$
+$$ x(s,t) =2s^2+3t^2; \ \ \ \ y(s,t) = \frac{s^2}{t^3}; \ \ \Rightarrow$$
+$$ x_s(s,t) =4s; \ \ \ \ x_t(s,t) = 6t; \  \ \ \   y_s(s,t) = \frac{2s}{t^3}; \ \ \ \ y_t(s,t) = - \frac{3s^2}{t^4}$$
+Similar to one $t$ \- variable.
+$$ \frac{\partial f}{\partial s} = f_x(x,y)x_s(s,t) + f_y(x,y)y_s(s,t)$$
+$$ \frac{\partial f}{\partial t} = f_x(x,y)x_t(s,t) + f_y(x,y)y_t(s,t)$$
+The SageMath cell below computes all these steps and evaluates the derivative at a particular point.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y,s,t')
+f(x,y) = 2*x^2*y^3
+fx(x,y) = derivative(f(x,y),x);  
+fy(x,y) = derivative(f(x,y),y)
+show('f(x,y)  = ', f(x,y))
+show('fx(x,y) = ', fx(x,y))
+show('fy(x,y) = ', fy(x,y))
+X(s,t) = 2*s^2+3*t^2; 
+Y(s,t) = s^2/t^3;  s0,t0 = 1,1;
+Xs(s,t) = derivative(X(s,t),s); 
+Ys(s,t) = derivative(Y(s,t),s); 
+Xt(s,t) = derivative(X(s,t),t); 
+Yt(s,t) = derivative(Y(s,t),t); 
+dfs(s,t) = fx(X(s,t),Y(s,t))*Xs(s,t) + \
+           fy(X(s,t),Y(s,t))*Ys(s,t)
+dft(s,t) = fx(X(s,t),Y(s,t))*Xt(s,t) + \
+           fy(X(s,t),Y(s,t))*Yt(s,t)
+show('X(s,t) = ',X(s,t),'   Y(s,t) = ',Y(s,t))
+show('Xs(s,t) = ',Xs(s,t),'   Ys(s,t) = ',Ys(s,t))
+show('Xt(s,t) = ',Xt(s,t),'   Yt(s,t) = ',Yt(s,t))
+show('dfs(s,t) = ',dfs(s,t));  
+show('dft(s,t) = ',dft(s,t))
+show('dfs(s0,t0) = ',dfs(s0,t0))
+show('dft(s0,t0) = ',dft(s0,t0))
+X0 = X(s0,t0); Y0 = Y(s0,t0); 
+Xs0 = Xs(s0,t0); Ys0 = Ys(s0,t0); 
+Xt0 = Xt(s0,t0); Yt0 = Yt(s0,t0); 
+fx0 = fx(X0,Y0); fy0 = fy(X0,Y0); 
+dfs0 = fx0*Xs0 + fy0*Ys0
+dft0 = fx0*Xt0 + fy0*Yt0
+show('X0 = ',X0,'  Y0 = ',Y0,'  Xs0 = ',Xs0,'  Ys0 = ',Ys0)
+show('Xt0 = ',Xt0,'  Yt0 = ',Yt0)
+show('fx0 = ',fx0,' fy0 = ',fy0)
+show('dfs0 = ', dfs0,'   dft0 = ', dft0)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{ChainRule2}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch8FunctionsMultiple/ChainRule2.png}
+\caption{Chain rule to two independent variables}
+\label{ChainRule2}       % Give a unique label
+\end{figure}
+
+The chain rule can be used to derive a general formula for implicit differentiation.  For example, consider an implicit equation $F(x,y) = 3y^4x+2y^2-5yx^2+4 = 0$.  Assuming $y=y(x)$ differentiate it in $x$ using the chain rule.
+$$\frac{d}{dx}F(x,y) = F_x(x,y) + F_y(x,y) \frac{dy}{dx}=0 \ \ \ \Rightarrow$$
+$$ \frac{dy}{dx}=-\frac{F_x(x,y) }{F_y(x,y)} =-\frac{3y^4-10xy }{12xy^3-5x^2+4y}$$
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y')
+F(x,y) = 3*y^4*x+2*y^2-5*y*x^2+4
+Fx(x,y) = derivative(F(x,y),x);  
+Fy(x,y) = derivative(F(x,y),y)
+show('F(x,y)  = ', F(x,y))
+show('Fx(x,y) = ', Fx(x,y))
+show('Fy(x,y) = ', Fy(x,y))
+y_x = -Fx(x,y)/Fy(x,y)
+show('y_x = ', y_x)
+
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{ImplicitDeriv2}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch8FunctionsMultiple/ImplicitDeriv2.png}
+\caption{Implicit derivative for function of one variable}
+\label{ImplicitDeriv2}       % Give a unique label
+\end{figure}
+
+Analogously, the chain rule can also be used for partial implicit differentiation.  For example, consider an implicit equation of three variables $F(x,y,z) = 7y^2z^3+4xz^2-2x^3y^2 = 0$.  Assuming $z=z(x,y)$, we analogously differentiate the implicit equation in $x$ using the chain rule.
+$$\frac{\partial}{\partial x}F(x,y,z) = F_x(x,y,z) + F_z(x,y,z) \frac{\partial z}{\partial x}=0 \ \ \ \Rightarrow$$
+$$\frac{\partial z}{\partial x}=-\frac{F_x(x,y,z) }{F_z(x,y,z)} =-\frac{-6x^2y^2+4z^2 }{21y^2z^2+8xz}$$
+$$\frac{\partial}{\partial y}F(x,y,z) = F_y(x,y,z) + F_z(x,y,z) \frac{\partial z}{\partial y}=0 \ \ \ \Rightarrow$$
+$$\frac{\partial z}{\partial y}=-\frac{F_y(x,y,z) }{F_z(x,y,z)} =-\frac{-4x^3y+14yz^3 }{21y^2z^2+8xz}$$
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y,z')
+F(x,y,z) = 7*y^2*z^3+4*x*z^2-2*x^3*y^2
+Fx(x,y,z) = derivative(F(x,y,z),x);  
+Fy(x,y,z) = derivative(F(x,y,z),y)
+Fz(x,y,z) = derivative(F(x,y,z),z)
+show('F(x,y,z)  = ', F(x,y,z))
+show('Fx(x,y,z) = ', Fx(x,y,z))
+show('Fy(x,y,z) = ', Fy(x,y,z))
+show('Fz(x,y,z) = ', Fz(x,y,z))
+z_x = -Fx(x,y,z)/Fz(x,y,z); z_y = -Fy(x,y,z)/Fz(x,y,z)
+show('z_x = ', z_x); show('z_y = ', z_y)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{ImplicitDeriv3}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch8FunctionsMultiple/ImplicitDeriv3.png}
+\caption{Implicit derivative for function of two variables}
+\label{ImplicitDeriv3}       % Give a unique label
+\end{figure}
+
+
+
+
+
+
+
+
+\section{Directional Derivative and Gradient}
+
+Let's consider a directional derivative of $f(x,y) = 9-2x^2-\frac{1}{2}y^2$ at $(x_1,y_1)=(1,2)$ in $\theta=\frac{\pi}{3}$ direction.    First let's compute the gradient: $\nabla f = \left< f_x,f_y \right> =  \left< -4x, -y \right>$.  At the point of interest $\nabla f (1,2) =  \left< -4, -2 \right>$.   Remember that the gradient gives the local direction of the steepest increase in the function $f(x,y)$ and its magnitude $||\nabla f (1,2)|| = \sqrt{16+4}=2\sqrt{5}$ is the rate of maximum increase in this gradient direction.   If this function $f(x,y)$ represents the temperature on a metal plate, the gradient gives the direction in which the temperature increases most rapidly. The direction of interest is given by the unit vector $\mathbf{u} =\left< \cos\left(\frac{\pi}{3} \right), \sin\left(\frac{\pi}{3} \right) \right> = \left< \frac{1}{2}, \frac{\sqrt{3}}{2} \right>$.    Therefore the directional derivative is $D_uf(1,2) =\nabla f (1,2) \cdot \mathbf{u} =  \left< -4, -2 \right> \cdot \left< \frac{1}{2}, \frac{\sqrt{3}}{2} \right> = -2 - \sqrt{3}$.   The SageMath cell below illustrates these results.  In addition to the 3d surface, we plot in the same picture tangent line in the directional derivative direction (green), vector $\mathbf{u}$ (black), gradient vector (red), etc.   Also, we plot 2d level curves with a perpendicular gradient field.
+
+
+reset(); var('x,y,t'); x1=1; y1=2; theta = pi/3
+f(x,y) = 9-2*x^2-1/2*y^2;  z1 = f(x1,y1)
+fx(x,y) = derivative(f(x,y),x);  
+fy(x,y) = derivative(f(x,y),y)
+show('f(x,y)  = ', f(x,y))
+show('fx(x,y) = ', fx(x,y))
+show('fy(x,y) = ', fy(x,y))
+gradf(x,y) = f.gradient()(x,y);  
+show('gradient f = ', gradf(x,y))
+gradf0 = gradf(x1,y1)
+maxrate = gradf0.norm(2)
+r1 = vector([x1,y1])
+u = vector([cos(theta),sin(theta)])
+Duf0 = gradf0.dot_product(u)
+show('x1 =',x1,' y1 =',y1,' z1 = ',z1)
+show('gradf0 = ', gradf0,'  maxrate = ',maxrate)
+show('u = ',u, '  Duf0 = ',Duf0)
+
+line2d = [x1+u[0]*t,y1+u[1]*t]
+tang3d = [x1+u[0]*t,y1+u[1]*t,z1+Duf0*t]
+show('line2d = ',line2d);  
+show('tang3d = ',tang3d);  
+p1 = plot3d(f(x,y),(x,-2,2),(y,-3,3), \
+       aspect_ratio=[1,1,0.5],opacity = 0.2)
+p2 = parametric_plot3d(tang3d,(t,-0.5,0.5),\
+               color='green',thickness = 5) 
+p3 = parametric_plot(line2d,(t,-3,3),color='green')
+p4 = plot(u, start=r1, color='black', legend_label='u') 
+p5 = plot(gradf0, start=r1, \
+          color='red', legend_label='gradf0') 
+(p1+p2+p3+p4+p5).show()
+p6 = contour_plot(f(x,y),(x,-2,2),(y,-3,3)); 
+p7 = plot_vector_field(gradf(x,y),(x,-2,2),(y,-3,3))
+(p4+p5+p6+p7).show()
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+y = function('y')(x)  # y is defined as function of x
+ypath(x) = desolve(diff(y,x) ==y/(4*x), y, ics=[1,2]); 
+show(ypath(x))
+p8 = plot(ypath(x),(x,0,2))
+(p6+p7+p8).show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{DirectionalDerivative}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch8FunctionsMultiple/DirectionalDerivative.png}
+\caption{Directional derivative and gradient illustration}
+\label{DirectionalDerivative}       % Give a unique label
+\end{figure}
+
+
+
+Let's stress it again that the gradient gives only a local direction of the steepest ascent.   The gradient vector  $\nabla f (1,2) =  \left< -4, -2 \right>$ is not directed at the absolute maximum of temperature at $(0,0)$.   However, we can trace a "heat-seeking missile path" on the plane to $(0,0)$ as follows.
+$$\nabla f = \left< f_x,f_y \right> =  \left< -4x, -y \right> = k\mathbf{r}'(t) = k \left<  \frac{dx}{dt} , \frac{dy}{dt}   \right> \ \ \Rightarrow  $$
+$$ \frac{dy}{dx} = \frac{k\frac{dy}{dt}}{k\frac{dx}{dt}} = \frac{-y}{-4x}= \frac{y}{4x}  - \text{separable differential equation}\ \Rightarrow  $$
+$$4\int \frac{dy}{y} = \int \frac{dx}{x} \ \ \ \Rightarrow \ \ \ 4\ln(y)=ln(x)+C \ \ \ \Rightarrow \ \ \ y^4=Cx $$
+$$\text{At the point (1,2) } \ \  2^4 = C \cdot 1   \ \ \ \Rightarrow \ \ \  y^4=16x \ \Leftrightarrow y=2x^{1/4}$$This is the curved heat-seeking particle path going towards the maximum temperature at $(0,0)$.
+The SageMath cell below solves the differential equation.  It plots the gradient field and level curves from previous computation as well as this path.  We can confirm that it is everywhere tangent to the gradient field vectors.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+y = function('y')(x)  # y is defined as function of x
+ypath(x) = desolve(diff(y,x) ==y/(4*x), y, ics=[1,2]); 
+show(ypath(x))
+p8 = plot(ypath(x),(x,0,2))
+(p6+p7+p8).show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{DirectionalPath}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch8FunctionsMultiple/DirectionalPath.png}
+\caption{Directional path}
+\label{DirectionalPath}       % Give a unique label
+\end{figure}
+
+
+Let's consider a similar problem for a saddle shape function $f(x,y) = x^2-y^2$ at $(x_1,y_1)=(1,0)$.  This time the direction of interest is towards point $(-1,1)$.  One must be careful to realize that the direction vector $\mathbf{U} = \left< -1-1,0-1 \right> =\left< -2,-1 \right>$ is not a unit vector and must be normalized to  $\mathbf{u} =  \frac{1}{\sqrt{5}}\left< -2,-1 \right>$.  Otherwise, the computation proceeds exactly the same.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y,t'); x1=1; y1=0; x2 = -1; y2 =1
+f(x,y) = x^2-y^2;  z1 = f(x1,y1)
+fx(x,y) = derivative(f(x,y),x);  
+fy(x,y) = derivative(f(x,y),y)
+show('f(x,y)  = ', f(x,y))
+show('fx(x,y) = ', fx(x,y))
+show('fy(x,y) = ', fy(x,y))
+gradf(x,y) = f.gradient()(x,y);  
+show('gradient f = ', gradf(x,y))
+gradf0 = gradf(x1,y1)
+maxrate = gradf0.norm(2)
+r1 = vector([x1,y1])
+U = vector([x2-x1,y2-y1])
+u = U/U.norm(2)
+Duf0 = gradf0.dot_product(u)
+show('x1 =',x1,' y1 =',y1,' z1 = ',z1, '  gradf0 = ', gradf0)
+show('maxrate = ',maxrate, '  u = ',u, '  Duf0 = ',Duf0)
+
+line2d = [x1+u[0]*t,y1+u[1]*t]
+tang3d = [x1+u[0]*t,y1+u[1]*t,z1+Duf0*t]
+show('line2d = ',line2d);  show('tang3d = ',tang3d);  
+p1 = plot3d(f(x,y),(x,-2,2),(y,-2,2), \
+            aspect_ratio=[1,1,0.5],opacity = 0.2)
+p2 = parametric_plot3d(tang3d,(t,-0.5,0.5),\
+                       color='green',thickness = 5) 
+p3 = parametric_plot(line2d,(t,-3,3),color='green')
+p4 = plot(u, start=r1, color='black', legend_label='u') 
+p5 = plot(gradf0, start=r1, color='red', legend_label='gradf0') 
+(p1+p2+p3+p4+p5).show()
+p6 = contour_plot(f(x,y),(x,-2,2),(y,-3,3)); 
+p7 = plot_vector_field(gradf(x,y),(x,-2,2),(y,-3,3))
+(p4+p5+p6+p7).show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{DirectionalSaddle}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch8FunctionsMultiple/DirectionalSaddle.png}
+\caption{Directional derivative on a saddle}
+\label{DirectionalSaddle}       % Give a unique label
+\end{figure}
+
+
+
+
+
+
+
+
+\section{Tangent Plane and Normal Line}
+
+Consider an implicit function $F(x,y,z) = z^2-2x^2-y^2=6$.  It is shown that $\nabla F = \left<  -4x,-2y,2z \right>$ is orthogonal to the surface, so it can be used to find a tangent plane and normal line.   Say, at $(-1,1,3)$,  $\nabla F(-1,1,3) = \left<  4,-2,6 \right>$, so the tangent plane equation is $4(x+1)-2(y-1)+6(z-3)=0$ or equivalently $4x-2y+6z=12$.  The normal line is $\mathbf{r}(t) = \left< -1+4t,1-2t,3+6t \right>$.   In addition, we can compute the angle that tangent plane makes with the $xy$-plane as the angle normal line makes with the $z$-axis as: $\theta = arccos \left( \frac{|F_z|}{\sqrt{F_x^2+F_y^2+F_z^2}}  \right)$.  The SageMath cell below computes these results and illustrates them graphically.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y,z,t'); x1=-1; y1=1; z1 = 3;
+F(x,y,z) = z^2-2*x^2-y^2-6
+show('F(x,y,z)  = ', F(x,y,z))
+gradF(x,y,z) = F.gradient()(x,y,z);  
+show('gradient F = ', gradF(x,y,z))
+gradF1 = gradF(x1,y1,z1)
+show('gradF at the point = ', gradF1)
+tang_plane = gradF1[0]*(x-x1)+gradF1[1]*(y-y1)+ \
+             gradF1[2]*(z-z1);
+normal_line = [x1+gradF1[0]*t,y1+gradF1[1]*t, \
+               z1+gradF1[2]*t]
+tang_plane_angle = arccos(abs(gradF1[2])/gradF1.norm(2))
+show('tang_plane = ', tang_plane)
+show('normal_line = ', normal_line)
+show('tangent plane angle = ',N(tang_plane_angle*180/pi))
+p1 = implicit_plot3d(F(x,y,z),(x,-2,2),(y,-2,2),(z,0,5))
+p2 = implicit_plot3d(tang_plane,(x,-2,2),(y,-2,2),(z,0,5),
+                    color = 'green',opacity = 0.5)
+p3 = parametric_plot3d(normal_line,(t,-0.2,0.2),
+                       color='red',thickness=5)
+(p1+p2+p3).show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{TangPlaneNorm}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch8FunctionsMultiple/TangPlaneNorm.png}
+\caption{Tangent plane and normal line}
+\label{TangPlaneNorm}       % Give a unique label
+\end{figure}
+
+
+
+The SageMath cell below illustrates a similar computation for an ellipsoid  $F(x,y,z) = x^2+2y^2+3z^2=9$.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y,z,t'); x1=2; y1=1; z1 = 1;
+F(x,y,z) = x^2+2*y^2+3*z^2-9
+show('F(x,y,z)  = ', F(x,y,z))
+gradF(x,y,z) = F.gradient()(x,y,z);  
+show('gradient F = ', gradF(x,y,z))
+gradF1 = gradF(x1,y1,z1)
+show('gradF at the point = ', gradF1)
+tang_plane = gradF1[0]*(x-x1)+gradF1[1]*(y-y1)+ \
+             gradF1[2]*(z-z1);
+normal_line = [x1+gradF1[0]*t,y1+gradF1[1]*t, \
+               z1+gradF1[2]*t]
+tang_plane_angle = arccos(abs(gradF1[2])/gradF1.norm(2))
+show('tang_plane = ', tang_plane)
+show('normal_line = ', normal_line)
+show('tangent plane angle = ',N(tang_plane_angle*180/pi))
+p1 = implicit_plot3d(F(x,y,z),(x,-3,3),(y,-2,2),(z,0,2))
+p2 = implicit_plot3d(tang_plane,(x,-3,3),(y,-2,2),(z,0,2),
+                    color = 'green',opacity = 0.5)
+p3 = parametric_plot3d(normal_line,(t,-0.2,0.2),
+                       color='red',thickness=5)
+(p1+p2+p3).show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{EllipsoidTangNorm}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch8FunctionsMultiple/EllipsoidTangNorm.png}
+\caption{Ellipsoid tangent plane and normal line}
+\label{EllipsoidTangNorm}       % Give a unique label
+\end{figure}
+
+
+
+
+
+
+An interesting extension of the previous problem is to find points on the ellipsoid $F(x,y,z)=x^2+2y^2+3z^2=9$ used in the previous problem where tangent plane is parallel to given plane:  $2x+ 4y + 6z = 1 \ \ \ \Rightarrow$  normal vector of the plane is $\mathbf{n} = \left< 2,4,6 \right>$.  Alternatively, we can ask for a plane perpendicular to the line joining points $P(1,2,3)$ and $Q(3,6,9) \Rightarrow \mathbf{PQ} =  \left<2,4,6\right>  = \mathbf{n}$.
+
+To answer this question we use the fact that $\nabla F = \left< 2x, 4y, 6z  \right>$ is perpendicular to the surface, so it must be parallel to the desired vector $\mathbf{n} = \left< 2, 4, 6  \right>$.  This leads to the system of equations
+\begin{equation}
+    \begin{cases}
+      2x=2\alpha\\
+      4y=4\alpha \\
+      6z=6\alpha \\
+      F(x,y,z)=x^2+2y^2+3z^2=9
+    \end{cases}\,.
+\end{equation}
+First 3 equations give $x=y=z=\alpha$, so $\alpha^2+2\alpha^2+3\alpha^2=6\alpha^2=9 \ \ \Rightarrow \ \ \alpha= \pm \sqrt{\frac{3}{2}}$, which lead to a symmetric pair of points $\left(\sqrt{\frac{3}{2}},\sqrt{\frac{3}{2}},\sqrt{\frac{3}{2}}  \right)$ and $\left(-\sqrt{\frac{3}{2}},-\sqrt{\frac{3}{2}},-\sqrt{\frac{3}{2}}  \right)$.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y,z,alpha')
+F(x,y,z) = x^2+2*y^2+3*z^2-9
+show('F(x,y,z)  = ', F(x,y,z))
+gradF(x,y,z) = F.gradient()(x,y,z);  
+show('gradient F = ', gradF(x,y,z))
+n = vector([2,4,6])
+eqs = [gradF[0](x,y,z)==n[0]*alpha, 
+       gradF[1](x,y,z)==n[1]*alpha, 
+       gradF[2](x,y,z)==n[2]*alpha, F(x,y,z)==0]
+show('eqs = ', eqs)
+sol = solve(eqs,[x,y,z,alpha])
+show(sol)
+p1 = implicit_plot3d(F(x,y,z),(x,-3,3),
+           (y,-3,3),(z,-2,2),opacity=0.5)
+x0 = sol[0][0].rhs(); y0 = sol[0][1].rhs(); 
+z0 = sol[0][2].rhs(); x1 = sol[1][0].rhs(); 
+y1 = sol[1][1].rhs(); z1 = sol[1][2].rhs();
+u0 = gradF(x0,y0,z0)/gradF(x0,y0,z0).norm()
+u1 = gradF(x1,y1,z1)/gradF(x1,y1,z1).norm()
+p2 = plot(u0, start=[x0,y0,z0],color='red', thickness = 5) 
+p3 = plot(u1, start=[x1,y1,z1],color='red', thickness = 5) 
+(p1+p2+p3).show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{PtsOnEllipsoid}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.5]{chapters/ch8FunctionsMultiple/PtsOnEllipsoid.png}
+\caption{Points on ellipsoid satisfying conditions}
+\label{PtsOnEllipsoid}       % Give a unique label
+\end{figure}
+
+
+Let's also consider a case of an explicitly given surface $z=f(x,y)=5-2x^2-y^2$.  We can rewrite it implicitly as $F(x,y,z) = f(x,y)-z$, then $\nabla F = \left< f_x,f_y,-1 \right>= \left<-4x,-2y,-1 \right>$.  Therefore, the equation of the tangent plane at $(x_1,y_1,z_1)=(1,1,2)$ is 
+$$f_x(x_1,y_1)(x-x_1)+f_y(x_1,y_1)(y-y_1) + (-1)(z-z_1) =0\ \ \ \Rightarrow$$
+$$z=z_1+ f_x(x_1,y_1)(x-x_1)+f_y(x_1,y_1)(y-y_1)$$
+This is the same tangent plane equation we obtained in the previous section.   At the point of interest, $f_x(x_1,y_1) =-4$ and $f_y(x_1,y_1) =-2$, so
+$$z = 2 -4(x-1)-2(y-1) =8-4x-2y$$
+The normal line at this point is:
+$$\mathbf{r}(t) = \left< x_1+f_x(x_1,y_1)t, y_1+f_y(x_1,y_1)t, z_1+(-1)t\right>=$$
+$$z =  \left< 1-4t,1-2t,2-t \right>$$.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y,t')
+x1 = 1; y1 = 1; 
+f(x,y) = 5-2*x^2-y^2; z1 = f(x1,y1)
+fx(x,y) = derivative(f(x,y),x);  
+fy(x,y) = derivative(f(x,y),y)
+show('f(x,y)  = ', f(x,y))
+show('fx(x,y) = ', fx(x,y))
+show('fy(x,y) = ', fy(x,y))
+fx1 = fx(x1,y1); fy1 = fy(x1,y1);
+tang_plane = z1+fx1*(x-x1)+fy1*(y-y1)
+normal_line = [x1+fx1*t,y1+fy1*t, z1+(-1)*t]
+tang_plane_angle = arccos(1/sqrt(fx1^2+fy1^2+1))
+show('tang_plane = ', tang_plane)
+show('normal_line = ', normal_line)
+show('tangent plane angle = ',
+     N(tang_plane_angle*180/pi))
+p1 = plot3d(f(x,y),(x,0,1.5),(y,0,1.5),
+            aspect_ratio=[1,1,1],opacity = 0.6)
+p2 = plot3d(tang_plane,(x,0.5,1.5),(y,0.5,1.5),
+            color = 'green',opacity = 0.5)
+p3 = parametric_plot3d(normal_line,(t,-0.2,0.2),
+                       color='red',thickness=5)
+(p1+p2+p3).show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{ExplicitTangPlane}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch8FunctionsMultiple/ExplicitTangPlane}
+\caption{Explicit surface tangent plane and normal line}
+\label{ExplicitTangPlane}       % Give a unique label
+\end{figure}
+
+
+
+
+
+
+
+
+\section{Extrema of Functions of Two Variables}
+As a first example, let's find and classify extrema of $f(x,y) = -x^3+2xy-y^2+1$:
+$$f_x(x,y) = -3x^2+2y = 0;  \ \ \ f_y(x,y) = 2x-2y=0 \ \ \ \Rightarrow \ \ \ x=y  \ \ \ \Rightarrow$$
+$$ -3x^2+2x=-x(3x-2)=0 \ \ \ \Rightarrow \ \ \text{critical points are: } \ \ \left( \frac{2}{3}, \frac{2}{3}\right), (0,0)$$
+To classify the points, compute 2nd derivatives and form the hessian (SageMath has a command to find hessian directly).
+$$f_{xx}(x,y) = -6x;  \ \ \ f_{xy}(x,y) = 2; \ \ \  f_{yx}(x,y) = 2;   \ \ \  f_{yy}(x,y) = -2 \ \ \ \Rightarrow$$
+$$Hessian= H =  \begin{bmatrix}
+     f_{xx} & f_{xy} \\
+   f_{yx} & f_{yy} \\
+  \end{bmatrix} = \begin{bmatrix}
+     -6x & 2 \\
+   2 & -2 \\
+  \end{bmatrix}  \ \ \ \ \ \ det(H) = 12x-4$$
+ At $\left( \frac{2}{3}, \frac{2}{3}\right)$,  $f_{xx}\left( \frac{2}{3}, \frac{2}{3}\right) = -4 < 0$ and $det(H) = 4>0$, so it is a maximum.\
+ At $(0,0)$,  $f_{xx}( 0,0) =  0$ and $det(H) = -4<0$, so it is a saddle.\
+ In the gradient field graph, the vectors point toward the maximum and form a hyperbolic pattern at the saddle.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset; var('x,y')
+f(x,y) = -x^3+2*x*y-y^2+1
+fx(x,y) = derivative(f(x,y),x);  
+fy(x,y) = derivative(f(x,y),y)
+fxx(x,y) = derivative(f(x,y),x,x);  
+fyy(x,y) = derivative(f(x,y),y,y)
+fxy(x,y) = derivative(f(x,y),x,y)
+fyx(x,y) = derivative(f(x,y),y,x)
+show('f(x,y)  = ', f(x,y))
+show('fx(x,y) = ', fx(x,y))
+show('fy(x,y) = ', fy(x,y))
+show('fxx(x,y) = ', fxx(x,y))
+show('fyy(x,y) = ', fyy(x,y))
+show('fxy(x,y) = ', fxy(x,y))
+show('fyx(x,y) = ', fyx(x,y))
+gradf(x,y) = f.gradient()(x,y);  
+show('gradient f = ', gradf(x,y))
+hessf(x,y) = f.hessian()(x,y); 
+show('hessian of f = ', hessf(x,y))
+
+sol = solve([fx(x,y)==0,fy(x,y)==0],[x,y]); 
+show('Zeros of 1st derivatives system = ')
+show(sol)
+
+x1=sol[0][0].rhs(); y1=sol[0][1].rhs()
+hessf1 = hessf(x1,y1); 
+show('At x = ', x1, ' y = ',y1,' hessian = ',hessf1)
+dethess1 = det(hessf1); 
+show('Determinant of hessian = ',dethess1)
+x2=sol[1][0].rhs(); y2=sol[1][1].rhs()
+hessf2 = hessf(x2,y2); 
+show('At x = ', x2, ' y = ',y2,' hessian = ',hessf2)
+dethess2 = det(hessf2); 
+show('Determinant of hessian = ',dethess2)
+p1 = plot3d(f(x,y),(x,-3,3),(y,-3,3), 
+            aspect_ratio=[1,1,0.1]); show(p1)
+p6 = contour_plot(f(x,y),(x,-3,3),(y,-3,3)); 
+p7 = plot_vector_field(gradf(x,y),(x,-3,3),(y,-3,3))
+(p6+p7).show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{MinMax2D}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch8FunctionsMultiple/MinMax2D}
+\caption{Extrema of a function of two variables}
+\label{MinMax2D}       % Give a unique label
+\end{figure}
+
+Next, let's consider $f(x,y) = x^4+y^4-4xy+1$:
+$$f_x(x,y) = 4x^3-4y= 0;  \ \ \ f_y(x,y) = 4y^3-4x=0 \ \ \ \Rightarrow \ \ \ y=x^3  \ \ \ \Rightarrow$$
+$$ x^9-x=x(x^8-1)=0 \ \ \ \Rightarrow \ \ \text{critical points are: } \ \ \ ( -1,-1), (0,0), (1,1)$$
+To classify the points, use hessian.
+$$f_{xx}(x,y) =12x^2;  \ \ \ f_{xy}(x,y) = -4; \ \ \  f_{yx}(x,y) = -4;   \ \ \  f_{yy}(x,y) = 12y^2 \ \ \ \Rightarrow$$
+$$Hessian= H =  \begin{bmatrix}
+     f_{xx} & f_{xy} \\
+   f_{yx} & f_{yy} \\
+  \end{bmatrix} = \begin{bmatrix}
+     12x^2 & -4 \\
+   -4 & 12y^2 \\
+  \end{bmatrix}  \ \ \ \ \ \ det(H) = 144x^2y^2-16$$
+At $(-1,-1)$ and $(1,1)$,  $f_{xx} = 12 > 0$ and $det(H) = 128>0$, so these are minima.
+At $(0,0)$,  $f_{xx}( 0,0) =  0$ and $det(H) = -16<0$, so it is a saddle.
+In the gradient field graph, the gradient vectors point away from the minimum and form a hyperbolic pattern at the saddle.
+In the code below, note that the output of solving the for zero derivatives system is rather complicated with a number of complex number solutions that are to be ignored for our real-number problem.   Therefore, in the code below the hashtag line, the points are assigned manually in turn, and the 2nd derivative test is applied.  For your own work, it might be easier to solve this problem over two SageMath cells. The first one computes the solution, while the second one plugs the points and plots the graphs.  Here, however, I used one cell to produce a more compact output.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+var('x,y')
+f(x,y) = x^4+y^4-4*x*y+1
+fx(x,y) = derivative(f(x,y),x);  
+fy(x,y) = derivative(f(x,y),y)
+fxx(x,y) = derivative(f(x,y),x,x);  
+fyy(x,y) = derivative(f(x,y),y,y)
+fxy(x,y) = derivative(f(x,y),x,y)
+fyx(x,y) = derivative(f(x,y),y,x)
+show('f(x,y)  = ', f(x,y))
+show('fx(x,y) = ', fx(x,y))
+show('fy(x,y) = ', fy(x,y))
+show('fxx(x,y) = ', fxx(x,y))
+show('fyy(x,y) = ', fyy(x,y))
+show('fxy(x,y) = ', fxy(x,y))
+show('fyx(x,y) = ', fyx(x,y))
+gradf(x,y) = f.gradient()(x,y);  
+show('gradient f = ', gradf(x,y))
+hessf(x,y) = f.hessian()(x,y); 
+show('hessian of f = ', hessf(x,y))
+sol = solve([fx(x,y)==0,fy(x,y)==0],[x,y]);
+show(sol)
+
+show('##############################################')
+x1=1; y1=1
+hessf1 = hessf(x1,y1); 
+show('At x = ', x1, ' y = ',y1,' hessian = ',hessf1)
+dethess1 = det(hessf1); 
+show('Determinant of hessian = ',dethess1)
+x2=-1; y2=-1
+hessf2 = hessf(x2,y2); 
+show('At x = ', x2, ' y = ',y2,' hessian = ',hessf2)
+dethess2 = det(hessf2); 
+show('Determinant of hessian = ',dethess2)
+x3=0; y3=0
+hessf3 = hessf(x3,y3); 
+show('At x = ', x3, ' y = ',y3,' hessian = ',hessf3)
+dethess3 = det(hessf3); 
+show('Determinant of hessian = ',dethess3)
+p1 = plot3d(f(x,y),(x,-2,2),(y,-2,2), 
+            aspect_ratio=[1,1,0.1]); show(p1)
+p6 = contour_plot(f(x,y),(x,-2,2),(y,-2,2)); 
+p7 = plot_vector_field(gradf(x,y),(x,-2,2),(y,-2,2))
+(p6+p7).show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{MinMax2}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch8FunctionsMultiple/MinMax2}
+\caption{Extrema of a function of two variables 2nd example}
+\label{MinMax2}       % Give a unique label
+\end{figure}
+
+
+As a first application, consider a rectangular box resting on the $xy$-plane with one vertex at the origin.   The opposite vertex lies in the plane $2x+y+3z=12$. Find the maximum volume of such a box.   Let $x$,$y$, and $z$ represent the length, width, and height of the box.   Because one vertex of the box lies in the plane, $z=\frac{1}{3}(12-2x-y)$, therefore volume $V = xyz$ of the box can be rewritten as function of $x$ and $y$ as $V = f(x,y) =xy\frac{1}{3}(12-2x-y)=\frac{1}{3}(12xy-2x^2y-xy^2)$. 
+$$f_x(x,y)=\frac{1}{3}(12y-4xy-y^2) =\frac{1}{3}(12-4x-y)y=0; $$
+$$ f_y(x,y)=\frac{1}{3}(12x-2x^2-2xy) =\frac{1}{3}(12-2x-2y)x=0$$
+There are several solutions with $x=0$ or $y=0$, but those lead to volume $V=0$.   The only non\-zero solution is obtained from $12-4x-y=0$ and $12-2x-2y=0$. Now $y=6-x$, so $12-4x-(6-x)=0$, which leads to $6-3x=0$ so  $x=2$ and then $y=4$.   The SageMath cell below illustrates these computations and checks that it is a maximum via the 2nd derivative test.   The corresponding maximum volume can be found as $V = f(2,4) = \frac{2 \cdot 4 \cdot (12-2\cdot 2-4)}{3} =\frac{32}{3}$.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y')
+f(x,y,z) = x*y*z   # 
+g(x,y,z) = 2*x+y+3*z-12
+sol = solve(g(x,y,z)==0,z) # solve constraint for z
+zg(x,y)=sol[0].rhs()   # replace z in object function
+f(x,y)=f(x,y,z=zg(x,y))
+fx(x,y) = derivative(f(x,y),x).factor();  
+fy(x,y) = derivative(f(x,y),y).factor();  
+fxx(x,y) = derivative(f(x,y),x,x);  
+fyy(x,y) = derivative(f(x,y),y,y)
+fxy(x,y) = derivative(f(x,y),x,y)
+fyx(x,y) = derivative(f(x,y),y,x)
+show('f(x,y)  = ', f(x,y))
+show('fx(x,y) = ', fx(x,y))
+show('fy(x,y) = ', fy(x,y))
+show('fxx(x,y) = ', fxx(x,y))
+show('fyy(x,y) = ', fyy(x,y))
+show('fxy(x,y) = ', fxy(x,y))
+show('fyx(x,y) = ', fyx(x,y))
+gradf(x,y) = f.gradient()(x,y);  
+show('gradient f = ', gradf(x,y))
+hessf(x,y) = f.hessian()(x,y); 
+show('hessian of f = ', hessf(x,y))
+sol = solve([fx(x,y)==0,fy(x,y)==0],[x,y]);
+show('First derivatives = 0, solution: '); 
+show(sol)
+
+show('##############################################')
+x1=2; y1=4; z1 = zg(x1,y1); 
+f1 = f(x1,y1); Xmax = 3; Ymax = 6
+hessf1 = hessf(x1,y1); dethess1 = det(hessf1);
+show('At x = ', x1, ' y = ',y1,' z1 = ',z1,' f1 = ',f1)
+show(' H = Hessian = ',hessf1,' det(H) = ',dethess1)
+p1 = plot3d(f(x,y),(x,0,Xmax),(y,0,Ymax), 
+            aspect_ratio=[1,1,0.5]); show(p1)
+p6 = contour_plot(f(x,y),(x,0,Xmax),(y,0,Ymax)); 
+p7 = plot_vector_field(gradf(x,y),(x,0,Xmax),(y,0,Ymax))
+(p6+p7).show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{OptimizeBox}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch8FunctionsMultiple/OptimizeBox}
+\caption{Maximize box volume subject to the plane constraint}
+\label{OptimizeBox}       % Give a unique label
+\end{figure}
+
+
+
+Another standard optimization problem is given as follows: a rectangular box without a top lid is to be made from $27 m^2$ of cardboard.  Find the maximum volume of such a box.   The function to maximize is volume $V=xyz$.  The surface area is fixed $2xz+2yz+xy=27$.   Therefore $z = \frac{27-xy}{2xz+2yz}$ and volume object function is $f(x,y) = xy \frac{27-xy}{2xz+2yz}= \frac{27xy-x^2y^2}{2xz+2yz}$.   The derivatives are quite messy in this case, but SageMath can still compute.   For this book output, I suppressed showing the Hessian as it is too large.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y')
+f(x,y,z) = x*y*z   # 
+g(x,y,z) = 2*x*z+2*y*z+x*y-27
+sol = solve(g(x,y,z)==0,z) # solve constraint for z
+zg(x,y)=sol[0].rhs()   # replace z in object function
+f(x,y)=f(x,y,z=zg(x,y))
+fx(x,y) = derivative(f(x,y),x).factor();  
+fy(x,y) = derivative(f(x,y),y).factor();  
+fxx(x,y) = derivative(f(x,y),x,x).full_simplify();  
+fyy(x,y) = derivative(f(x,y),y,y).full_simplify();  
+fxy(x,y) = derivative(f(x,y),x,y).full_simplify();  
+fyx(x,y) = derivative(f(x,y),y,x).full_simplify();  
+show('f(x,y)  = ', f(x,y))
+show('fx(x,y) = ', fx(x,y))
+show('fy(x,y) = ', fy(x,y))
+show('fxx(x,y) = ', fxx(x,y))
+show('fyy(x,y) = ', fyy(x,y))
+show('fxy(x,y) = ', fxy(x,y))
+show('fyx(x,y) = ', fyx(x,y))
+gradf(x,y) = f.gradient()(x,y);  
+show('gradient f = ', gradf(x,y))
+hessf(x,y) = f.hessian()(x,y); 
+# show('hessian of f = ', hessf(x,y))
+sol = solve([fx(x,y)==0,fy(x,y)==0],[x,y]);
+show('First derivatives = 0, solution: '); 
+show(sol)
+
+show('##############################################')
+x1=3; y1=3; z1 = zg(x1,y1); 
+f1 = f(x1,y1); Xmax = 5; Ymax = 5
+hessf1 = hessf(x1,y1); dethess1 = det(hessf1);
+show('At x = ', x1, ' y = ',y1,' z1 = ',z1,' f1 = ',f1)
+show(' H = Hessian = ',hessf1,' det(H) = ',dethess1)
+p1 = plot3d(f(x,y),(x,0,Xmax),(y,0,Ymax), 
+            aspect_ratio=[1,1,0.5]); show(p1)
+p6 = contour_plot(f(x,y),(x,0,Xmax),(y,0,Ymax)); 
+p7 = plot_vector_field(gradf(x,y),(x,0,Xmax),(y,0,Ymax))
+(p6+p7).show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{BoxMaxVolume}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch8FunctionsMultiple/BoxMaxVolume}
+\caption{Maximize box volume subject to surface area constraint}
+\label{BoxMaxVolume}       % Give a unique label
+\end{figure}
+
+
+The next problem is somewhat of a reverse of the previous one.   A rectangular container is to be made from different materials.  The sides cost 3 dollars/square foot, while the top and bottom are 4.  The volume is fixed at $100 m^3$.  Minimize the cost.   The cost objective function is given by $Cost =3\cdot2xz+3\cdot2yz+4\cdot2xy$.  This time, the constraint is on volume: 
+$$V=xyz=100 \ \ \Rightarrow \ \ \ z=\frac{100}{xy} \ \ \Rightarrow \ \ \ Cost =f(x,y) = \frac{600}{y}+\frac{600}{x}+8xy$$
+$$ f_x(x,y)=8y-\frac{600}{x^2}=\frac{8(x^2y-75)}{x^2}=0; \ \ \ \ f_y(x,y)=8x-\frac{600}{y^2}=\frac{8(xy^2-75)}{y^2}=0 \Rightarrow$$
+$$ x^2y=75 \ \ \text{and} \ \ xy^2=75  \ \text{from ratio} \ \ \  \Rightarrow \ \ \  x=y =75^{1/3} \approx 4.217  \ \ \Rightarrow \ \ \  z=\frac{100}{xy} =5.623$$
+The SageMath cells below carry out these computations and obtain minimal cost $\approx 426.827$.   The 2nd derivative test and plots confirm that it is a minimum of the cost function.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y')
+f(x,y,z) = 3*2*x*z+3*2*y*z+4*2*x*y   # 
+g(x,y,z) = x*y*z-100
+sol = solve(g(x,y,z)==0,z) # solve constraint for z
+zg(x,y)=sol[0].rhs()   # replace z in object function
+f(x,y)=f(x,y,z=zg(x,y))
+fx(x,y) = derivative(f(x,y),x).factor();  
+fy(x,y) = derivative(f(x,y),y).factor();  
+fxx(x,y) = derivative(f(x,y),x,x).full_simplify();  
+fyy(x,y) = derivative(f(x,y),y,y).full_simplify();  
+fxy(x,y) = derivative(f(x,y),x,y).full_simplify();  
+fyx(x,y) = derivative(f(x,y),y,x).full_simplify();  
+show('f(x,y)  = ', f(x,y))
+show('fx(x,y) = ', fx(x,y))
+show('fy(x,y) = ', fy(x,y))
+show('fxx(x,y) = ', fxx(x,y))
+show('fyy(x,y) = ', fyy(x,y))
+show('fxy(x,y) = ', fxy(x,y))
+show('fyx(x,y) = ', fyx(x,y))
+gradf(x,y) = f.gradient()(x,y);  
+show('gradient f = ', gradf(x,y))
+hessf(x,y) = f.hessian()(x,y); 
+show('hessian of f = ', hessf(x,y))
+sol = solve([fx(x,y)==0,fy(x,y)==0],[x,y]);
+show('First derivatives = 0, solution: '); 
+show(sol)
+
+show('##############################################')
+x1=4.21716; y1=4.21716; z1 = zg(x1,y1); 
+f1 = f(x1,y1); a = 3; b = 5; c = 3; d = 5; 
+hessf1 = hessf(x1,y1); dethess1 = det(hessf1);
+show('At x = ', x1, ' y = ',y1)
+show('z1 = ',z1,' f1 = ',f1)
+show(' H = Hessian = ',hessf1)
+show('det(H) = ',dethess1)
+p1 = plot3d(f(x,y),(x,a,b),(y,c,d), aspect_ratio=[1,1,0.05]) 
+show(p1)
+p6 = contour_plot(f(x,y),(x,a,b),(y,c,d)); 
+p7 = plot_vector_field(gradf(x,y),(x,a,b),(y,c,d))
+(p6+p7).show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{BoxMinCost}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch8FunctionsMultiple/BoxMinCost}
+\caption{Minimize box cost subject to volume constraint}
+\label{BoxMinCost}       % Give a unique label
+\end{figure}
+
+
+
+
+
+
+
+
+\section{Lagrange Multipliers}
+
+Let's begin with a more basic 2D problem of finding the rectangle of maximum area that can be inscribed in the ellipse $g(x,y)=\frac{x^2}{4}+\frac{y^2}{9}=1$.  Equivalently, maximize function $f(x,y)=4xy$ subject to the ellipse constraint above.   As shown in Calculus and illustrated in the figure below, at the maximization points $\nabla f = \left< 4y,4x \right>$ is parallerl to  $\nabla g  = \left< \frac{x}{2},\frac{2y}{9} \right>$.  This results in the following system of equations:
+\begin{equation}
+    \begin{cases}
+      4y=\alpha  \frac{x}{2} \\
+      4x =\alpha \frac{2y}{9}\\
+      g(x,y)=\frac{x^2}{4}+\frac{y^2}{9}=1
+    \end{cases}\,.
+\end{equation}
+Dividing first equation by second, we obtain $\frac{y}{x} = \frac{9x}{4y} \ \ \ \Rightarrow \ \ \ \frac{y^2}{9} = \frac{x^2}{4} \ \ \ \Rightarrow \ \ \  2 \frac{x^2}{4} =1 \ \ \ x=\pm \sqrt{2} \ \ \ \Rightarrow \ \ \ y = \pm \frac{3}{2}\sqrt{2}$
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y,L')
+f(x,y) = 4*x*y
+g(x,y) = x^2/4+y^2/9-1
+gradf(x,y) = f.gradient()(x,y);  
+show('f(x,y) = ', f(x,y), '  gradient f = ', gradf(x,y))
+gradg(x,y) = g.gradient()(x,y);  
+show('g(x,y) = ', g(x,y), '  gradient g = ', gradg(x,y))
+
+sol = solve([gradf(x,y)[0] == L*gradg(x,y)[0],
+             gradf(x,y)[1] == L*gradg(x,y)[1],
+             g(x,y)==0],[x,y,L]);
+show(sol)
+a=-3; b=3; c=-3; d=3
+x1 = sol[0][0].rhs(); y1 = sol[0][1].rhs(); 
+show('x1 = ',x1,' y1 = ',y1,' f(x1,y1) = ',f(x1,y1))
+p1 = implicit_plot(f(x,y)==f(x1,y1),(x,a,b),(y,c,d),color='blue')
+x1 = sol[1][0].rhs(); y1 = sol[1][1].rhs(); 
+show('x1 = ',x1,' y1 = ',y1,' f(x1,y1) = ',f(x1,y1))
+p2 = implicit_plot(f(x,y)==f(x1,y1),(x,a,b),(y,c,d),color='blue')
+x1 = sol[2][0].rhs(); y1 = sol[2][1].rhs(); 
+show('x1 = ',x1,' y1 = ',y1,' f(x1,y1) = ',f(x1,y1))
+p3 = implicit_plot(f(x,y)==f(x1,y1),(x,a,b),(y,c,d),color='blue')
+x1 = sol[3][0].rhs(); y1 = sol[3][1].rhs(); 
+show('x1 = ',x1,' y1 = ',y1,' f(x1,y1) = ',f(x1,y1))
+p4 = implicit_plot(f(x,y)==f(x1,y1),(x,a,b),(y,c,d),color='blue')
+
+p5 = implicit_plot(g(x,y)==0,(x,a,b),(y,c,d),color='red')
+(p1+p2+p3+p4+p5).show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Lagrange2D}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch8FunctionsMultiple/Lagrange2D}
+\caption{Lagrange multipliers maximum area in ellipse}
+\label{Lagrange2D}       % Give a unique label
+\end{figure}
+
+
+As a practical example, consider Cobb-Douglas production function $f(x,y) = 200x^{2/3}y^{1/3}$, where $x$ are the units of labor and $y$ are the units of capital subject to resources constraint $100x+200y=20000$.   The resulting system of equations for parallel gradients and constraint is:
+\begin{equation}
+    \begin{cases}
+      200\frac{2}{3}\frac{y^{1/3}}{x^{1/3}}=\alpha  100 \\
+       200\frac{1}{3}\frac{x^{2/3}}{y^{2/3}}=\alpha  200 \\
+      g(x,y)=100x+200y=20000
+    \end{cases}\,.
+\end{equation}
+Dividing the 1st equation by the 2nd, we obtain 
+$$2\frac{y}{x}=\frac{1}{2} \ \ \ \Rightarrow \ \ \ x=4y \ \ \ \Rightarrow \ \ \  4y+2y=200  \ \ \ \Rightarrow \ \ \ y=\frac{100}{3}; \ \ x=\frac{400}{3}$$
+The SageMath cell computes these values and the resulting maximum in the production function.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y,L')
+f(x,y) = 200*x^(2/3)*y^(1/3)
+g(x,y) = 100*x+200*y-20000
+gradf(x,y) = f.gradient()(x,y);  
+show('f(x,y) = ', f(x,y), '  gradient f = ', gradf(x,y))
+gradg(x,y) = g.gradient()(x,y);  
+show('g(x,y) = ', g(x,y), '  gradient g = ', gradg(x,y))
+sol = solve([gradf(x,y)[0] == L*gradg(x,y)[0],
+             gradf(x,y)[1] == L*gradg(x,y)[1],
+             g(x,y)==0],[x,y,L]);
+show(sol)
+a=0; b=200; c=0; d=150
+x1 = sol[0][0].rhs(); y1 = sol[0][1].rhs(); 
+show('x1 = ',x1,' y1 = ',y1,' f(x1,y1) = ',N(f(x1,y1)))
+p1 = implicit_plot(f(x,y)==f(x1,y1),(x,a,b),
+                   (y,c,d),figsize=(4,3),color='blue')
+
+p2 = implicit_plot(g(x,y)==0,(x,a,b),(y,c,d),color='red')
+(p1+p2).show()
+
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{LagrangeCobbDouglas}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch8FunctionsMultiple/LagrangeCobbDouglas}
+\caption{Lagrange multipliers Cobb-Douglas}
+\label{LagrangeCobbDouglas}       % Give a unique label
+\end{figure}
+
+
+Another practical example is to find min/max on an elliptical paraboloid $z = f(x,y) = 2x^2+3y^2$ on cylinder $g(x,y)=x^2+y^2-1=0$.   The resulting system of equations for parallel gradients and constraint is:
+\begin{equation}
+    \begin{cases}
+      4x=\alpha  2x \\
+      6y=\alpha  2y \\
+      g(x,y)=x^2+y^2-1=0
+    \end{cases}\,.
+\end{equation}
+Unlike most other examples, the $x$ and $y$ variables in gradients do not mix, and we have to solve equations separately.
+From the first equation $2x(2-\alpha)=0$, so $x=0$ or $\alpha=2$.  If $x=0$, then from the equation of the constraint, we obtain two points $(0,1)$ and $(0,-1)$ resulting in the objective function maximum of $f = 3$.  If $\alpha=2$, then from the 2nd equation $y=0$ and the constraint gives two points $(1,0)$ and $(-1,0)$ resulting in the objective function minimum of $f = 2$. 
+The SageMath cell computes these values and the resulting min/max of the objective function.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y,z,L')
+f(x,y) = 2*x^2+3*y^2
+g(x,y) = x^2+y^2-1
+gradf(x,y) = f.gradient()(x,y);  
+show('f(x,y) = ', f(x,y), '  gradient f = ', gradf(x,y))
+gradg(x,y) = g.gradient()(x,y);  
+show('g(x,y) = ', g(x,y), '  gradient g = ', gradg(x,y))
+
+sol = solve([gradf(x,y)[0] == L*gradg(x,y)[0],
+             gradf(x,y)[1] == L*gradg(x,y)[1],
+             g(x,y)==0],[x,y,L]);
+show(sol)
+a=-1.3; b=1.3; c=-1.3; d=1.3
+x1 = sol[0][0].rhs(); y1 = sol[0][1].rhs(); 
+show('x1 = ',x1,' y1 = ',y1,' f(x1,y1) = ',f(x1,y1))
+p1 = implicit_plot(f(x,y)==f(x1,y1),(x,a,b),(y,c,d),color='blue')
+x1 = sol[1][0].rhs(); y1 = sol[1][1].rhs(); 
+show('x1 = ',x1,' y1 = ',y1,' f(x1,y1) = ',f(x1,y1))
+p2 = implicit_plot(f(x,y)==f(x1,y1),(x,a,b),(y,c,d),color='blue')
+x1 = sol[2][0].rhs(); y1 = sol[2][1].rhs(); 
+show('x1 = ',x1,' y1 = ',y1,' f(x1,y1) = ',f(x1,y1))
+p3 = implicit_plot(f(x,y)==f(x1,y1),(x,a,b),(y,c,d),color='blue')
+x1 = sol[3][0].rhs(); y1 = sol[3][1].rhs(); 
+show('x1 = ',x1,' y1 = ',y1,' f(x1,y1) = ',f(x1,y1))
+p4 = implicit_plot(f(x,y)==f(x1,y1),(x,a,b),
+                   (y,c,d),figsize=(4,3),color='blue')
+p5 = implicit_plot(g(x,y)==0,(x,a,b),(y,c,d),color='red')
+(p1+p2+p3+p4+p5).show()
+p6 = plot3d(f(x,y),(x,-1.5,1.5),(y,-1.5,1.5),opacity=0.6)
+p7 = implicit_plot3d(g(x,y),(x,a,b),(y,c,d),(z,0,5),\
+                     color='red',opacity=0.6)
+(p6+p7).show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Lagrange3D}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch8FunctionsMultiple/Lagrange3D}
+\caption{Lagrange multipliers elliptical paraboloid and cylinder}
+\label{Lagrange3D}       % Give a unique label
+\end{figure}
+
+
+
+Next, let's return to the problem in a previous section.  A rectangular box without a lid is to be made from $27 \ m^2$ of cardboard ($g(x,y,z)= xy+2yz+2xz-27=0$). Which dimensions would maximize volume ($f(x,y,z)= xyz$)?   Now, we rewrite it in terms of parallel gradients $\nabla f = \left<  yz,xz,xy \right>$ and $\nabla g = \left<  y+2z,x+2z,2y+2z \right>$ plus the constraint $g(x,y,z)=xy+2yz+2xz=27$.   This results in the system of equations:
+\begin{equation}
+    \begin{cases}
+      yz=\alpha (y+2z) \\
+      xz =\alpha (x+2z)\\
+      xy =\alpha (2y+2z)\\
+      g(x,y,z)=xy+2yz+2xz=27
+    \end{cases}\,.
+\end{equation}
+The SageMath cell below shows that we obtain the same solution with somewhat less work (the analytical solution requires dividing the first equation by the 2nd and the 2nd by the 3rd to isolate variables).
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y,z,L')
+f(x,y,z) = x*y*z
+g(x,y,z) = x*y+2*y*z+2*x*z-27
+gradf(x,y,z) = f.gradient()(x,y,z);  
+show('f(x,y) = ', f(x,y), '  gradient f = ', gradf(x,y))
+gradg(x,y) = g.gradient()(x,y);  
+show('g(x,y) = ', g(x,y), '  gradient g = ', gradg(x,y))
+sol = solve([gradf(x,y,z)[0] == L*gradg(x,y,z)[0],
+             gradf(x,y,z)[1] == L*gradg(x,y,z)[1],
+             gradf(x,y,z)[2] == L*gradg(x,y,z)[2],
+             g(x,y,z)==0],[x,y,z,L]);
+show('sol = ',sol)
+
+xm=0; xM=4; ym=0; yM=4; zm=0; zM=4;
+x1 = sol[1][0].rhs(); y1 = sol[1][1].rhs(); 
+z1 = sol[1][2].rhs(); 
+show('x1 = ',x1,' y1 = ',y1,' z1 = ',z1,' f = ',f(x1,y1,z1))
+p1 = implicit_plot3d(f(x,y,z)==f(x1,y1,z1),
+             (x,xm,xM),(y,ym,yM),(z,zm,zM),color='blue')
+p2 = implicit_plot3d(g(x,y,z)==0,
+             (x,xm,xM),(y,ym,yM),(z,zm,zM),color='red')
+(p1+p2).show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{LagrangeBoxMaxVol}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch8FunctionsMultiple/LagrangeBoxMaxVol}
+\caption{Lagrange multipliers box without a lid fixed surface maximize volume }
+\label{LagrangeBoxMaxVol}       % Give a unique label
+\end{figure}
+
+Analogously, let's come back to another problem from a previous section.    A rectangular container is to be made from different materials.  The sides cost 3 dollars/square feet, while the top and bottom cost 4.  The volume is fixed at $100 \ m^3$.  Minimize the cost.   The cost objective function is given by $Cost =3\cdot2xz+3\cdot2yz+4\cdot2xy$, while the constraint for volume is $V=g(x,y,z)=xyz=100$.     The system with Lagrangian parameter is 
+\begin{equation}
+    \begin{cases}
+      8y+6z=\alpha (yz) \\
+      8z+6z =\alpha (xz)\\
+      6x+6y =\alpha (xy)\\
+      g(x,y,z)=xyz=100
+     \end{cases}\,.
+\end{equation}
+Once again, the SageMath cell below shows that we obtain the same solution (the analytical solution also requires dividing the first equation by the 2nd and the 2nd by the 3rd with cross-multiplication to isolate variables). 
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('x,y,z,L')
+f(x,y,z) = 3*2*x*z+3*2*y*z+4*2*x*y   # 
+g(x,y,z) = x*y*z-100
+gradf(x,y,z) = f.gradient()(x,y,z);  
+show('f(x,y) = ', f(x,y), '  gradient f = ', gradf(x,y))
+gradg(x,y) = g.gradient()(x,y);  
+show('g(x,y) = ', g(x,y), '  gradient g = ', gradg(x,y))
+sol = solve([gradf(x,y,z)[0] == L*gradg(x,y,z)[0],
+             gradf(x,y,z)[1] == L*gradg(x,y,z)[1],
+             gradf(x,y,z)[2] == L*gradg(x,y,z)[2],
+             g(x,y,z)==0],[x,y,z,L]);
+show('sol = ',sol)
+
+xm=0; xM=10; ym=0; yM=10; zm=0; zM=10;
+x1 = sol[0][0].rhs(); y1 = sol[0][1].rhs(); 
+z1 = sol[0][2].rhs(); 
+show('x1 = ',x1,' y1 = ',y1)
+show(' z1 = ',z1,' f = ',f(x1,y1,z1))
+p1 = implicit_plot3d(f(x,y,z)==f(x1,y1,z1),
+         (x,xm,xM),(y,ym,yM),(z,zm,zM),color='blue')
+p2 = implicit_plot3d(g(x,y,z)==0,
+         (x,xm,xM),(y,ym,yM),(z,zm,zM),color='red')
+(p1+p2).show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{LagrangeBoxMinCost}
+\begin{figure}[H]
+\sidecaption[t]
+\includegraphics[scale=.65]{chapters/ch8FunctionsMultiple/LagrangeBoxMinCost}
+\caption{Lagrange multipliers minimize cost of a box with fixed volume }
+\label{LagrangeBoxMinCost}       % Give a unique label
+\end{figure}
+
+

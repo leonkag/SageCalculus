@@ -1,0 +1,133 @@
+%%%%%%%%%%%%%%%%%%%% book.tex %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% sample root file for the chapters of your "monograph"
+%
+% Use this file as a template for your own input.
+%
+%%%%%%%%%%%%%%%% Springer-Verlag %%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+% RECOMMENDED %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \documentclass[graybox,envcountchap,sectrefs]{xourse}
+\documentclass{xourse}
+
+% choose options for [] as required from the list
+% in the Reference Guide
+
+%\usepackage{mathptmx}
+%\usepackage{helvet}
+%\usepackage{courier}
+%
+
+%\usepackage{type1cm}         
+%
+%\usepackage{makeidx}         % allows index generation
+%\usepackage{graphicx}        % standard LaTeX graphics tool
+%                             % when including figure files
+%\usepackage{multicol}        % used for the two-column index
+%\usepackage[bottom]{footmisc}% places footnotes at page bottom
+%
+%\usepackage{newtxtext}       % 
+%\usepackage[varvw]{newtxmath}       % selects Times Roman as basic font
+%
+%\usepackage{listings}
+%\usepackage{xcolor}
+%\usepackage{float}
+%
+%\definecolor{codegreen}{rgb}{0,0.6,0}
+%\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+%\definecolor{codepurple}{rgb}{0.58,0,0.82}
+%\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+%\lstdefinestyle{mystyle}{
+%    backgroundcolor=\color{backcolour},   
+%    commentstyle=\color{codegreen},
+%    keywordstyle=\color{magenta},
+%    numberstyle=\tiny\color{codegray},
+%    stringstyle=\color{codepurple},
+%    basicstyle=\ttfamily\footnotesize,
+%    breakatwhitespace=false,         
+%    breaklines=true,                 
+%    captionpos=b,                    
+%    keepspaces=true,                 
+%    numbers=left,                    
+%    numbersep=5pt,                  
+%    showspaces=false,                
+%    showstringspaces=false,
+%    showtabs=false,                  
+%    tabsize=2
+%}
+%
+%\lstset{style=mystyle}
+%
+%
+%% see the list of further useful packages
+%% in the Reference Guide
+%
+%\makeindex             % used for the subject index
+%                       % please use the style svind.ist with
+%                       % your makeindex program
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%\date{May 13, 2025}
+
+\begin{document}
+
+\author{Leon Kaganovskiy}
+\title{SageMath Applications to Calculus}
+%\subtitle{-- Monograph --}
+\maketitle
+
+
+%\frontmatter%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%\include{dedication}
+%\include{foreword}
+%\include{preface}
+%\include{acknowledgement}
+%\include{ethics}
+%
+%\tableofcontents
+%
+%\include{acronym}
+%
+%
+%\mainmatter%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\include{part}
+
+%\include{chapter}
+\activity{chapters/ch1Preliminary/ch1Preliminary}
+
+\end{document}
+
+\include{chapters/ch2LimitsDerivatives/ch2LimitsDerivatives}
+\include{chapters/ch3IntegralsTrancendental/ch3IntegralsTfunc}
+\include{chapters/ch4Series/ch4Series}
+\include{chapters/ch5ConicParamPolar/ch5ConicParamPolar}
+\include{chapters/ch6Vectors/ch6Vectors}
+\include{chapters/ch7VectorFunctions/ch7VectorFunctions}
+\include{chapters/ch8FunctionsMultiple/ch8FunctionsMultiple}
+\include{chapters/ch9MultipleIntegrals/ch9MultipleIntegrals}
+\include{chapters/ch10VectorFields/ch10VectorFields}
+
+\include{appendix}
+
+\backmatter%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\include{glossary}
+\include{solutions}
+\printindex
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\end{document}
+
+
+import time as tm
+
+begintime = tm.time()
+
+endtime = tm.time()
+print('Elapsed time = ', endtime - begintime)
+
+929-249-4000

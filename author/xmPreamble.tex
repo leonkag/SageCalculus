@@ -1,0 +1,17 @@
+\graphicspath{ 
+{./}
+{./chapters/ch1Preliminary/}
+}
+\definecolor{programcode}{gray}{0.65}
+\newenvironment{programcode}[1]{\ignorespaces
+%\def\stmtopen##1{##1}%
+%\formtmp{programcode}{#1}
+}{\noindent\textcolor{programcode}{\rule{\columnwidth}{1pt}}\vskip2pt\par\addvspace{\baselineskip}}%
+\renewcommand{\caption}[1]{\text{#1}}
+%\newcounter{figure}
+%\renewcommand{\thefigure}{\arabic{figure}}
+%
+%\renewcommand{\caption}[1]{%
+%  \refstepcounter{figure}%
+%  \textbf{Figure \thefigure:} #1%
+%}

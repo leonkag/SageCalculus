@@ -1,0 +1,1082 @@
+%\chapter{Series}
+
+\documentclass{ximera}
+
+\input{../../xmPreamble}
+\author{Leon Kaganovskiy}
+\title{Series}
+\begin{document}
+\begin{abstract}
+his chapter introduces infinite sequences and series and explores their convergence and divergence. We use SageMath to investigate these concepts numerically, symbolically, and graphically, helping us understand when an infinite sum approaches a finite value and how series can be used to represent functions. These ideas provide the foundation for power series and Taylor series, with applications in approximation, calculus, and other areas of mathematics and science.
+\end{abstract}
+\maketitle
+
+%  \begin{image}[15cm] %\sidecaption[t]   remove ch2 etc reference local directory
+% dont forget to \end{document}
+
+
+\section{Series Introduction and Geometric Series}
+
+Let's begin the discussion of series with a geometric series starting from $a_0 = 4$ with the ratio of terms $r=-\frac{1}{3}$:
+$$\sum_{j=0}^\infty a r^j =  \sum_{j=0}^\infty 4 \left(-\frac{1}{3} \right)^j = \frac{a}{1-r} = \frac{4}{1-\left(-\frac{1}{3} \right)} = 3$$
+The finite sum of terms:
+$$ S_n = \sum_{j=0}^n a r^j = a\frac{1-r^n}{1-r} = 4 \frac{1-\left(-\frac{1}{3} \right)^n}{1-\left(-\frac{1}{3} \right)}  = 3\left( 1-\left(-\frac{1}{3} \right)^n \right) \rightarrow 3 $$
+The SageMath \texttt{sum()} command can compute a finite sum of terms and an infinite series sum (usually only numerically), as illustrated below.  
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+var('n')
+SumInf = sum(4*(-1/3)^n,n,0,oo)
+show('SumInf = ',SumInf)
+a = 4;  r = -1/3;
+Sn = a*(1-r^n)/(1-r)
+show('Sn = ', Sn)
+L = limit(Sn,n=oo)
+show('L = limit(Sn,n=oo) =', L)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Geometric1}
+ \begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{/Geometric1.png}
+\caption{Convergent geometric series}
+\label{Geometric1}       % Give a unique label
+\end{image}
+
+
+
+
+The geometric series below has $r=\frac{3}{2}>1$, so it diverges as confirmed by the limit.  I suupressed the infinite sum as it produces rather lengthy error output.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); var('n')
+# SumInf = sum(2*(3/2)^n,n,0,oo)   # FAILS !!!!
+a = 2;  r = 3/2;
+Sn = a*(1-r^n)/(1-r)
+show('Sn = ', Sn)
+L = limit(Sn,n=oo)
+print('L = limit(Sn,n=oo) =', L)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{GeometricDiverg}
+ \begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{/GeometricDiverg.png}
+\caption{Divergent geometric series}
+\label{GeometricDiverg}       % Give a unique label
+\end{image}
+
+The example below illustrates the use of geometric series in representing repeated pattern decimal as a ratio of integers.
+For example:
+$$4.112121212... = 4.1 + \frac{12}{10^3} +\frac{12}{10^5} +\frac{12}{10^7} + ...= $$
+$$ 4.1 + \frac{\frac{12}{10^3}}{1-\frac{1}{10^2}} = 4.1 + \frac{12}{990} =  \frac{1357}{330} $$
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+var('n')
+SumInf = 41/10 + sum(12/1000*(1/100)^n,n,0,oo)
+show('SumInf = ',SumInf)
+a = 12/1000;  r = 1/100;
+Sn = a*(1-r^n)/(1-r)
+show('Sn = ', Sn)
+L = limit(Sn,n=oo)
+show('L = 4.1 + limit(Sn,n=oo) =', 41/10 + L)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{GeomDecimal}
+ \begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{/GeomDecimal.png}
+\caption{Decimal Series}
+\label{GeomDecimal}       % Give a unique label
+\end{image}
+
+
+Geometric progressions are used extensively in the computations of annuities, mortgages, etc.   For example, the future value of an annuity is the sum of future values of all $n$ payments each of size $R$.
+$$ S = R + R(1+r) + R(1+r)^2 + ... +R(1+r)^{n-1} = $$
+$$ R \frac{1-(1+r)^n}{1-(1+r)} =  R \frac{(1+r)^n-1}{r} $$
+Analogously, the present value of this annuity is:
+$$ A = R(1+r)^{-1} + R(1+r)^{-2} +  ... + R(1+r)^{-n} = $$
+$$ R(1+r)^{-1} \left(1 + R(1+r)^{-1} + R(1+r)^{-2} + ... + R(1+r)^{-(n-1)}\right) = $$
+$$R(1+r)^{-1} \left( \frac{1-(1+r)^{-n}}{1-(1+r)^{-1}} \right)= R\left( \frac{1-(1+r)^{-n}}{1+r-1} \right) =  R\left( \frac{1-(1+r)^{-n}}{r} \right) $$
+From this formula, we can find the periodic payment amount \($R$\) needed to cover the mortgage.
+$$  R = \frac{Ar}{1-(1+r)^{-n}}$$For example, suppose a mortgage of 200000 is given for 30 years at an annual interest rate of 5\%.   The SageMath calculation below shows all the steps to find the monthly payments, future value, and the interest collected.  Note that the interest is more than 1/2 of the present value (the amount owed).
+
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+A = 200000 # mortgage amount
+k = 12 # number of compoundings (monthly)
+t = 30 # number of years
+r_year = 0.05 # yearly interest
+r = r_year/k # interest rate per period
+n = t*k # number of compoundings
+R = A*r / (1 - (1+r)^(-n))  # periodic payment
+S = R*((1+r)^n - 1)/r  # Future value of annuity
+show('Mortgage for {:.1f} years, yearly interest =  {:.3f}'.format(t,r_year))
+show(' compounded {:d} times/year, per period interest = {:.5f}' \
+     .format(k,r))
+show(' total number of compoundings = {:d}'.format(n))
+show('payment per period = R = {:.2f} '.format(R))
+show('Future value of this annuity = S = {:.2f}'.format(S))
+show('Total payments = n*R = {:.2f}'.format(n*R))
+show('Total interest paid = {:.2f}'.format(n*R-A))
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Annuity}
+ \begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{/Annuity.png}
+\caption{Annuity}
+\label{Annuity}       % Give a unique label
+\end{image}
+
+
+
+
+
+
+
+
+
+
+
+\section{Integral Test and $p$-series}  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+SageMath can be used to investigate convergence/divergence of p\-series and integral tests.     For example, for the infinite sum
+$$ \sum_1^{\infty} \frac{1}{n^2} \Rightarrow \ \ \ \ \ \ \int_1^{\infty} \frac{1}{n^2}dn = lim_{b \rightarrow \infty}  \int_1^{b} \frac{1}{n^2}dn = $$
+$$lim_{b \rightarrow \infty} \left( -\frac{1}{n} \right)_1^{b} = lim_{b \rightarrow \infty} \left( -\frac{1}{b} +1 \right) = 1$$
+Analogously, 
+$$ \sum_1^{\infty} \frac{1}{n^3}  \Rightarrow \ \ \ \ \ \  \int_1^{\infty} \frac{1}{n^3}dn =  lim_{b \rightarrow \infty} \int_1^{b} \frac{1}{n^3}dn = $$
+$$ lim_{b \rightarrow \infty}  \left( \frac{1}{(-2)n^2} \right)_1^{b} = lim_{b \rightarrow \infty}  \left( -\frac{1}{2b^2} + \frac{1}{2}\right)  = \frac{1}{2}$$
+Moreover, SageMath can give the answers for infinite sums, but usually only numerically as the exact answer involves special functions from Mathematical Physics, etc.   We can confirm that the series sum is not the same as the integral, however, the convergence/divergence can be inferred.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset();   var('n,b');  a = 1
+f(n) = 1/n^2
+S = sum(f(n),n,a,oo); show('S = ', S)
+F(n) = integrate(f(n),n)
+show('f(n) = ',f(n), ' after integration = ', F(b) - F(a))
+show(' its limit at b = infinity, is = ', limit(F(b)-F(a),b=oo))
+show('Direct integration = ', integrate(f(n),n,a,infinity))
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{IntTest1}
+ \begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{/IntTest1.png}
+\caption{Integral test $\frac{1}{n^2}$}
+\label{IntTest1}       % Give a unique label
+\end{image}
+
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset();   var('n,b');  a = 1
+f(n) = 1/n^3
+S = sum(f(n),n,a,oo); show('S = ', S)
+F(n) = integrate(f(n),n)
+show('f(n) = ',f(n), ' after integration = ', F(b) - F(a))
+show(' its limit at b = infinity, is = ', limit(F(b)-F(a),b=oo))
+show('Direct integration = ', integrate(f(n),n,a,infinity))
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{IntTest2}
+ \begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{/IntTest2.png}
+\caption{Integral test  $\frac{1}{n^3}$}
+\label{IntTest2}       % Give a unique label
+\end{image}
+
+
+The next sum is divergent, so to avoid a very lengthy "failure trace call" output, we commented out SageMath commands computing sum or integral directly.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset();   var('n,b');  a = 1
+f(n) = n/(1+n^2)
+# S = sum(f(n),n,a,oo); show('S = ', S)
+F(n) = integrate(f(n),n)
+show('f(n) = ',f(n), ' after integration = ', F(b) - F(a))
+show(' its limit at b = infinity, is = ', limit(F(b)-F(a),b=oo))
+# show('Direct integration = ', integrate(f(n),n,a,infinity))
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{IntTest3}
+ \begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{/IntTest3.png}
+\caption{Divergent series}
+\label{IntTest3}       % Give a unique label
+\end{image}
+
+
+The next sum converges, but the sum is represented by a special function, so we compute it numerically via $N()$.  This example also illustrates that the series and the corresponding integral do not converge to the same limit.
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset();   var('n,b');  a = 0
+f(n) = 1/(1+n^2)
+S = N(sum(f(n),n,a,oo)); show('S = ', S)
+F(n) = integrate(f(n),n)
+show('f(n) = ',f(n), ' after integration = ', F(b) - F(a))
+show(' its limit at b = infinity, is = ', limit(F(b)-F(a),b=oo))
+show('Direct integration = ', N(integrate(f(n),n,a,infinity)))
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{IntTest4}
+ \begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{/IntTest4.png}
+\caption{Convergent $\frac{1}{1+n^2}$}
+\label{IntTest4}       % Give a unique label
+\end{image}
+
+
+
+The next sum is a divergent logarithm, so we commented out direct computations to avoid a very lengthy output once again.
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset();   var('n,b');  a = 2
+f(n) = 1/(n*log(n))
+# S = sum(f(n),n,a,oo); show('S = ', S)
+F(n) = integrate(f(n),n)
+show('f(n) = ',f(n), ' after integration = ', F(b) - F(a))
+show(' its limit at b = infinity, is = ', limit(F(b)-F(a),b=oo))
+# show('Direct integration = ', integrate(f(n),n,a,infinity))
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{IntTest5}
+ \begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{/IntTest5.png}
+\caption{Divergent  $\frac{1}{nlog(n)}$}
+\label{IntTest5}       % Give a unique label
+\end{image}
+
+
+
+
+
+
+\section{Comparison Tests}  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+The SageMath cell below shows a simple case where $a_n = \frac{1}{2^n+1} < \frac{1}{2^n} =b_n, \ \ \ n = 0, 1, 2, ... $ (confirmed by a graph).   The terms $\{b_n\}$ form a convergent geometric series with $r=\frac{1}{2}<1$.  Therefore, by a Direct Comparison, the series $\{a_n\}$ is convergent as well, though not to the same limit, but rather something less.    In this case, SageMath computation of the infinite sum of $\{a_n\}$ fails, so instead the sum of the first 100 terms is computed.  That should be very accurate as the terms decay exponentially.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset();  var('n');  a(n)=1/(2^n+1);  b(n)=1/2^n;
+SumInf = sum(b(n),n,0,oo)
+a0 = 1;  r = 1/2;
+Sn = a0*(1-r^n)/(1-r)
+show('Sn = ', Sn)
+L = limit(Sn,n=oo)
+show('SumInf = ',SumInf, '  L = limit(Sn,n=oo) =', L)
+show('Approximate sum of an =', sum(a(n),n,0.0,100))
+plot1 = plot(a(n),(n,0,10), ymin=0, ymax=1, legend_label= "a(n)",
+             figsize = (4,3), color='red', gridlines=True)
+plot2 = plot(b(n),(n,0,10), ymin=0, ymax=1, legend_label= "b(n)",
+             color='blue', gridlines=True)
+plot_all = plot1 + plot2; plot_all.show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Comparison1}
+ \begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{/Comparison1.png}
+\caption{Comparison test of $\frac{1}{2^n+1}$}
+\label{Comparison1}       % Give a unique label
+\end{image}
+
+
+The next example illustrates an opposite kind of comparison that requires some careful thought.   The  $a_n = \frac{1}{\sqrt{n}+3} < \frac{1}{\sqrt{n}} =b_n, \ \ \ n = 0, 1, 2, ... $.  However, this comparison is not helpful since the series $\{b_n\}$ diverges, which gives no information about the smaller series $\{a_n\}$.  Instead, we use a plot or numerical evidence to confirm that $a_n = \frac{1}{\sqrt{n}+3} > \frac{1}{n} =b_n, \ \ \ n = 6, 7, 8, ... $.  
+The series $\{b_n\}=\{\frac{1}{n}\}$ is a classic divergent harmonic series. Therefore, by a Direct Comparison, the series $\{a_n\}$ diverges as well.  The first few terms that fail the inequality do not affect the answer since they add up to a finite number in any case. Note, that SageMath computes a finite sum of many $\{a_n\}$ terms below and it is still not too large (diverges very slowly), but it is guaranteed to diverge in the long run in any case.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset();  var('n');  a(n)=1/(sqrt(n)+3);  b(n)=1/n;
+show('Approximate sum of an =', sum(a(n),n,0.0,10000))
+plot1 = plot(a(n),(n,0,10), ymin=0, ymax=1, legend_label= "a(n)",
+             figsize = (4,3), color='red', gridlines=True)
+plot2 = plot(b(n),(n,0,10), ymin=0, ymax=1, legend_label= "b(n)",
+             color='blue', gridlines=True)
+plot_all = plot1 + plot2; plot_all.show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Comparison2}
+ \begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{/Comparison2.png}
+\caption{Comparison test of  $\frac{1}{\sqrt{n}+3}$}
+\label{Comparison2}       % Give a unique label
+\end{image}
+
+
+The Limit Comparison Test is a lot more versatile.  It is very useful for series with rational terms.   For example, in the series below, if we disregard all but the highest powers of $n$ in the numerator and denominator, we obtain  $\sum_1^\infty \frac{1}{n^3}$ series, which satisfies limit condition.
+$$ \sum_1^\infty \frac{n^2+10}{4n^5+n^3} \ \ \ \ \ \ \ \  lim_{n \rightarrow \infty} \frac{ \frac{n^2+10}{4n^5+n^3} }{\frac{1}{n^3}} =lim_{n \rightarrow \infty} \frac{n^5+10n^3}{4n^5+n^3}  =\frac{1}{4}  \ne 0 \ or \ \infty $$
+The $\sum_1^\infty \frac{1}{n^3}$ is a $p$-series with $p=3>1$,  so it converges, which implies that the original series converges as well.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset();  var('n');  a(n)=(n^2+10)/(4*n^5+n^3);  b(n)=1/n^3;
+show('Limit of a ratio of given and equivalent function:')
+show('limit(a(n)/b(n),n=oo) = ', limit(a(n)/b(n),n=oo))
+show('Approximate sum of an =', sum(a(n),n,1.0,100000))
+plot1 = plot(a(n),(n,1,10), ymin=0, ymax=0.01, legend_label= "a(n)",
+             figsize = (4,3), color='red', gridlines=True)
+plot2 = plot(b(n),(n,1,10), ymin=0, ymax=0.01, legend_label= "b(n)",
+             color='blue', gridlines=True)
+plot_all = plot1 + plot2; plot_all.show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Comparison3}
+ \begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{/Comparison3.png}
+\caption{Comparison test of  $\frac{n^2+10}{4n^5+n^3}$}
+\label{Comparison3}       % Give a unique label
+\end{image}
+
+
+
+Analogously, let's consider a ratio with a square root.
+$$ \sum_1^\infty \frac{n^2+10}{\sqrt{4n^5+n^3}} \ \ \ \ \ \ \ \  lim_{n \rightarrow \infty} \frac{ \frac{n^2+10}{\sqrt{4n^5+n^3}} }{\frac{1}{n^{1/2}}} =lim_{n \rightarrow \infty} \frac{n^{5/2}+10n^{1/2}}{\sqrt{4n^5+n^3}}  =\frac{1}{2}  \ne 0 \ or \ \infty $$
+The $\sum_1^\infty \frac{1}{n^{1/2}}$ is a $p$-series with $p=\frac{1}{2}<1$, so it diverges, which implies that the original series diverges as well.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset();  var('n');  a(n)=(n^2+10)/sqrt(4*n^5+n^3);  b(n)=1/n^(1/2);
+show('Limit of a ratio of given and equivalent function:')
+show('limit(a(n)/b(n),n=oo) = ', limit(a(n)/b(n),n=oo))
+show('Approximate sum of an =', sum(a(n),n,1.0,100000))
+plot1 = plot(a(n),(n,1,10), legend_label= "a(n)",
+             figsize = (4,3), color='red', gridlines=True)
+plot2 = plot(b(n),(n,1,10), legend_label= "b(n)",
+             color='blue', gridlines=True)
+plot_all = plot1 + plot2; plot_all.show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Comparison4}
+ \begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{/Comparison4.png}
+\caption{Comparison test of  $\frac{n^2+10}{\sqrt{4n^5+n^3}}$}
+\label{Comparison4}       % Give a unique label
+\end{image}
+
+
+
+A more complicated example is shown below with both power and exponential functions.
+$$ \sum_1^\infty \frac{n^6 \ln(n)+n^2 3^n}{5n^2 4^n+n^6} \ \ \ \ \ \ \ \  lim_{n \rightarrow \infty} \frac{\frac{n^6\ln(n)+n^2 3^n}{5n^2 4^n+n^6} }{\left( \frac{3}{4} \right)^n} =\frac{1}{5}  \ne 0 \ or \ \infty $$
+The $\sum_1^\infty \left( \frac{3}{4} \right)^n$ is a geometric series with $r=\frac{3}{4}<1$, so it converges, which implies that the original series converges as well.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset();  var('n');  
+a(n)=(n^6*log(n)+n^2*3^n)/(5*n^2*4^n+n^6);  b(n)=(3/4)^n;
+show('Limit of a ratio of given and equivalent function:')
+show('limit(a(n)/b(n),n=oo) = ', limit(a(n)/b(n),n=oo))
+show('Approximate sum of an =', sum(a(n),n,1.0,500))
+plot1 = plot(a(n),(n,1,30), ymin=-0.01, ymax=1, legend_label= "a(n)",
+             figsize = (4,3), color='red', gridlines=True)
+plot2 = plot(b(n),(n,1,30), ymin=-0.01, ymax=1, legend_label= "b(n)",
+             color='blue', gridlines=True)
+plot_all = plot1 + plot2; plot_all.show()
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Comparison5}
+ \begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{/Comparison5.png}
+\caption{Comparison test of  $\frac{n^6 \ln(n)+n^2 3^n}{5n^2 4^n+n^6}$}
+\label{Comparison5}       % Give a unique label
+\end{image}
+
+
+
+
+
+
+
+\section{Alternating Series Test}  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+For an alternating series $\sum_1^\infty (-1)^{n+1} a_n  \ \ \ (a_n>0)$, the only requirements for convergence are the general $lim_{n \rightarrow \infty} a_n = 0$ and monotone decrease of the $a_n$ terms that can be confirmed by computing first derivative.   The standard example of such alternating series is $\sum_1^\infty \frac{(-1)^{n+1}}{n}$.  The derivative $\left( \frac{1}{n} \right)' =-\frac{1}{n^2}<0, \ \ n = 1,2,... $ ensuring monotone decrease and $lim_{n \rightarrow \infty} \frac{1}{n} = 0$.   On the other hand, without the alternation, $\sum_1^\infty \frac{1}{n}$ is a divergent p-series with $p=1$, so it is only conditionally convergent, \emph{not absolutely convergent}.   The SageMath cell below illustrates the graph of the positive terms, checks that derivative is always negative, and the limit being 0.   In addition, in this case, the exact sum can be computed.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset();  var('n');  a(n)=1/n;
+ap(n) = derivative(a(n),n)
+show('series terms = a(n) = ',a(n))
+show('  their derivatives = ', ap(n))
+show('limit(a(n),n=oo) = ',limit(a(n),n=oo))
+show('Exact sum of an =', sum((-1)^(n+1)*a(n),n,1.0,oo))
+plot(a(n),(n,1,100), ymin=-0.01, ymax=0.1, legend_label= "a(n)",
+             figsize = (4,3), color='red', gridlines=True)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Alternate1}
+ \begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{/Alternate1.png}
+\caption{Alternating series of  $\frac{(-1)^n}{n}$}
+\label{Alternate1}       % Give a unique label
+\end{image}
+
+
+
+The next sum has slightly more complex rational function terms:  $\sum_1^\infty \frac{(-1)^{n+1}2n^2}{n^3+3}$.   The SageMath cell shows that the derivative stays negative for $n \ge 2$ and the $a_n$ function graph has a quick maximum and then decreases monotonically.   This is not an issue as any number of first terms sums up to a finite value anyway, only the long-term behavior as $n \rightarrow \infty$ matters.  The exact sum has an artifact of practically negligible imaginary part due to special function computation behind the scenes and can be ignored. Note that the equivalent highest power function is $\frac{1}{n}$ which is a divergent p-series, so this series is only conditionally convergent, not absolutely convergent.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset();  var('n');  a(n)=2*n^2/(n^3+3);
+ap(n) = factor(derivative(a(n),n))
+show('series terms = a(n) = ',a(n))
+show('  their derivatives = ', ap(n))
+show('limit(a(n),n=oo) = ',limit(a(n),n=oo))
+show('Exact sum of an =', N( sum((-1)^(n+1)*a(n),n,1.0,oo) ))
+plot(a(n),(n,1,100), ymin=-0.01, ymax=1, legend_label= "a(n)",
+             figsize = (4,3), color='red', gridlines=True)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Alternate2}
+ \begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{/Alternate2.png}
+\caption{Alternating series of  $\frac{(-1)^n 2n^2}{n^3+3}$}
+\label{Alternate2}       % Give a unique label
+\end{image}
+
+
+In a convergent alternating series, the remainder is bound by the first neglected term.  This allows us to specify the accuracy of approximating the alternating series with a finite number of terms.   For example, $\sum_1^\infty \frac{(-1)^{n+1}}{n!}$ is a convergent alternating series with quickly decaying factorial terms.  The SageMath cell below approximates it using the first 7 terms and finds the accuracy bound.  We check that the exact error is below the first neglected term and find the bounds as the approximation plus/minus the bound.    Then, the opposite question is asked \- how many terms are needed to achieve a desired error $\epsilon = 0.0001$?  The SageMath code uses a while loop to find the term at which the error bound falls below $\epsilon$.
+
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset();  var('n');  a(n)=1/factorial(n); n1 = 7;
+show('series terms = a(n) = ',a(n),' # of terms n1 = ',n1)
+print('limit(a(n),n=oo) = ',limit(a(n),n=oo))
+Sexact = N( sum((-1)^(n+1)*a(n),n,1,oo) )
+Sapprox = N( sum((-1)^(n+1)*a(n),n,1,n1) )
+print('Sexact =',Sexact, '  Sapprox = ', Sapprox)
+ExactErr = abs(Sapprox - Sexact)
+NextTerm = N( a(n1+1) )
+print('ExactErr = ',ExactErr, '  NextTerm = ',NextTerm)
+L = Sapprox - NextTerm;  R = Sapprox + NextTerm;
+print('The bounds are: ', L, R)
+
+print('-------------------------------------------')
+j = 0;  eps = 1e-4; aj = 1000;
+print('How many terms needed to achieve error = eps = {:.3e}'
+      .format(eps))
+while ( aj >= eps ): 
+    j = j + 1
+    aj = a(j)
+    
+n1 = j    
+print('To achieve error = eps = {:.3e}, need # terms = {:d}'.
+      format(eps,n1))    
+Sapprox = N( sum((-1)^(n+1)*a(n),n,1,n1) )
+print('Sexact =',Sexact, '  Sapprox = ', Sapprox)
+ExactErr = abs(Sapprox - Sexact)
+NextTerm = N( a(n1+1) )
+print('ExactErr = ',ExactErr, '  NextTerm = ',NextTerm)
+L = Sapprox - NextTerm;  R = Sapprox + NextTerm;
+print('The bounds are: ', L, R)
+
+plot(a(n),(n,1,10), ymin=-0.01, ymax=1, legend_label= "a(n)",
+             figsize = (4,3), color='red', gridlines=True)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Alternate3}
+ \begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{/Alternate3.png}
+\caption{Alternating accuracy}
+\label{Alternate3}       % Give a unique label
+\end{image}
+
+
+
+
+
+
+
+
+
+
+\section{Ratio Test}  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+The ratio test applies effectively to exponential and factorial-type terms.  SageMath can be used to simplify the ratio of subsequent to previous terms and find the limit of the resulting expression.  For example:
+$$ \sum_{n=0}^\infty \frac{2^n}{n!} \ \ \ \ \ Ratio = \frac{\frac{2^{n+1}}{(n+1)!} }{\frac{2^n}{n!} } =   \frac{2^{n+1}n!}{2^n(n+1)! } =  \frac{2}{n+1 }\rightarrow 0 < 1$$
+The limit ratio is below one, so the series converges.
+
+
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+def ratio_test(n,a):
+    show('series terms = a(n) = ',a(n))
+    show('limit(a(n),n=oo) = ',limit(a(n),n=oo))
+    Ratio = (a(n+1)/a(n)).full_simplify()
+    R = limit(Ratio,n=oo)
+    show('Ratio = ', Ratio,'  limit(Ratio,n=0) = ',R)
+    Sexact = N( sum(a(n),n,0,oo) )
+    show('Sexact =',Sexact)
+    show(plot(a(n),(n,1,20),color='red', figsize = (4,3), gridlines=True))
+    
+a(n)=2^n/factorial(n); 
+ratio_test(n,a)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Ratio1}
+ \begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{/Ratio1.png}
+\caption{Ratio Test for  $\frac{2^n}{n!}$}
+\label{Ratio1}       % Give a unique label
+\end{image}
+
+
+In the example below, there is a polynomial part of the term and exponential part.  The polynomial part leads to the limit ratio 1, so the ratio test is not useful for such terms, but the exponential terms overpower the polynomial ones. 
+$$ \sum_0^\infty \frac{(n^3-2n)5^{n+2}}{7^n} \ \ \ \ \ Ratio = \frac {\frac{((n+1)^3-2(n+1))5^{n+3}}{7^{n+1}} }{ \frac{(n^3-2n)5^{n+2}}{7^n} } = $$
+$$\frac{5((n+1)^3-2(n+1))}{7(n^3-2n) } \rightarrow  \frac{5}{7}< 1$$
+Once again, the ratio converges to a limit below 1, so it converges.   The SageMath is helpful in simplifying the ratio and finding the limit.
+
+
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+a(n) = (n^3-2*n)*5^(n+2)/7^n;
+ratio_test(n,a)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Ratio2}
+ \begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{/Ratio2.png}
+\caption{Ratio Test for  $\frac{(n^3-2n)5^{n+2}}{7^n}$}
+\label{Ratio2}       % Give a unique label
+\end{image}
+
+
+
+The example below deals with factorials.   
+$$ \sum_0^\infty \frac{(n!)^2}{(3n)!} \ \ \ \ \ Ratio = \frac{ \frac{((n+1)!)^2}{(3(n+1))!}}{  \frac{(n!)^2}{(3n)! } }= \frac{(n+1)!(n+1)!(3n)!}{ n!n!(3n+3)!} =$$
+$$\frac{(n+1)^2}{(3n+1)(3n+2)(3n+3) } \rightarrow 0< 1$$
+Once again, the ratio converges to a limit below 1, so it converges.   The SageMath calculation simplifies the factorials very well too.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+a(n) = factorial(n)^2/factorial(3*n); 
+ratio_test(n,a)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Ratio3}
+ \begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{/Ratio3.png}
+\caption{Ratio Test for  $\frac{(n!)^2}{(3n)!}$}
+\label{Ratio3}       % Give a unique label
+\end{image}
+
+
+
+
+
+
+
+
+
+\section{Taylor Series}  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+In the next cell, a somewhat longer SageMath code is presented to illustrate the Taylor (Maclaurin) series. We create a SageMath function that requires as arguments the function under consideration, the point of interest ($c$), the order of the series ($n$), and the range of the approximation ($dx$).   Initially, the Taylor polynomial is set to be just the value of the function at $c$: $P(x)=f(c)$.  Then, in the for loop, derivatives, their values at $c$, and the corresponding Taylor coefficient $a_j = \frac{f^{(j)}(c)}{j!}$ are found for all desired orders.  In each step of the loop, the Taylor polynomial is updated with a new term, and a corresponding plot is added.   In addition, $\text{f(x).taylor(x,c,n)}$ computes the Taylor series in one step.   The approximations of each order of polynomial at nearby point $c+dx$ are calculated as well.  It becomes better with higher-order Taylor polynomials.  However, Taylor approximation is inherently local and the approximation becomes much worse or irrelevant as we get away from the base point $c$.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset()
+def taylor_series(x,f,c,n,dx):
+    fd(x) = f(x); 
+    P(x) = f(c)
+    show('j = 0', ' , j-th diff = ',f(x),
+         ' , j-th diff at c = ', f(c), ' , coeff = ', f(c))
+    p1 = plot(f(x),(x,c-1,c+1),legend_label= "f(x)", 
+              figsize = (4,3), color='red', gridlines=True)
+    colors = ['red','green','blue','purple','black','maroon','lime']
+    approx = [f(c)]
+    for j in range(1,n+1):
+        fd(x) = derivative(fd(x),x)
+        ac = fd(c)/factorial(j)
+        P(x) = P(x) + ac*(x-c)^j
+        approx.append(N(P(c+dx)))
+        show('j = ', j, ' , j-th diff = ',fd(x),
+         ' , j-th diff at c = ', fd(c), ' , coeff = ', ac)
+        p1 = p1 + plot(P(x),(x,c-1,c+1),color=colors[j],
+              legend_label= f"{'P'},{str(j)}", gridlines=True)
+    show('Taylor series = ',f(x).taylor(x,c,n))
+    print('Polynomial approximations at ',c+dx,' are given by: ')
+    print('approx = ', approx[0:4])
+    print('       = ', approx[4:n+1])
+    print('Compare to exact value f(',c+dx,') = ',N(f(c+dx)))
+    p1.show()      
+    
+f(x) = e^(-3*x); c = 0; n = 5; dx = 0.05;
+taylor_series(x,f,c,n,dx)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Taylor1}
+ \begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{/Taylor1.png}
+\caption{Taylor series $e^{-3x}$}
+\label{Taylor1}       % Give a unique label
+\end{image}
+
+
+In the SageMath code below, we apply the same code to $f(x) = \ln(x)$ at $c=1$.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+f(x) = log(x); c = 1; n = 5; dx = 0.05
+taylor_series(x,f,c,n,dx)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Taylor2}
+ \begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{/Taylor2.png}
+\caption{Taylor series $ln(x)$}
+\label{Taylor2}       % Give a unique label
+\end{image}
+
+
+
+Similarly, for $f(x)=\cos(x)$ with $c=0$, the Taylor series computation is shown below.  However, all odd derivatives and corresponding coefficients and terms are 0.   Analogously, for $f(x)=\sin(x)$ at $c=0$, all even terms are 0.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+f(x) = cos(x); c = 0; n = 6; dx = 0.05
+taylor_series(x,f,c,n,dx)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Taylor3}
+ \begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{/Taylor3.png}
+\caption{Taylor series $\cos(x)$}
+\label{Taylor3}       % Give a unique label
+\end{image}
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+f(x) = sin(x); c = 0; n = 6; dx = 0.05
+taylor_series(x,f,c,n,dx)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Taylor4}
+ \begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{/Taylor4.png}
+\caption{Taylor series $\sin(x)$}
+\label{Taylor4}       % Give a unique label
+\end{image}
+
+
+On the other hand, the same $f(x)=\sin(x)$ expanded around $c=\frac{\pi}{3}$ has all the terms:
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+f(x) = sin(x); c = pi/3; n = 4; dx = 0.05
+taylor_series(x,f,c,n,dx)
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Taylor5}
+ \begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{/Taylor5.png}
+\caption{Taylor $\sin(x)$ at $\frac{\pi}{3}$}
+\label{Taylor5}       % Give a unique label
+\end{image}
+Note that SageMath simplified the Taylor polynomial algebraically by rewriting expressions involving \(x-\pi/3\) in an equivalent form such as \(\pi-3x\).  
+
+
+
+In the problem below, we return to $\cos(x)$ series, but in addition, illustrate Taylor series bound computation.
+$$ f(x) =f(c) + f'(c)(x-c) +\frac{f''(c)}{2!}(x-c)^2 + ... + \frac{f^{(n)}(c)}{n!}(x-c)^n + R_n(x) $$
+$$ R_n(x) = \frac{f^{(n+1)}(z)}{(n+1)!}(x-c)^{n+1}  \ \ \ \ \ \ |R_n(x)| \le  \frac{max|f^{(n+1)}(z)|}{(n+1)!}|x-c|^{n+1}$$
+The residual $R_n(x)$ looks exactly like the next term of the Taylor series, but is evaluated at an unknown point z.    For $\sin(x)$ and $\cos(x)$ any order derivative is also $\sin/\cos$, which are always bounded by 1.  This simplifies the bound computation.  In a more general case, the maximum of the $n+1$ order derivative must be found on the approximation interval.   We can also ask the opposite question - how many terms are needed so that the bound is below the given small value (as shown by the while loop below)?   This code could come in the beginning to determine the number of terms needed to achieve the desired accuracy in advance.  In addition, we plot the actual difference between the function and the approximating polynomial.   The `frame = True` has to be used in SageMath to display correctly very small scale.   The plot below shows that the maximum of the higher derivative bound is achieved at the corners.  Note that while we were looking to ensure that the error bound of only $10^{-3}$, the actual error bound in the plot is below $3 \times 10^{-7}$, orders of magnitude lower.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset();  f(x) = cos(x); c =0; dx = 0.05; 
+
+j = 0;  eps = 1e-3; bound = 1000;
+show('Desired error = eps = {:.3e}'.format(eps))
+while ( bound >= eps ): 
+    j = j + 1
+    bound = dx^j/factorial(j)
+    
+n1 = j;   P(x) = taylor(f(x),x,c,n1)
+show('To achieve error = eps = {:.3e}, need # terms = {:d}'.
+      format(eps,n1))  
+show('P(x) = ', P(x))
+fd(x) = derivative(f(x),x,n1+1)
+show(' derivative of order = ', n1+1,' is fd(x) = ',fd(x)) 
+show('Given abs(f(x)-P(x)) plot below, max of this derivative ')
+show(' bound is at the corners, and equal to = ',abs(fd(c+dx)))
+
+plot(abs(f(x)-P(x)),(x,c-dx,c+dx), frame=True, \
+     legend_label = 'abs(f(x)-P(x))', figsize = (4,3))
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Taylor6}
+ \begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{/Taylor6.png}
+\caption{Bounds for $\cos(x)$}
+\label{Taylor6}       % Give a unique label
+\end{image}
+
+
+The problem below applies the same approach to $f(x)=\ln(x)$.   The derivatives cannot be uniformly bounded like $\sin/\cos$, however, we can see the pattern:
+$$ f'(x) = \frac{1}{x} \ \ \ \ \ \ \  f''(x) = \frac{-1}{x^2}  \ \ \ \ \ \ \  f'''(x) = \frac{2}{x^3}$$
+$$  f^{(4)}(x) = - \frac{3!}{x^4} . . . . .  \ \ \ \ \ \ \ f'^{(n)}(x) = \frac{(-1)^{n-1}}{x^n}  $$
+In the neighborhood of $c=1$, these derivatives are all maximized in absolute value at the left bound.   The plot of the difference $|f(x)-P(x)|$ confirms that the maximum is reached at the left bound.  Once again, the actual error bound in the plot is below $2\times 10^{-6}$, which is orders of magnitude lower than the bound of $10^{-3}$ we were computing with.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset(); f(x) = log(x); c =1; dx = 0.05; 
+fd(x) = f(x)
+j = 0;  eps = 1e-3; bound = 1000;
+show('Desired error = eps = {:.3e}'.format(eps))
+while ( bound >= eps ): 
+    j = j + 1
+    fd(x) = derivative(fd(x),x)
+    MaxDf = abs(fd(c-dx))
+    bound = MaxDf*dx^j/factorial(j)
+    
+n1 = j;   P(x) = taylor(f(x),x,c,n1)
+show('To achieve error = eps = {:.3e}, need # terms = {:d}'.
+      format(eps,n1))  
+show('P(x) = ', P(x))
+fd(x) = derivative(f(x),x,n1+1)
+show(' derivative of order = ', n1+1,' is fd(x) = ',fd(x)) 
+show('Given abs(f(x)-P(x)) plot below, max of this derivative ')
+show(' bound is at the left corner, and equal to = ',abs(fd(c-dx)))
+
+plot(abs(f(x)-P(x)),(x,c-dx,c+dx), frame=True, \
+     legend_label = 'abs(f(x)-P(x))', figsize = (4,3))
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Taylor7}
+ \begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{/Taylor7.png}
+\caption{Bounds for $\ln(x)$}
+\label{Taylor7}       % Give a unique label
+\end{image}
+
+
+
+In the SageMath cell below we continue with the above example plotting not only the Taylor polynomial terms but also their absolute difference from the function.  We can see step-by-step improvement in the approximation.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+reset();  f(x) = log(x); c =1; n = 4; fd(x) = f(x); 
+P(x) = f(c); dx = 0.2; 
+show('j = 0', ' , j-th diff = ',f(x),
+     ' , j-th diff at c = ', f(c), ' , coeff = ', f(c))
+p1 = plot(f(x),(x,c-1,c+1),legend_label= "f(x)", 
+          color='red', gridlines=True)
+p2 = plot(abs(P(x)-f(x)),(x,c-dx,c+dx),color='red', gridlines=True,
+ figsize = (4,3),legend_label= 'zero', ymin=0, ymax = 1e-4, frame=True)
+colors = ['red','green','blue','purple','black','silver','lime']
+
+for j in range(1,n+1):
+    fd(x) = derivative(fd(x),x)
+    ac = fd(c)/factorial(j)
+    P(x) = P(x) + ac*(x-c)^j
+    show('j = ', j, ' , j-th diff = ',fd(x),
+     ' , j-th diff at c = ', fd(c), ' , coeff = ', ac)
+    p1 = p1 + plot(P(x),(x,c-1,c+1),color=colors[j], figsize = (4,3),
+          legend_label= f"{'P'},{str(j)}", gridlines=True)
+    p2 = p2 + plot(abs(P(x)-f(x)),(x,c-dx,c+dx),color=colors[j],
+      legend_label= f"{'P'},{str(j)}", gridlines=True, frame=True)
+    
+show('P(x) = ', P(x))
+show('Taylor series = ',f(x).taylor(x,c,n)) 
+p1.show();   p2.show() 
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Taylor8}
+ \begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{/Taylor8.png}
+\caption{Bounds for $\ln(x)$ graphs}
+\label{Taylor8}       % Give a unique label
+\end{image}
+
+
+
+
+
+\section{Power Series}  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+In this section, we consider general power series $\sum a_n (x-c)^n$.   A ratio test can be used to find the radius of convergence and then endpoints are plugged in to obtain numerical series to investigate the endpoints convergence.   For example:
+$$ \sum_{n=1}^\infty  \frac{(-1)^n (x-2)^n}{n} \ \ \ \ \ Ratio = \left| \frac {\frac{(-1)^{n+1} (x-2)^{n+1}}{n+1}}{\frac{(-1)^n (x-2)^n}{n} } \right|= \frac{n}{n+1} |x-2| \rightarrow |x-2|<1 $$
+The inequality $|x-2|<1$ results in $-1<x-2<1 \ \ \ \Rightarrow 1<x<3$.   At the endpoint $x=3$, we obtain $ \sum_{n=1}^\infty  \frac{(-1)^n} {n} $ \- convergent alternating series, while at the endpoint $x=1$,  the series becomes $ \sum_{n=1}^\infty  \frac{(-1)^n (-1)^n} {n} = \sum_{n=1}^\infty  \frac{1} {n}  $ \- divergent p-series.   Therefore the interval of convergence is $(1,3]$.
+
+The SageMath can be used to simplify the ratio of the terms and find the limit.  In addition, we plug in the endpoints.   It needs to be told via \texttt{assume()} commands that $n$ is a positive integer to be able to simplify at the endpoints.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+def power_series(a,n,x,c):
+    assume(n>0); assume(n,'integer')
+    show('series terms = a(n) = ',a(n,x))
+    Ratio = abs((a(n+1,x)/a(n,x))).full_simplify()
+    R = limit(Ratio,n=oo)
+    show('Ratio = ', Ratio,'  limit(Ratio,n=0) = ',R)
+    
+a(n,x)=(-1)^n*(x-2)^n/n;  c = 2    
+power_series(a,n,x,c)  
+show('a(n,1) = ', a(n,1), '  a(n,3) = ', a(n,3))
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Power1}
+ \begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{/Power1.png}
+\caption{Power series (1.3]}
+\label{Power1}       % Give a unique label
+\end{image}
+
+
+A similar computation below for $\sum x^n$ results in both endpoints being divergent series and the interval of convergence is $(-1,1)$.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+a(n,x)=x^n;  c = 0    
+power_series(a,n,x,c)  
+show('a(n,-1) = ', a(n,-1), '  a(n,1) = ', a(n,1))
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Power2}
+ \begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{/Power2.png}
+\caption{Power series (-1.1)}
+\label{Power2}       % Give a unique label
+\end{image}
+
+
+On the other hand, with $n^2$ in the denominator, the series below converges at both endpoints, which results in the interval of convergence $[-1,1]$.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+a(n,x)=x^n/n^2;  c = 0    
+power_series(a,n,x,c)  
+show('')
+show('a(n,-1) = ', a(n,-1), '  a(n,1) = ', a(n,1))
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Power3}
+ \begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{/Power3.png}
+\caption{Power series  $[-1,1]$}
+\label{Power3}       % Give a unique label
+\end{image}
+
+
+
+For the power series below, the radius of convergence is $\frac{1}{3}$ , and only the right endpoint is convergent by alternating series test, while the left endpoint is divergent by p-series ($p=\frac{1}{2}<1$).
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+a(n,x)=(-3)^n*x^n/sqrt(n);  c = 0    
+power_series(a,n,x,c)  
+show('a(n,-1/3) = ', a(n,-1/3).full_simplify(),
+   '  a(n,1/3) = ', a(n,1/3).full_simplify())
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Power4}
+ \begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{/Power4.png}
+\caption{Power series $\frac{1}{\sqrt{n}}$}
+\label{Power4}       % Give a unique label
+\end{image}
+
+
+Finally, the series below for the Bessel function of order 0 has an infinite radius of convergence.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+a(n,x)=(-1)^n*x^(2*n)/(2^(2*n)*factorial(n)^2);  c = 0    
+power_series(a,n,x,c)  
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Power5}
+ \begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{/Power5.png}
+\caption{Bessel function}
+\label{Power5}       % Give a unique label
+\end{image}
+
+
+
+In the light of power series calculations above, an important theoretical point about the convergence of any Taylor series (a power series) must be made.  The Taylor series remainder term can be bounded as
+$$ |R_n(x)| \le  \frac{\max|f^{(n+1)}(z)|}{(n+1)!}|x-c|^{n+1} $$
+For $\sin/\cos$ series all derivatives are bound by $1$, but for any function, even fast-growing exponential, $max|f^{(n+1)}(z)|<M$ for fixed z in a given interval.  To prove that the remainder converges to 0 as $n \rightarrow \infty$ for any $x$, we can always bound $|x| \le d$ so that $|z| \le d$ and $\max|f^{(n+1)}(z)|<M$, therefore it is a question of 
+whether $ \lim_{n \rightarrow \infty} M  \ \frac{|x-c|^{n+1}}{(n+1)!} =0 $.  This is true because the factorial grows faster than the exponential function of any fixed base as illustrated in the SageMath cell below for base 10.  It grows to over 2500 initially, but then quickly decays to 0.
+
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+var('n');  n1 = 50
+ratio(n) = 10^n/factorial(n)
+plot(ratio,(n,0,n1), figsize = (4,3))
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Power6}
+ \begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{/Power6.png}
+\caption{Exponential to factorial}
+\label{Power6}       % Give a unique label
+\end{image}
+
+Then we can combine the Ratio test approach of the general power series and the Taylor series remainder argument above to prove the convergence of standard functions Taylor series. For example, consider the Taylor series for $f(x) = e^x$:
+$$ e^x = 1 + x + \frac{x^2}{2!}+ \frac{x^3}{3!}+ ... = \sum_{n=0}^\infty \frac{x^n}{n!} $$
+$$ Ratio = \left| \frac{ \frac{x^{n+1}}{(n+1)!}}{ \frac{x^n}{n!}} \right|= \frac{|x|}{n+1}  \rightarrow 0<1 \ \ \text{ for any } \ x $$By the ratio test above, it converges for any $x$.   All derivatives of  $f(x) = e^x$ are $e^x$ and for fixed $|x|<d$ they are bounded by $e^d$, therefore the remainder
+$$ |R_n(x)| \le  \frac{max|f^{(n+1)}(z)|}{(n+1)!}|x-c|^{n+1} \le e^d \ \frac{|x-c|^{n+1}}{(n+1)!} \rightarrow 0 \ as \ n \rightarrow \infty$$
+Thus, this series in fact converges to $f(x) = e^x$.   The SageMath cell below illustrates Ratio Test computation.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+a(n,x)=x^n/(factorial(n));  c = 0    
+power_series(a,n,x,c)  
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Power7}
+ \begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{/Power7.png}
+\caption{Series Exp/factorial}
+\label{Power7}       % Give a unique label
+\end{image}
+
+
+A known Taylor series can be used to derive other series of composite functions as illustrated the two problems below.  In the SageMath cells below we compute the substitution as well as actual Taylor series for comparison and they are indeed the same.
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+f(x) = sin(x).taylor(x,0,8)
+show(f(x))
+show(f(x^2))
+show(sin(x^2).taylor(x,0,14))
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Power9}
+ \begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{/Power9.png}
+\caption{Series substitution}
+\label{Power9}       % Give a unique label
+\end{image}
+
+
+A power series can be used to approximate a hard to compute integral with term by term integration.   For example: 
+$$ \int \frac{1}{1+x^5}dx = \int \frac{1}{1-(-x^5)}dx = \int  \sum_{n=0}^\infty (-x^5)^n dx = $$
+$$ \int  1- x^5 +x^{10} - x^{15} + ... dx = x - \frac{x^6}{6} + \frac{x^{11}}{11} - \frac{x^{16}}{16} + ....$$
+$$ \int_0^{\frac{1}{2}} \frac{1}{1+x^5}dx =  \left[ x - \frac{x^6}{6} + \frac{x^{11}}{11} - \frac{x^{16}}{16} + ... \right ]_0^{\frac{1}{2}} = \frac{1}{2} -  \frac{1}{2^6 6}+  \frac{1}{2^{11} 11} -  \frac{1}{2^{16} 16} + ... $$
+The resulting series is alternating, so we can approximate the integral and estimate the error by first deleted term.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+f(x) = 1/(1+x^5); a = 0; b = 1/2
+fxT(x) = f(x).taylor(x,0,20)
+FxT(x) = integrate(fxT,x)
+show('fxT(x) = ', fxT(x))
+show('FxT(x) = ',FxT(x))
+Approx = FxT(b) - FxT(a)
+show("Approximate integral = ", N(Approx))
+show("Sage numerical integral = ")
+NumInt = numerical_integral(f, a, b)
+show(NumInt)
+show(' Alternating series error bound = ',N((1/2)^26/26))
+show(' Observed Error = ',abs(Approx - NumInt[0]))
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Power8}
+ \begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{/Power8.png}
+\caption{Term-by-term integration}
+\label{Power8}       % Give a unique label
+\end{image}
+
+
+
+
+
+
+Here is another example of such integral computation: 
+$$ \int e^{-x^2}dx = \int  \sum_{n=0}^\infty (-x^2)^n dx =\int  1- x^2 + \frac{x^4}{2!} - \frac{x^6}{3!} +\frac{x^8}{4!} + ... dx = $$
+$$  x - \frac{x^3}{3} + \frac{x^5}{5 (2!)} - \frac{x^7}{7 (3!)} + \frac{x^9}{9 (4!)}+ ....+ (-1)^n\frac{x^{2n+1}}{(2n+1) (n!)} + ...$$
+$$ \int_0^1e^{-x^2}dx =  \left[ x - \frac{x^3}{3} + \frac{x^5}{5 (2!)} - \frac{x^7}{7 (3!)} + \frac{x^9}{9 (4!)}+... \right ]_0^1 = $$
+$$1 -  \frac{1}{3} + \frac{1}{5 (2!)} - \frac{1}{7 (3!)} +\frac{1}{9 (4!)}... $$
+The resulting series is alternating, so the integral can be approximated and the error is bounded by first deleted term.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+f(x) = e^(-x^2); a = 0; b = 1
+fxT(x) = f(x).taylor(x,0,8)
+FxT(x) = integrate(fxT,x)
+show('fxT(x) = ', fxT(x))
+show('FxT(x) = ',FxT(x))
+Approx = FxT(b) - FxT(a)
+show("Approximate integral = ", N(Approx))
+show("Sage numerical integral = ")
+NumInt = numerical_integral(f, a, b)
+show(NumInt)
+show(' Alternating series error bound = ',N(1/(11*factorial(5))))
+show(' Observed Error = ',abs(Approx - NumInt[0]))
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Power10}
+ \begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{/Power10.png}
+\caption{Series $e^{-x^2}$}
+\label{Power10}       % Give a unique label
+\end{image}
+
+
+
+The Taylor series can also be used to compute L'Hopital\-like limits.  For example:
+$$ \lim_{x \rightarrow 0} \frac{e^x-(1+x+\frac{x^2}{2!})}{x^3}  =$$'
+$$ \lim_{x \rightarrow 0} \frac{(1+x+\frac{x^2}{2!}+\frac{x^3}{3!}+\frac{x^4}{4!}+...)-(1+x+\frac{x^2}{2!})}{x^3} = $$
+$$   \lim_{x \rightarrow 0} \frac{1}{6}+\frac{x}{24}+ ... =\frac{1}{6} .$$
+In the SageMath cell below, we use \texttt{.taylor()} to obtain the Taylor polynomial of the desired order, plug it into the given expression and \texttt{.full\_simplify()} it.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{verbatim}
+f(x) = e^(x)
+fxT(x) = f(x).taylor(x,0,5)
+show('fxT(x) = ', fxT(x))
+g(x) = ((fxT(x) - (1+x+x^2/2))/x^3)
+show('g(x) = ',g(x).full_simplify())
+show('Also direct limit(g(x),x=0) = ', limit(g(x),x=0))
+\end{verbatim}
+\end{programcode}
+The output is shown in Fig \ref{Power11}
+ \begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.65]{/Power11.png}
+\caption{Limit with series}
+\label{Power11}       % Give a unique label
+\end{image}
+
+\end{document}

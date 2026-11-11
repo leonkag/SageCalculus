@@ -1,0 +1,406 @@
+\documentclass{ximera}
+
+\input{../../xmPreamble}
+\author{Leon Kaganovskiy}
+\title{Introduction to SageMath}
+\begin{document}
+\begin{abstract}
+SageMath is an open-source computer algebra system that we will use throughout this course. This preliminary chapter introduces the basic features of SageMath and demonstrates how it can be used to perform symbolic calculations and graphical visualization. The goal is to provide the essential tools needed for the computational work in the chapters that follow.
+\end{abstract}
+\maketitle
+
+%  \begin{image}[15cm] %\sidecaption[t]   remove ch2 etc reference local directory
+
+SageMath is an excellent tool for learning and performing calculus computations. It supports symbolic and numerical calculus, helping students visualize and solve problems related to limits, derivatives, integrals, and series expansions. Here are a few key features of SageMath that can be useful in studying Calculus.  
+
+\begin{itemize}
+\item{Limits: SageMath can compute both finite and infinite limits, making it easy to solve problems involving one-sided limits, limits at infinity, and indeterminate forms.}
+\item{Derivatives: SageMath can compute both symbolic and numeric derivatives, including higher-order derivatives. This is useful when solving problems involving rates of change, optimization, or physics applications like velocity and acceleration.}
+\item{Integrals: You can use SageMath to find both definite and indefinite integrals. SageMath handles symbolic integration exact answers as well as numeric integration approximations for complex functions).}
+\item{Series Expansions: SageMath can compute Taylor series and other power series expansions, which are essential for approximating functions and solving differential equations.}
+\item{Plotting: SageMath’s plotting capabilities allow you to visualize functions, their derivatives, integrals, and critical points, helping you better understand the behavior of mathematical functions.}
+\end{itemize}
+
+
+There are several ways to run SageMath code. One of the easiest options is the online \texttt{SageMathCell} (\url{https://sagecell.sagemath.org/}), which allows users to enter or paste SageMath code directly into a web browser and immediately execute it. The results are displayed below the code, making SageMathCell particularly convenient for short examples, demonstrations, and quick experiments. Its main disadvantage is that the work is not automatically saved as a notebook, so code that needs to be kept for future use must be copied and saved separately.
+
+Another option is \texttt{CoCalc}, an online computational environment that provides access to SageMath through interactive notebooks. Unlike SageMathCell, CoCalc allows users to save notebooks and organize their work, making it more suitable for longer assignments, projects, and teaching. CoCalc offers a limited free account, which is sufficient for basic use. More extensive features and computational resources require a paid account, typically through a modest subscription fee.
+
+For users who prefer to work locally, SageMath can also be installed on some operating systems. Unfortunately, there is no native Windows installation of SageMath. Windows users can instead access SageMath through alternatives such as the Windows Subsystem for Linux (WSL) or use an online service such as SageMathCell or CoCalc. For students who do not need to install software on their own computers, the online options are generally the simplest approach.
+
+For the examples in this book, SageMathCell is often sufficient when we want to demonstrate a short piece of code and immediately examine its output. When a complete notebook needs to be saved and reused, CoCalc provides a more appropriate environment.
+
+
+
+
+
+Let's begin introducing Sage with simple function definition, finding its zeros with \texttt{solve()}, and plotting with \texttt{plot()}.  In addition we show factorization of this function with \texttt{factor()}.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{sageCell}
+f(x) = 4*x^2+9*x-9;  show('f(x) = ', f(x))
+show('factored form = f(x) = ',factor(f(x)))
+sol = solve(f(x)==0,x); show('sol = ', sol)
+plot(f(x),(x,-4,4), figsize=(4, 3), gridlines=True)
+\end{sageCell}
+\end{programcode}
+The output is shown in Fig \ref{ZerosParabola}
+
+\begin{image}[15cm]
+%%\sidecaption[t]
+\includegraphics[scale=.95]{ZerosParabola.png}
+\label{ZerosParabola}       % Give a unique label
+\caption{Zeros of a parabola}
+\end{image}
+
+
+Sage can also represent piecewise functions as shown below.   In many problems, it is necessary to specify ymin and/or ymax to focus on the important parts for the plot.  In this case, ymin = -3 was used to cut it off from below.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{sageCell}
+f = piecewise([((-4,0), 3*x+1), ([0,4], -x^2)]);  
+show('f(x) = ',f(x))
+plot(f(x),(x,-4,4), ymin = -3, figsize=(4, 3), gridlines=True)
+\end{sageCell}
+\end{programcode}
+
+The output is shown in Fig \ref{PiecewisePlot}
+\begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[width=0.9\textwidth]{/PiecewisePlot.png}
+\caption{Piecewise function plot}
+\label{PiecewisePlot}       % Give a unique label
+\end{image}
+
+Plotting helps to illustrate more complex even and odd functions as shown in the SageMath cell below.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{sageCell}
+f(x) = 2*x^3*sqrt(16-x^2); 
+show('odd f(x) = ',f(x))
+p1 = plot(f(x),(x,-4,4),ymin=-200,ymax=200, \
+     figsize=(4, 3), gridlines=True)
+f(x) = 2*x^2*sqrt(16-x^2);
+show('even f(x) = ',f(x))
+p2 = plot(f(x),(x,-4,4),ymin=-100,ymax=100, \
+     figsize=(4, 3),gridlines=True)
+G = graphics_array([[p1, p2]])
+G.show(figsize=[6, 3])
+\end{sageCell}
+\end{programcode}
+The output is shown in Fig \ref{EvenOdd}
+\begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.95]{/EvenOdd.png}
+\caption{Even/Odd function plot}
+\label{EvenOdd}       % Give a unique label
+\end{image}
+
+
+To review an equation of a line, assume that coordinates of two points are given and derive the equation of a line. First, the slope is obtained as vertical change (rise) divided by the horizontal change (run).  Then the point-slope form is used.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{sageCell}
+x1=-3; y1=4;  x2=5;  y2=-3;
+m = (y2-y1)/(x2-x1);  show('slope = ', m)
+y=y1+m*(x-x1); show('equation of the line: ',y)
+plot(y,(x,-4,4), gridlines=True)
+\end{sageCell}
+\end{programcode}
+The output is shown in Fig \ref{LineEq}
+\begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.95]{/LineEq.png}
+\caption{Line Equation}
+\label{LineEq}       % Give a unique label
+\end{image}
+
+SageMath plotting allows superimposing several plots together.   We will use it to illustrate even and odd power functions.
+\begin{programcode}{SageMath Code and Output:}
+\begin{sageCell}
+p1 = plot(x^2,(x,-3,3), ymin=-1, ymax=10, 
+ legend_label= "x^4",color='red', gridlines=True)
+p2 = plot(x^4,(x,-3,3), ymin=-1, ymax=10,
+ legend_label= "x^4",color='green', gridlines=True)
+p3 = plot(x^6,(x,-3,3), ymin=-1, ymax=10, 
+ legend_label= "x^6",color='blue', gridlines=True)
+p4 = plot(x,(x,-3,3), ymin=-5, ymax=5, 
+ legend_label= "x",color='red', gridlines=True)
+p5 = plot(x^3,(x,-3,3), ymin=-5, ymax=5,
+ legend_label= "x^3",color='green', gridlines=True)
+p6 = plot(x^5,(x,-3,3), ymin=-5, ymax=5, 
+ legend_label= "x^5",color='blue', gridlines=True)
+
+G = graphics_array([[p1+p2+p3, p4+p5+p6]])
+G.show(figsize=[6, 3])
+\end{sageCell}
+\end{programcode}
+The output is shown in Fig \ref{PowersSuperimpose}
+\begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.95]{/PowersSuperimpose.png}
+\caption{Power functions graphs superposition}
+\label{PowersSuperimpose}       % Give a unique label
+\end{image}
+
+The figure overlapping is also helpful in illustrating function shifts and reflections step by step: The code below illustrates step by step shifts and reflections in function  $y=f(x)=-\sqrt{3-x}+1$.   It is actually beneficial to represent it as $f(x)=-\sqrt{-(x-3)}+1$, then the horizontal reflection at x = 3 becomes clear.  Then the steps are: shift right 3 units, reflect horizontally, reflect vertically, and finally shift up one unit.   The resulting graph domain is $(-\infty,3]$.  Its range is $(-\infty,1]$.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{sageCell}
+plot1 = plot(sqrt(x),(x,0,6), ymin=-4, ymax=4,figsize=(5, 4), 
+      legend_label= "sqrt(x)",color='red', gridlines=True)
+plot2 = plot(sqrt(x-3),(x,3,6), ymin=-4, ymax=4, 
+      legend_label= "sqrt(x-3)",color='green', gridlines=True)
+plot3 = plot(sqrt(-(x-3)),(x,-6,3), ymin=-4, ymax=4, 
+      legend_label= "sqrt(-(x-3))",color='blue', gridlines=True)
+plot4 = plot(-sqrt(-(x-3)),(x,-6,3), ymin=-4, ymax=4,  
+      legend_label= "-sqrt(-(x-3))",color='purple', gridlines=True)
+plot5 = plot(-sqrt(-(x-3))+1,(x,-6,3), ymin=-4, ymax=4, 
+      legend_label= "-sqrt(-(x-3))+1",color='magenta', gridlines=True)
+plot_all = plot1 + plot2 + plot3 + plot4 + plot5
+plot_all.show()
+\end{sageCell}
+\end{programcode}
+The output is shown in Fig \ref{ShiftReflect}
+\begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.95]{/ShiftReflect.png}
+\caption{Shifts and reflections for square root function}
+\label{ShiftReflect}       % Give a unique label
+\end{image}
+
+
+A SageMath plot can be used to illustrate inverse function computation.   The command \texttt{solve()} is used to invert the function and \texttt{rhs()} is used to extract the right-hand side of the second output in \texttt{sol[1]}.  Note how we restricted the domains of $f(x)$ and $g(x)$ to show the graphs correctly.   We also plotted $y=x$ about which a function and its inverse are always symmetric. 
+\begin{programcode}{SageMath Code and Output:}
+\begin{sageCell}
+reset();   var('x,y')
+f(x) = x^2+1
+sol = solve(x==f(y),y)
+show('sol = ', sol)
+g(x) = sol[1].rhs();
+show('f(x) = ',f(x),' inverse = g(x) = ',g(x))
+p1 = plot(f(x),(x,0,4),legend_label= "f(x)",
+          ymax=4,color='red', gridlines=True)
+p2 = plot(g(x),(x,1,4),legend_label= "g(x)",
+          color='blue', gridlines=True)
+p3 = plot(x,(x,0,4),legend_label= "x",
+          color='green', gridlines=True)
+(p1+p2+p3).show()
+\end{sageCell}
+\end{programcode}
+The output is shown in Fig \ref{InverseFunc}
+\begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.95]{/InverseFunc.png}
+\caption{Inverse function computation and plot}
+\label{InverseFunc}       % Give a unique label
+\end{image}
+
+In the problem below we use SageMath to illustrate a combination of functions.   Assume the number of bacteria in a refrigerated food is given by $B(T)=10T^2 - 75T + 600$, where $T$ is the temperature of the food in degrees Celsius. When the food is removed from a fridge, its temperature is increasing linearly as $T(t)=5t+2$, where $t$ is the time in hours.  The code below computes the function composition to obtain the dependence of the number of bacteria on time and finds the time at which it reaches 5000 bacteria.  The \texttt{.rhs()} method accesses the right-hand side of the solution and \texttt{N()} function finds a numerical approximation to the exact solutions with square roots.   Only the positive time answer has a practical sense.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{sageCell}
+reset()
+B(T) = 10*T^2 - 75*T + 600;   T(t) = 5*t+2;
+show('The composition of functions= ', B(T(t)))
+show(' or expanded: ',expand(B(T(t))) )
+sol = solve(B(T(t))==5000,t); 
+show(sol)
+show('Numerical solution: ', N(sol[1].rhs()) )
+plot([B(T(t)),5000],(t,0,6))
+\end{sageCell}
+\end{programcode}
+The output is shown in Fig \ref{Composition}
+\begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.95]{/Composition.png}
+\caption{Composition of functions and plot}
+\label{Composition}       % Give a unique label
+\end{image}
+
+In the next example we use SageMath to illustrate a problem of maximizing revenue using parabolas.  Suppose a concert hall is charging \$20/ticket and is only partially filled at 10000 seats.   A marketing study suggests that for every \$1 reduction in price, an 800 increase in attendance can be expected.  This leads to revenue function:
+$$R(x) = x(10000+800*(20-x)) = x(10000+16000-800x) = -800x^2  + 26000x   $$
+Which price would maximize revenue?   What is the maximum revenue?
+We use the fact that coordinates of the vertex of a parabola $P(x) = ax^2+bx +c$ are $(h,k) = \left(-\frac{b}{2a}, P \left( -\frac{b}{2a} \right)  \right)$.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{sageCell}
+reset(); a = -800; b = 26000; c = 0; 
+P(x) = a*x^2+b*x+c
+show('Given polynomial P(x) =',P(x))
+h = N(-b/(2*a)); k = P(h);
+print('Vertex (maximum) coordinates h and k')
+print('revenue max k is achieved at price h')
+print('The maximizing price h =',h)
+print('Maximum revenue k =',k)
+print('Roots (x-intercepts), 0 revenue, are: ')
+print(N((-b-sqrt(b^2-4*a*c))/(2*a)),' ', \
+      N((-b+sqrt(b^2-4*a*c))/(2*a)))
+plot(P(x),(x,0,2.1*h), ymin=-10, ymax=1.1*k,
+     figsize=(4, 3), gridlines=True)
+\end{sageCell}
+\end{programcode}
+The output is shown in Fig \ref{ParabolaMax}
+\begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.95]{/ParabolaMax.png}
+\caption{Maximizing revenue, vertex of parabola}
+\label{ParabolaMax}       % Give a unique label
+\end{image}
+
+
+SageMath is very good at showing vertical asymptotes for a rational function.   The \texttt{factor()} function is used to factor the numerator and denominator and \texttt{full\_simplify()} cancels out repeated factor.  The horizontal asymptotes are plotted as well.   Note that even though $x=-2$ is a zero of the denominator, there is no vertical asymptote at $x=-2$ because factor $(x+2)$ cancels out.
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{sageCell}
+reset()
+N(x)=3*x*(x^2-4);   D(x)=2*(x^2-3*x-10)*(x-1);  
+ZerosD = solve(D(x)==0,x); 
+show('ZerosD = ',ZerosD)
+show('factored numerator = ', factor(N(x)))
+show('factored denominator = ', factor(D(x)))
+P(x)=N(x)/D(x); P(x)=P(x).full_simplify()
+show('simplified rational function = ',P(x))
+plot([P(x),3/2],(x,-7,15), ymin=-10, ymax=10, \
+ figsize=(4, 3), color = ['blue','green'],gridlines=True)
+\end{sageCell}
+\end{programcode}
+The output is shown in Fig \ref{Rational}
+\begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.95]{/Rational.png}
+\caption{Rational function}
+\label{Rational}       % Give a unique label
+\end{image}
+
+
+The SageMath plots below illustrate the inverse nature of exponential and logarithmic functions.
+\begin{programcode}{SageMath Code and Output:}
+\begin{sageCell}
+reset()
+a=0; b = 10;  c = -10;  d = 10;
+p1 = plot(2^x,(x,-b,b), ymin=c, ymax=d, figsize = (5,4), \
+  legend_label= "2^x",color='red', gridlines=True)
+p2 = plot(e^x,(x,-b,b), ymin=c, ymax=d, \
+  legend_label= "e^x",color='green', gridlines=True)
+p3 = plot(log(x,2),(x,a,b), ymin=c, ymax=d, \
+  legend_label= "log2(x)",color='blue', gridlines=True)
+p4 = plot(log(x),(x,a,b), ymin=c, ymax=d, \
+  legend_label= "log(x)",color='purple', gridlines=True)
+p5 = plot(x,   (x,-b,b), ymin=c, ymax=d, \
+  legend_label= "x",color='black', gridlines=True)
+(p1+p2+p3+p4+p5).show()
+\end{sageCell}
+\end{programcode}
+The output is shown in Fig \ref{ExpLog}
+\begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.95]{/ExpLog.png}
+\caption{Exponential and log inverses}
+\label{ExpLog}       % Give a unique label
+\end{image}
+
+In the SageMath cell below, we create a function for discrete compounding $A_n(t)=P\left(1+\frac{r}{n} \right)^{nt}$ , where $P$  = principal, $r$ is interest, $t$ is the time in years, and $n$ is the number of compoundings.  The principal and interest rate are specified in advance and we treat $A_n(t)$ as a function of time and the number of compounding.  We investigate yearly, semiannually, quarterly, monthly, and daily compoundings.   We also compare it to the continuous compounding $A(t)=Pe^{rt}$.   The future value increases slightly as the frequency of the compounding increases.   The graphs differ only a little bit.
+
+
+\begin{programcode}{SageMath Code and Output:}
+\begin{sageCell}
+# Discrete compounding, P = principal, r = interest, 
+# t = time in years, n = number of compoundings
+P = 10000; r = 0.05; 
+An(t,n) = P*(1+r/n)^(n*t)  
+show('discrete compounding: ',An(t,n))
+print('10000 invested at 5% for 20 years with ')
+print(' yearly compounding = ', An(20, 1))
+print(' semiannual compounding = ', An(20, 2))
+print(' quarterly compounding = ', An(20, 4))
+print(' monthly compounding = ', An(20, 12))
+print(' daily compounding = ', An(20, 365))
+Ae(t) = P*e^(r*t)  # continuous compounding
+show('continuous compounding: ',Ae(t))
+print('10000 invested at 5% for 20 years with ')
+print('continuous compounding gives: ', Ae(20))
+a=-5; b = 5;  c = -1;  d = 10;
+p1 = plot(An(t,1),(t,0,40), ymin=0, ymax=50000,figsize = (5,4), \
+ legend_label= "An(t,1)",color='red', gridlines=True)
+p2 = plot(An(t,2),(t,0,40), ymin=0, ymax=50000, \
+ legend_label= "An(t,2)",color='green', gridlines=True)
+p3 = plot(Ae(t),(t,0,40), ymin=0, ymax=50000, \
+ legend_label= "Ae(t)",color='blue', gridlines=True)
+(p1+p2+p3).show()
+\end{sageCell}
+\end{programcode}
+The output is shown in Fig \ref{Compoundings}
+\begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.95]{/Compoundings.png}
+\caption{Discrete and continuous compoundings}
+\label{Compoundings}       % Give a unique label
+\end{image}
+
+The SageMath code below illustrates the steps for a standard exponential model example.    There are initially $n_0=500$ bacteria in a Petri dish.   After $t_1=3$ hours, there are $n_1=1000$, which is double the initial number.  First, an exponential model must be derived using the following steps.  
+$$ n = n_0 e^{rt} \ \ \Rightarrow  \ \ n_1 = n_0 e^{rt_1} \ \ \Rightarrow  \ \ $$
+$$\frac{n_1}{n_0} = e^{rt_1} \ \ \Rightarrow  \ \  ln\left(\frac{n_1}{n_0}\right) =rt_1 \ \  \Rightarrow r = \frac{ln(\frac{n_1}{n_0})}{t_1}$$Then, to find the number of bacteria at a later time $t_2=10$, we just plug this time into the model.
+To find the time it takes to reach a predefined number of bacteria $n_3 = 40000$, we solve the model for time:
+$$ n = n_0 e^{rt} \ \ \Rightarrow  \ \ n_3 = n_0 e^{rt_3} \ \ \Rightarrow $$
+$$ \ \frac{n_3}{n_0} = e^{rt_3} \ \ \Rightarrow  \ \  ln\left(\frac{n_3}{n_0}\right) =rt_3 \ \ \Rightarrow  \ \ t_3 = \frac{ln(\frac{n_3}{n_0})}{r}$$
+The SageMath cell below illustrates these computations and plots the exponential growth.  We also show \texttt{find\_root()} numerical approach to find the time when it reaches the specified value.  It is a valuable tool in case an analytical solution is not available or SageMath cannot compute it.
+\begin{programcode}{SageMath Code and Output:}
+\begin{sageCell}
+reset()
+n0=500;  t1=3; n1=1000;  t2=10;  n3=40000
+r = N(log(n1/n0)/t1);   print('r =', r)
+n(t) = n0*e^(r*t) 
+show('Exponential growth model: ',n(t))
+print('After  ', t2 ,' hours, n = ',n(t2))
+
+print('The time n reaches  ', n3 , 
+      ' is ', N( log(n3/n0)/r) )
+soln = find_root(n(t)==n3,0,50); 
+print('numerical approach gives: ', soln)
+
+a=-5; b = 20;  c = -10000;  d = 50000;
+plot1 = plot(n(t),(t,a,b), ymin=c, ymax=d, 
+ legend_label= "n(t)",color='red', gridlines=True)
+plot2 = plot(n1,(t,a,b), ymin=c, ymax=d, 
+ legend_label= "n1",color='green', gridlines=True)
+plot3 = plot(n3,(t,a,b), ymin=c, ymax=d, 
+ legend_label= "n3",color='blue', gridlines=True)
+plot_all = plot1 + plot2 + plot3;   plot_all.show()
+\end{sageCell}
+\end{programcode}
+The output is shown in Fig \ref{ExpModel}
+\begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.95]{/ExpModel.png}
+\caption{Exponential model}
+\label{ExpModel}       % Give a unique label
+\end{image}
+
+Finally, SageMath can deal equally well with trigonometric functions.   As a practical example, let's consider function  $y(t)=70+30\cos \left(\frac{2\pi t}{365}-0.3 \right)$ that
+gives yearly variations of fuel consumption in millions of tons in a small city.   This problem is simpler than the previous one because the $\sin/\cos$ functional dependence is given. Our goal is to identify the average level, amplitude, period, and phase shift.  It is important to set plot bounds to several periods, otherwise it is hard to observe the variation.     The time is measured in days and the peak consumption (phase shift) is naturally in winter around mid-January.
+\begin{programcode}{SageMath Code and Output:}
+\begin{sageCell}
+reset()
+d = 70;  a = 30;  omega = N(2*pi/365);  c = 0.3
+T = N(abs(2*pi/omega)) # period
+print('Average level = d = ', d)
+print('Amplitude = a = ',a)
+print('   Min = ', d-a, '   Max = ', d+a, )
+print('Omega = ',omega, '   Period = ',  T)
+print('c = ',c,'   phase shift = ',c/omega)
+var('t')
+y(t) = d+a*cos(omega*t-c)
+
+plot(y(t),(t,0,2*T), figsize=(5,4), color='blue', gridlines=True) 
+\end{sageCell}
+\end{programcode}
+The output is shown in Fig \ref{TrigModel}
+\begin{image}[15cm]
+%\sidecaption[t]
+\includegraphics[scale=.95]{/TrigModel.png}
+\caption{Trigonometric model}
+\label{TrigModel}       % Give a unique label
+\end{image}
+
+\end{document}
